@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://studytown-focus.jyoza.chatgpt.site'),
   title: 'StudyTown — A cozy focus game',
   description: 'Choose a cozy place, settle in, and focus.',
   openGraph: { title: 'StudyTown', description: 'A cozy focus game', images: [{ url: '/og.png', width: 1730, height: 909 }] },
