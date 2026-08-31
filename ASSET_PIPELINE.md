@@ -1,9 +1,17 @@
 # Asset pipeline
 
-The playable build uses a procedural Three.js kit for efficient runtime instancing/composition and a Blender Python factory for reusable source assets. Blender 4.x is expected at `/Applications/Blender.app/Contents/MacOS/Blender`.
+1. Find the creator's original asset page, not a rehost.
+2. Verify an explicit CC0/public-domain dedication in the page or bundled license. “Free” and “royalty-free” are not enough.
+3. Record creator, URL, verification source, access date, files, modifications, and usage in `ASSET_LICENSES.md` immediately.
+4. Retain the original archive contents under `assets/source_external/<pack>/` with `.gdignore` so Godot does not import source formats.
+5. Copy only chosen game-ready files to `assets/external/<pack>/`.
+6. In Blender, normalize scale (one metre = one world unit), apply transforms, repair normals, set a useful origin, simplify hidden geometry, soften intentional edges, and reshape silhouettes where required.
+7. Replace or consolidate materials into the StudyTown palette. Preserve material differences among wood, fabric, paper, ceramic, glass, foliage, metal, stone, and carpet.
+8. Export GLB with embedded materials. Import in Godot, inspect from the authored camera, then add only necessary collision.
+9. Prefer shared meshes/materials and MultiMesh for dense repeats. Keep hero visual quality before optimization.
+10. Capture an in-game review image. If the asset reads as a foreign pack, normalize it again or remove it.
 
-Run `npm run assets:generate`. It clears a temporary Blender scene, creates bevelled toon-ready meshes at the documented world scale, applies a central palette, and exports individual GLBs to `public/assets/generated/`.
+## Character pipeline
 
-Generated families include three character bases, a full bookcase, reading chair, study desk, garden tree, and train seat pair. Source helpers live in `tools/blender/common/`. Keep origins at sensible placement points: furniture on the floor, character feet at Y=0, and seated props authored against the 0.52-unit seat convention.
+Character 01 establishes proportions, forward axis, part hierarchy, seating dimensions, face construction, clothing volumes, shoes, and animation pivots. Review it front/three-quarter/side/back and in gameplay/seated compositions before deriving variants. Variants keep the same hierarchy and movement/seating math.
 
-When adding an asset, judge it from an elevated gameplay view. A successful export must have a clear silhouette, cohesive colour, enough secondary forms to avoid primitive-box appearance, predictable scale, and no accidental transforms.

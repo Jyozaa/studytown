@@ -1,1 +1,0 @@
-# StudyTown Blender factory helpers.
