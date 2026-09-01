@@ -10,4 +10,8 @@ server/node_modules/
 *.import
 art_reviews/**/*.wav
 art_reviews/**/*0000000?.png
+art_reviews/overhaul/
 .DS_Store
+assets/dev_only_acnh/
+assets/source_external/acnh/
+tools/acnh_import/work/

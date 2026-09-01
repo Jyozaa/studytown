@@ -31,10 +31,12 @@ interact={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":69)]}
 wave={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":70)]}
 menu={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":4194305)]}
 debug_spots={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":4194334)]}
+debug_collision={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":4194335)]}
 debug_focus={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":4194336)]}
 debug_overlay={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":4194337)]}
 
 [layer_names]
 3d_physics/layer_1="World"
 3d_physics/layer_2="Player"
-
+3d_physics/layer_3="NPC"
+3d_physics/layer_4="Interaction"
