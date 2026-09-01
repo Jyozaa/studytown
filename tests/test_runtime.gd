@@ -30,6 +30,13 @@ func _run() -> void:
 	root.add_child(main)
 	await _wait_physics(3)
 	var expected_npcs := [6, 5, 4, 5]
+	var expected_seats := [25, 7, 24, 14]
+	var expected_seat_types := [
+		["desk_chair", "armchair"],
+		["cafe_chair", "desk_chair"],
+		["train_booth"],
+		["desk_chair", "armchair", "floor_cushion"],
+	]
 	for room_index in 4:
 		main.current_room_name = GameState.ROOMS[room_index]
 		main.build_room(room_index)
@@ -39,7 +46,24 @@ func _run() -> void:
 		_check(main.player.global_position.y > -0.25, "Room %d player stays above structural floor" % room_index)
 		_check(main.world_root.get_node_or_null("StructuralFloor") != null, "Room %d has structural floor collider" % room_index)
 		_check(main.npcs.size() == expected_npcs[room_index], "Room %d has target NPC count" % room_index)
-		_check(main.study_spots.size() >= 1, "Room %d has a StudySpot" % room_index)
+		_check(main.study_spots.size() == expected_seats[room_index], "Room %d exposes every authored seat (%d)" % [room_index, expected_seats[room_index]])
+		var seat_ids: Dictionary = {}
+		var occupied_seats := 0
+		var room_seat_types: Dictionary = {}
+		for spot in main.study_spots:
+			_check(not seat_ids.has(spot.seat_id), "Room %d seat ID %s is unique" % [room_index, spot.seat_id])
+			seat_ids[spot.seat_id] = true
+			_check(spot.interaction_radius > 0.0, "Room %d seat %s has an interaction radius" % [room_index, spot.seat_id])
+			_check(not spot.seat_type.is_empty(), "Room %d seat %s declares a seat type" % [room_index, spot.seat_id])
+			_check(spot.seated_visual_offset != Vector3.ZERO, "Room %d seat %s has a seat-specific visual offset" % [room_index, spot.seat_id])
+			room_seat_types[spot.seat_type] = true
+			if not spot.is_available(): occupied_seats += 1
+		for seat_type in expected_seat_types[room_index]:
+			_check(room_seat_types.has(seat_type), "Room %d authors %s metadata" % [room_index, seat_type])
+		for spot in main.study_spots:
+			main._prepare_focus_camera_pool(spot, false)
+			_check(main.focus_cameras.size() >= 2, "Room %d seat %s can build at least two unobstructed focus shots" % [room_index, spot.seat_id])
+		_check(occupied_seats == expected_npcs[room_index], "Room %d NPCs reserve exactly one seat each" % room_index)
 		_check(is_instance_valid(main.explore_camera), "Room %d has follow camera" % room_index)
 		var camera_start: Vector3 = main.explore_camera.global_position
 		main.player.global_position += Vector3(2.5, 0.1, 0.0)
@@ -67,17 +91,52 @@ func _run() -> void:
 		Input.action_release("move_right")
 		_check(main.player.global_position.x <= bounds.x + 0.35, "Room %d world boundary blocks player" % room_index)
 		_check(main.player.is_on_floor(), "Room %d remains grounded at floor edge" % room_index)
-		var first_spot = main.study_spots[0]
+		var first_spot = main.study_spots.filter(func(spot): return spot.is_available()).front()
+		_check(first_spot.reserve("local_player", StudySpot.OccupantType.PLAYER), "Room %d available seat can be reserved by player" % room_index)
+		_check(not first_spot.is_available(), "Room %d reserved player seat is unavailable" % room_index)
 		await main._transition_player_to_study_spot(first_spot)
 		_check(main.player.global_position.distance_to(first_spot.sitting_position) < 0.08, "Room %d StudySpot aligns player to sitting anchor" % room_index)
+		var player_profile = main.player_visual.get_meta("character_profile", null)
+		if player_profile != null:
+			var expected_visual_offset: Vector3 = player_profile.sitting_visual_offset + first_spot.seated_visual_offset
+			_check(main.player_visual.position.distance_to(expected_visual_offset) < 0.001, "Room %d combines character and seat-type sitting offsets" % room_index)
 		main.active_study_spot = first_spot
+		main._prepare_focus_camera_pool(first_spot)
+		_check(main.focus_cameras.size() >= 2, "Room %d focus mode retains at least two clear cinematic candidates" % room_index)
+		_check(main.focus_candidates_evaluated >= main.focus_cameras.size(), "Room %d evaluates focus candidates before use" % room_index)
+		for focus_camera in main.focus_cameras:
+			_check(main._is_focus_shot_clear(focus_camera.global_position, first_spot), "Room %d accepted focus shot has live shoulder/head line of sight" % room_index)
+		if room_index == 0:
+			var invalid_camera: Camera3D = main._make_camera(Vector3(bounds.x + 3.0, 2.0, 0.0), first_spot.sitting_position, 38.0, false)
+			main.focus_cameras.push_front(invalid_camera)
+			main.focus_shot_index = -1
+			main._cycle_focus_camera()
+			_check(main.focus_shot_index > 0, "Focus cycling dynamically skips a newly obstructed/out-of-bounds shot")
+			main.focus_cameras.erase(invalid_camera)
+			invalid_camera.queue_free()
 		main._restore_player_standing()
 		_check(main.player.global_position.distance_to(first_spot.standing_position) < 0.08, "Room %d exits focus at standing anchor" % room_index)
+		_check(first_spot.is_available(), "Room %d player seat releases after leaving" % room_index)
 		if not main.npcs.is_empty():
-			var npc_visual: Node3D = main.npcs[0].visual
+			var npc = main.npcs[0]
+			var npc_visual: Node3D = npc.visual
+			_check(npc.assigned_spot != null, "Room %d seated NPC has an authored StudySpot" % room_index)
+			_check(npc.global_position.distance_to(npc.assigned_spot.sitting_position) < 0.08, "Room %d NPC aligns exactly to its sitting anchor" % room_index)
+			_check(npc.assigned_spot.occupant_id == npc.occupant_id, "Room %d NPC owns its reserved seat" % room_index)
 			var npc_base_y := npc_visual.position.y
+			var npc_profile = npc_visual.get_meta("character_profile", null)
+			if npc_profile != null:
+				var expected_npc_visual_offset: Vector3 = npc_profile.sitting_visual_offset + npc.assigned_spot.seated_visual_offset
+				_check(npc_visual.position.distance_to(expected_npc_visual_offset) < 0.001, "Room %d NPC combines character and seat-type sitting offsets" % room_index)
 			await _wait_physics(30)
 			_check(absf(npc_visual.position.y - npc_base_y) < 0.001, "Room %d NPC remains vertically grounded" % room_index)
+			if room_index == 0:
+				var npc_walk_start: Vector3 = npc.global_position
+				npc.walk_to(npc_walk_start + Vector3(0.9, 0.0, 0.0), 0.25)
+				_check(npc.state == npc.CalmState.WALK, "NPC walking state starts the shared skeletal Walk clip")
+				await _wait_physics(24)
+				_check(npc.global_position.distance_to(npc_walk_start) > 0.5, "NPC walk path visibly translates the animated character")
+				_check(npc.state == npc.CalmState.IDLE_STANDING, "NPC returns to standing Idle after walking")
 		if room_index == 2 and not main.train_scenery_nodes.is_empty():
 			var scenery: Node3D = main.train_scenery_nodes[0]
 			var scenery_start_z := scenery.position.z
@@ -91,9 +150,9 @@ func _run() -> void:
 				var player_animation := _find_animation_player(main.player_visual)
 				_check(player_animation != null, "Configured player exposes AnimationPlayer")
 				if player_animation != null:
-					for clip in ["Idle", "Walk", "StudyLaptop", "StudyBook"]:
+					for clip in ["Idle", "Walk", "SeatedIdle", "StudyLaptop", "StudyBook"]:
 						_check(player_animation.get_animation(clip).loop_mode == Animation.LOOP_LINEAR, "Configured player %s loops" % clip)
-					for clip in ["Sit", "Wave", "Stretch"]:
+					for clip in ["Sit", "Wave", "Stretch", "Cheer"]:
 						_check(player_animation.get_animation(clip).loop_mode == Animation.LOOP_NONE, "Configured player %s is one-shot" % clip)
 					main.character_loader.play_animation(main.player_visual, "StudyLaptop", 0.0)
 					player_animation.advance(player_animation.get_animation("StudyLaptop").length * 20.0 + 0.25)
@@ -115,7 +174,7 @@ func _run() -> void:
 					var animation_player := _find_animation_player(character_instance)
 					_check(animation_player != null, "%s exposes AnimationPlayer" % character_id)
 					if animation_player != null:
-						for clip in ["Idle", "Walk", "Sit", "StudyLaptop", "StudyBook", "Wave", "Stretch"]:
+						for clip in ["Idle", "Walk", "Sit", "SeatedIdle", "StudyLaptop", "StudyBook", "Wave", "Stretch", "Cheer"]:
 							_check(animation_player.has_animation(clip), "%s has %s animation" % [character_id, clip])
 					character_instance.free()
 			var focus_input := LineEdit.new()
@@ -133,7 +192,7 @@ func _run() -> void:
 	main.queue_free()
 	await process_frame
 	if failures.is_empty():
-		print("RUNTIME CHECKS PASSED: grounding, collision, camera-relative movement, follow/focus cameras, NPC counts, cat animation loops, train parallax")
+		print("RUNTIME CHECKS PASSED: grounding, collision, camera-relative movement, follow/focus cameras, exact seat counts/occupancy, NPC anchors, all cat animation loops, train parallax")
 		quit(0)
 	else:
 		print("RUNTIME CHECKS FAILED: %d" % failures.size())

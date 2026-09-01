@@ -12,6 +12,7 @@ var sitting_visual_offset := Vector3.ZERO
 var forward_axis_correction_degrees := 0.0
 var collider_radius := 0.43
 var collider_height := 1.85
+var collider_y_offset := 0.925
 var label_height := 2.9
 var animation_map: Dictionary = {}
 var diagnostic: Dictionary = {}
@@ -31,6 +32,7 @@ static func from_dictionary(data: Dictionary) -> CharacterProfile:
 	profile.forward_axis_correction_degrees = float(data.get("forward_axis_correction_degrees", manifest_yaw))
 	profile.collider_radius = float(data.get("collider_radius", 0.43))
 	profile.collider_height = float(data.get("collider_height", 1.85))
+	profile.collider_y_offset = float(data.get("collider_y_offset", profile.collider_height * 0.5))
 	profile.label_height = float(data.get("label_height", 2.9))
 	profile.animation_map = data.get("animation_map", {}).duplicate(true)
 	profile.diagnostic = data.get("diagnostic", {}).duplicate(true)

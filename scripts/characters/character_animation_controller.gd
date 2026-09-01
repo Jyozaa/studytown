@@ -1,8 +1,8 @@
 class_name CharacterAnimationController
 extends Node
 
-const LOOPING_STATES := [&"Idle", &"Walk", &"StudyLaptop", &"StudyBook"]
-const ONE_SHOT_STATES := [&"Sit", &"Wave", &"Stretch"]
+const LOOPING_STATES := [&"Idle", &"Walk", &"SeatedIdle", &"StudyLaptop", &"StudyBook"]
+const ONE_SHOT_STATES := [&"Sit", &"Wave", &"Stretch", &"Cheer"]
 
 var animation_player: AnimationPlayer
 var animation_map: Dictionary = {}

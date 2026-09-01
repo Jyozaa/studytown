@@ -17,7 +17,7 @@
 2. Keep archives, extracted sources, optimized GLBs, and diagnostic JSON under ignored `assets/dev_local/` paths. The immutable copy of supplied archives lives in `assets/dev_local/source/`.
 3. Record expected runtime paths, scale, rotation, offsets, dimensions, tags, collisions, and animation mappings in `assets/local_asset_manifest.json`. Never hard-code arbitrary filesystem paths in gameplay scripts.
 4. Inspect mesh, materials, textures, armature, bone hierarchy, actions, orientation, pivot, and dimensions in Blender.
-5. The selected cat source has a shared 51-bone armature and no embedded actions. `tools/local_assets/blender_cat_pipeline.py` creates Idle, Walk, Sit, StudyLaptop, StudyBook, Wave, and Stretch skeletal actions; `CharacterAnimationController` owns loop and one-shot behaviour.
+5. The selected cat source has a shared 51-bone armature and no embedded actions. `tools/local_assets/blender_cat_pipeline.py` creates Idle, Walk, Sit, SeatedIdle, StudyLaptop, StudyBook, Wave, Stretch, and Cheer skeletal actions; `CharacterAnimationController` owns loop and one-shot behaviour.
 6. Normalize source +Z to gameplay -Z with the manifest's `VisualRoot` yaw correction, then tune collider, label, standing offset, and sitting offset through `CharacterProfile`.
 7. Import in Godot and verify texture/material fidelity, animation deformation, floor contact, facing, collision fit, seat contact, hands/table relationship, and camera framing.
 8. Optimize unreasonable web texture/mesh cost locally while preserving original local sources. Never commit the derivative proprietary output.
@@ -25,3 +25,5 @@
 The detailed reproducible procedure, source integrity hashes, selected variants, and clean-clone fallback rules live in `docs/LOCAL_ASSET_IMPORT.md`.
 
 Whenever furniture or character scale changes, re-author every affected StudySpot's standing anchor, sitting anchor, yaw, activity, and cinematic camera data.
+
+Original missing props are authored in Blender through `tools/local_assets/blender_furniture_kit.py`. Public assets can be generated selectively with `--only`; the Garden tuft is committed as `assets/generated/environment/grass_tuft.glb` with its editable `.blend` source. Repeated tuft placement is deterministic and uses authored position, yaw, and scale rather than runtime scattering.

@@ -65,7 +65,7 @@ func play_animation(character: Node, state: String, blend := 0.18) -> void:
 		return
 	var controller = character.get_meta("animation_controller") if character.has_meta("animation_controller") else null
 	if is_instance_valid(controller):
-		if state in ["Wave", "Stretch"]:
+		if state in ["Sit", "Wave", "Stretch", "Cheer"]:
 			controller.play_one_shot(StringName(state), controller.return_state, blend)
 		else:
 			controller.play_state(StringName(state), blend)
@@ -80,13 +80,13 @@ func play_animation(character: Node, state: String, blend := 0.18) -> void:
 	if animation_player.has_animation(clip) and animation_player.current_animation != clip:
 		animation_player.play(clip, blend)
 
-func set_seated(character: Node3D, seated: bool) -> void:
+func set_seated(character: Node3D, seated: bool, seat_visual_offset := Vector3.ZERO) -> void:
 	if not is_instance_valid(character):
 		return
 	var profile: CharacterProfile = character.get_meta("character_profile", null)
 	if profile == null:
 		return
-	character.position = profile.sitting_visual_offset if seated else profile.standing_visual_offset
+	character.position = profile.sitting_visual_offset + seat_visual_offset if seated else profile.standing_visual_offset
 
 func _find_animation_player(node: Node) -> AnimationPlayer:
 	if node is AnimationPlayer:

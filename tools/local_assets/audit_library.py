@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "assets/dev_local/source"
 AUDIT_PATH = ROOT / "docs/ASSET_AUDIT.md"
 MANIFEST_PATH = ROOT / "assets/local_asset_manifest.json"
+INSPECTION_PATH = ROOT / "assets/dev_local/diagnostics/full_primary_fbx.json"
 
 MODEL_SUFFIXES = {".glb", ".gltf", ".fbx", ".obj", ".blend", ".dae", ".smd", ".stl"}
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".tga", ".bmp", ".tif", ".tiff"}
@@ -47,6 +48,30 @@ RUNTIME_PATHS = {
     "Leather Handbag": "res://assets/dev_local/props/leather_handbag.glb",
     "Coffee Grinder": "res://assets/dev_local/props/coffee_grinder.glb",
     "Iced Tea": "res://assets/dev_local/props/iced_tea.glb",
+    "Water": "res://assets/dev_local/environment/water_albedo.png",
+    "Cedar Sapling": "res://assets/dev_local/environment/cedar_sapling.glb",
+    "Cedar Tree": "res://assets/dev_local/environment/cedar_tree.glb",
+    "Clump of Weeds": "res://assets/dev_local/environment/clump_weeds.glb",
+    "Flower Bag": "res://assets/dev_local/props/flower_bag.glb",
+    "Stone": "res://assets/dev_local/environment/stone.glb",
+    "Potted Summer Flowers": "res://assets/dev_local/environment/potted_summer_flowers.glb",
+    "Potted Winter Flowers": "res://assets/dev_local/environment/potted_winter_flowers.glb",
+    "Summer Weeds": "res://assets/dev_local/environment/summer_weeds.glb",
+    "Wall Clock": "res://assets/dev_local/props/wall_clock.glb",
+    "Horoscope Set": "res://assets/dev_local/props/horoscope_aquarius.glb",
+    "Kadomatsu": "res://assets/dev_local/props/kadomatsu.glb",
+    "Zodiac Snake Figurine": "res://assets/dev_local/props/zodiac_snake.glb",
+    "Bowl of Minestrone Soup": "res://assets/dev_local/props/minestrone.glb",
+    "Chocolate Donut": "res://assets/dev_local/props/chocolate_donut.glb",
+    "Cup of Hot Chocolate": "res://assets/dev_local/props/hot_chocolate.glb",
+    "Cup of Tea": "res://assets/dev_local/props/cup_tea.glb",
+    "Grilled Cheese Sandwich": "res://assets/dev_local/props/grilled_cheese.glb",
+    "DAL Mug": "res://assets/dev_local/props/dal_mug.glb",
+    "Thank-you Mom & Dad Mugs": "res://assets/dev_local/props/thankyou_mug.glb",
+    "Broom": "res://assets/dev_local/props/broom.glb",
+    "Can of Juice": "res://assets/dev_local/props/can_juice.glb",
+    "Rug": "res://assets/dev_local/props/acnh_rug.glb",
+    "Fossil": "res://assets/dev_local/props/fossil.glb",
 }
 
 RUNTIME_SCALES = {
@@ -110,7 +135,44 @@ USED_BY = {
     "Leather Handbag": ["train"],
     "Coffee Grinder": ["library"],
     "Iced Tea": ["garden", "japanese"],
+    "Water": ["garden"],
+    "Flower Bag": ["garden"],
+    "Stone": ["garden"],
+    "Potted Summer Flowers": ["garden", "library"],
+    "Potted Winter Flowers": ["japanese", "library"],
+    "Wall Clock": ["library", "japanese"],
+    "Horoscope Set": ["library"],
+    "Kadomatsu": ["japanese"],
+    "Zodiac Snake Figurine": ["japanese"],
+    "Bowl of Minestrone Soup": ["garden"],
+    "Chocolate Donut": ["garden"],
+    "Cup of Hot Chocolate": ["library"],
+    "Cup of Tea": ["japanese"],
+    "Grilled Cheese Sandwich": ["train"],
+    "DAL Mug": ["train"],
+    "Thank-you Mom & Dad Mugs": ["library"],
+    "Broom": ["japanese"],
+    "Can of Juice": ["train"],
+    "Rug": ["library", "japanese"],
+    "Fossil": ["library"],
 }
+
+
+def load_inspections() -> dict[str, list[dict]]:
+    if not INSPECTION_PATH.exists():
+        return {}
+    grouped: dict[str, list[dict]] = {}
+    for report in json.loads(INSPECTION_PATH.read_text(encoding="utf-8")):
+        parts = Path(report.get("path", "")).parts
+        if "primary" not in parts:
+            continue
+        index = parts.index("primary")
+        if index + 1 < len(parts):
+            grouped.setdefault(parts[index + 1], []).append(report)
+    return grouped
+
+
+INSPECTIONS = load_inspections()
 
 
 def clean_archive_name(path: Path) -> tuple[str, str]:
@@ -155,9 +217,24 @@ def archive_record(path: Path) -> dict:
         members = [member for member in archive.infolist() if not member.is_dir()]
     models = [member.filename for member in members if Path(member.filename).suffix.lower() in MODEL_SUFFIXES]
     images = [member.filename for member in members if Path(member.filename).suffix.lower() in IMAGE_SUFFIXES]
+    material_files = [
+        member.filename
+        for member in members
+        if Path(member.filename).suffix.lower() in {".mtl", ".material", ".mat"}
+        or re.search(r"_(Mtl|Rgh|Nrm|Spc|Ocl|AO)(?:\.|_)", Path(member.filename).name, re.IGNORECASE)
+    ]
     formats = sorted({Path(item).suffix.lower().lstrip(".") for item in models})
     category, rooms, tags = classify(group, name)
     runtime = RUNTIME_PATHS.get(name, "")
+    reports = INSPECTIONS.get(path.stem, [])
+    inspected_dimensions = [report.get("dimensions_xyz", []) for report in reports if report.get("dimensions_xyz")]
+    dimensions = RUNTIME_DIMENSIONS.get(name, [])
+    if not dimensions and inspected_dimensions:
+        dimensions = [round(max(float(value[axis]) for value in inspected_dimensions), 3) for axis in range(3)]
+    mesh_names = sorted({mesh for report in reports for mesh in report.get("mesh_names", [])})
+    material_names = sorted({material for report in reports for material in report.get("material_names", [])})
+    armatures = [armature for report in reports for armature in report.get("armatures", [])]
+    bone_counts = sorted({int(armature.get("bone_count", 0)) for armature in armatures})
     return {
         "asset_id": asset_id(name),
         "display_name": name,
@@ -169,21 +246,72 @@ def archive_record(path: Path) -> dict:
         "rotation_degrees": [0.0, 0.0, 0.0],
         "visual_offset": [0.0, 0.0, 0.0],
         "collision_type": "none",
-        "dimensions": RUNTIME_DIMENSIONS.get(name, []),
+        "dimensions": dimensions,
         "material_notes": f"{len(images)} texture/image files in source archive",
         "tags": tags,
         "source_group": group,
         "model_files": len(models),
+        "model_paths": models,
         "image_files": len(images),
+        "image_paths": images,
+        "material_files": material_files,
         "formats": formats,
         "textures_present": bool(images),
-        "rigged": False,
-        "skeleton": "",
+        "mesh_count": sum(int(report.get("mesh_count", 0)) for report in reports),
+        "mesh_names": mesh_names,
+        "material_names": material_names,
+        "rigged": bool(armatures),
+        "skeleton": ", ".join(sorted({armature.get("name", "") for armature in armatures if armature.get("name")})),
+        "bone_counts": bone_counts,
         "animation_clips": [],
         "imported": bool(runtime),
         "currently_used": name in USED_BY,
         "where_used": USED_BY.get(name, []),
-        "notes": ("Runtime-ready local derivative in active use." if name in USED_BY else "Audited; retained as an optional local source asset."),
+        "notes": (
+            "Runtime-ready local derivative in active use."
+            if name in USED_BY
+            else "Audited with Blender FBX metadata; retained as an optional local source asset."
+            if reports
+            else "Archive audited; no FBX inspection available (DAE/other-format source)."
+        ),
+    }
+
+
+def grass_record(path: Path) -> dict:
+    return {
+        "asset_id": "garden_grass_texture",
+        "display_name": "Garden Grass Texture",
+        "category": "environment_texture",
+        "source_relative_path": path.relative_to(SOURCE).as_posix(),
+        "runtime_relative_path": "res://assets/dev_local/environment/grass.jpg",
+        "room_tags": ["garden"],
+        "scale": [1.0, 1.0, 1.0],
+        "rotation_degrees": [0.0, 0.0, 0.0],
+        "visual_offset": [0.0, 0.0, 0.0],
+        "collision_type": "none",
+        "dimensions": [],
+        "texture_dimensions_pixels": [896, 896],
+        "material_notes": "Supplied 896×896 tiled triangular grass albedo",
+        "tags": ["garden", "grass", "texture"],
+        "source_group": "Texture",
+        "model_files": 0,
+        "model_paths": [],
+        "image_files": 1,
+        "image_paths": [path.name],
+        "material_files": [path.name],
+        "formats": ["jpg"],
+        "textures_present": True,
+        "mesh_count": 0,
+        "mesh_names": [],
+        "material_names": [],
+        "rigged": False,
+        "skeleton": "",
+        "bone_counts": [],
+        "animation_clips": [],
+        "imported": True,
+        "currently_used": True,
+        "where_used": ["garden"],
+        "notes": "Runtime grass albedo; repeats through the Garden material UV scale.",
     }
 
 
@@ -218,13 +346,14 @@ def character_records(path: Path) -> list[dict]:
             "forward_axis": "VisualRoot correction to -Z",
             "collider_radius": 0.52,
             "collider_height": 2.20,
+            "collider_y_offset": 1.10,
             "label_height": 2.98,
             "standing_visual_offset": [0.0, 0.0, 0.0],
             "sitting_visual_offset": [0.0, -0.14, 0.12],
-            "animation_map": {state: state for state in ("Idle", "Walk", "Sit", "StudyLaptop", "StudyBook", "Wave", "Stretch")},
+            "animation_map": {state: state for state in ("Idle", "Walk", "Sit", "SeatedIdle", "StudyLaptop", "StudyBook", "Wave", "Stretch", "Cheer")},
             "rigged": True,
             "bone_count": 51,
-            "animation_clips": [] if not runtime else ["Idle", "Walk", "Sit", "StudyLaptop", "StudyBook", "Wave", "Stretch"],
+            "animation_clips": [] if not runtime else ["Idle", "Walk", "Sit", "SeatedIdle", "StudyLaptop", "StudyBook", "Wave", "Stretch", "Cheer"],
             "imported": bool(runtime),
             "currently_used": bool(runtime),
             "where_used": ["player", "npcs", "menu"] if runtime else [],
@@ -253,32 +382,34 @@ def markdown(records: list[dict]) -> str:
         "- Source animations found on cats: 0",
         "- Cat rig: `Armature`, 51 bones",
         "",
-        "Dimensions are recorded after conversion for selected runtime assets; unselected sources remain `not measured` rather than carrying guessed values.",
+        "Dimensions come from runtime Godot AABBs for selected models and full-source Blender FBX inspection for the remaining archives. Texture-only and DAE-only entries are marked `not applicable` or `not measured`.",
         "",
         "## Inventory",
         "",
-        "| Source filename | Relative source path | Format | Category | Inferred asset name | Type | Suitable rooms | Textures? | Rigged? | Skeleton | Animation clips? | Approx dimensions | Imported? | Converted path | Used? | Where used | Notes/issues |",
-        "|---|---|---|---|---|---|---|---:|---:|---|---|---|---:|---|---:|---|---|",
+        "| Source filename | Relative source path | Format | Category | Inferred asset name | Type | Suitable rooms | Models | Meshes | Materials/images | Rigged? | Skeleton/bones | Animation clips? | Approx dimensions | Imported? | Converted path | Used? | Where used | Notes/issues |",
+        "|---|---|---|---|---|---|---|---:|---:|---:|---:|---|---|---|---:|---|---:|---|---|",
     ]
     for record in records:
         path = record["source_relative_path"]
         source_name = Path(path).name
         formats = ", ".join(record.get("formats", ["FBX/DAE + PNG variant"]))
-        dimensions = " × ".join(str(value) for value in record.get("dimensions", [])) or "not measured"
+        dimensions = " × ".join(str(value) for value in record.get("dimensions", [])) or ("not applicable" if record.get("category") == "environment_texture" else "not measured")
         where = ", ".join(record.get("where_used", [])) or "—"
         clips = ", ".join(record.get("animation_clips", [])) or "none"
         lines.append(
-            "| {source} | `{path}` | {formats} | {category} | {name} | {kind} | {rooms} | {textures} | {rigged} | {skeleton} | {clips} | {dimensions} | {imported} | `{runtime}` | {used} | {where} | {notes} |".format(
+            "| {source} | `{path}` | {formats} | {category} | {name} | {kind} | {rooms} | {models} | {meshes} | {materials} | {rigged} | {skeleton} | {clips} | {dimensions} | {imported} | `{runtime}` | {used} | {where} | {notes} |".format(
                 source=source_name.replace("|", "\\|"),
                 path=path,
                 formats=formats or "archive",
                 category=record["category"],
                 name=record["display_name"].replace("|", "\\|"),
-                kind="character" if record["category"] == "character" else "prop/environment",
+                kind="character" if record["category"] == "character" else "texture" if record["category"] == "environment_texture" else "prop/environment",
                 rooms=", ".join(record["room_tags"]),
-                textures="yes" if record.get("textures_present", record["category"] == "character") else "no",
+                models=record.get("model_files", "—"),
+                meshes=record.get("mesh_count", "—"),
+                materials=len(record.get("material_names", [])) or len(record.get("material_files", [])) or record.get("image_files", 0),
                 rigged="yes" if record.get("rigged") else "no",
-                skeleton=record.get("skeleton") or "—",
+                skeleton=(record.get("skeleton") + (" / " + ",".join(str(value) for value in record.get("bone_counts", [])) + " bones" if record.get("bone_counts") else "")) or "—",
                 clips=clips,
                 dimensions=dimensions,
                 imported="yes" if record.get("imported") else "no",
@@ -292,10 +423,15 @@ def markdown(records: list[dict]) -> str:
 
 
 def main() -> None:
-    primary = sorted(path for path in SOURCE.glob("*.zip"))
+    cat_archive = SOURCE / "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip"
+    if not cat_archive.exists():
+        cat_archive = next((SOURCE / "_supplemental_characters").glob("*.zip"))
+    primary = sorted(path for path in SOURCE.glob("*.zip") if path != cat_archive)
     records = [archive_record(path) for path in primary]
-    supplemental = next((SOURCE / "_supplemental_characters").glob("*.zip"))
-    records.extend(character_records(supplemental))
+    grass = SOURCE / "grass.jpg"
+    if grass.exists():
+        records.append(grass_record(grass))
+    records.extend(character_records(cat_archive))
     manifest = {
         "schema_version": 1,
         "notice": "Expected metadata for owner-supplied local assets. Binary assets are intentionally absent from Git.",
@@ -305,7 +441,7 @@ def main() -> None:
     }
     MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     AUDIT_PATH.write_text(markdown(records), encoding="utf-8")
-    print(json.dumps({"archives": len(primary), "characters": 23, "records": len(records)}, sort_keys=True))
+    print(json.dumps({"archives": len(primary), "characters": 23, "textures": int(grass.exists()), "records": len(records)}, sort_keys=True))
 
 
 if __name__ == "__main__":

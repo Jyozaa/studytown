@@ -11,6 +11,14 @@ const StudySpotScript := preload("res://scripts/study/study_spot.gd")
 const NPCControllerScript := preload("res://scripts/npc/npc_controller.gd")
 const RoomFloorScript := preload("res://scripts/world/room_floor.gd")
 const RoomDefinitionsScript := preload("res://scripts/rooms/room_definitions.gd")
+const GENERATED_ASSET_DIR := "res://assets/dev_local/blender_generated/runtime/"
+const SEAT_VISUAL_OFFSETS := {
+	"desk_chair": Vector3(0.0, 0.08, -0.08),
+	"armchair": Vector3(0.0, 0.10, -0.14),
+	"cafe_chair": Vector3(0.0, 0.08, -0.10),
+	"train_booth": Vector3(0.0, 0.12, -0.10),
+	"floor_cushion": Vector3(0.0, -0.12, -0.08),
+}
 
 const CREAM := Color("#fff4d6")
 const INK := Color("#2d211c")
@@ -41,6 +49,8 @@ var focus_task_label: Label
 var focus_shot_label: Label
 var debug_spots_visible := false
 var focus_shot_index := 0
+var focus_candidates_evaluated := 0
+var focus_candidates_rejected := 0
 var next_shot_at := 0.0
 var nearest_spot := -1
 var movement_enabled := true
@@ -58,6 +68,7 @@ var current_room_config: Dictionary = {}
 var collision_debug_visible := false
 var train_scenery_nodes: Array[Node3D] = []
 var active_study_spot
+var pending_study_spot
 var performance_review := false
 var performance_started_at := 0
 var performance_samples: Array[int] = []
@@ -87,15 +98,38 @@ func _ready() -> void:
 	match review:
 		"library": current_room_name = GameState.ROOMS[0]; build_room(0)
 		"focus": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_focus")
+		"focus_laptop": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_focus_at", 7)
+		"focus_book": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_focus_at", 13)
 		"garden_focus": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_begin_review_focus")
 		"train_focus": current_room_name = GameState.ROOMS[2]; build_room(2); call_deferred("_begin_review_focus")
 		"japanese_focus": current_room_name = GameState.ROOMS[3]; build_room(3); call_deferred("_begin_review_focus")
+		"library_focus_fixed": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_focus")
+		"garden_focus_fixed": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_begin_review_focus")
+		"train_focus_fixed": current_room_name = GameState.ROOMS[2]; build_room(2); call_deferred("_begin_review_focus")
+		"japanese_focus_fixed": current_room_name = GameState.ROOMS[3]; build_room(3); call_deferred("_begin_review_focus")
 		"garden": current_room_name = GameState.ROOMS[1]; build_room(1)
 		"train": current_room_name = GameState.ROOMS[2]; build_room(2)
 		"japanese": current_room_name = GameState.ROOMS[3]; build_room(3)
 		"grounded": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_walk")
+		"player_walk_readable": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_walk_side")
+		"npc_walk_readable": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_npc_walk_review")
 		"library_hall": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_review_camera", 0)
 		"library_fireplace": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_review_camera", 3)
+		"library_shelves": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_shelf_review")
+		"all_seats": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_set_debug_spots", true); call_deferred("_activate_review_camera", 6)
+		"npc_seating": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_npc_review")
+		"garden_npc_seating": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_npc_review")
+		"train_npc_seating": current_room_name = GameState.ROOMS[2]; build_room(2); call_deferred("_activate_npc_review")
+		"japanese_npc_seating": current_room_name = GameState.ROOMS[3]; build_room(3); call_deferred("_activate_npc_review")
+		"library_sitting": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_seating_review", "desk_chair")
+		"train_sitting": current_room_name = GameState.ROOMS[2]; build_room(2); call_deferred("_begin_seating_review", "train_booth")
+		"japanese_sitting": current_room_name = GameState.ROOMS[3]; build_room(3); call_deferred("_begin_seating_review", "floor_cushion")
+		"wall_bookshelves": current_room_name = GameState.ROOMS[3]; build_room(3); call_deferred("_activate_wall_shelf_review")
+		"garden_tufts": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_garden_tuft_review")
+		"plant_placement": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_plant_review")
+		"prop_grounding": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_prop_grounding_review")
+		"garden_grass": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 1)
+		"garden_water": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 3)
 		"train_scenery": current_room_name = GameState.ROOMS[2]; build_room(2); call_deferred("_activate_review_camera", 5)
 		"character_front": _build_character_review(0.0, false)
 		"character_three_quarter": _build_character_review(0.62, false)
@@ -104,11 +138,15 @@ func _ready() -> void:
 		"character_sitting": _build_character_review(0.32, true)
 		"cat_idle": _build_character_review(0.0, false, "Idle")
 		"cat_walk": _build_character_review(0.0, false, "Walk")
+		"cat_idle_three_quarter": _build_character_review(0.58, false, "Idle")
+		"cat_walk_three_quarter": _build_character_review(0.58, false, "Walk")
 		"cat_sit": _build_character_review(0.32, true, "Sit")
+		"cat_seated_idle": _build_character_review(0.32, true, "SeatedIdle")
 		"cat_study_laptop": _build_character_review(0.32, true, "StudyLaptop")
 		"cat_study_book": _build_character_review(0.32, true, "StudyBook")
 		"cat_wave": _build_character_review(0.0, false, "Wave")
 		"cat_stretch": _build_character_review(0.0, false, "Stretch")
+		"cat_cheer": _build_character_review(0.0, false, "Cheer")
 		_: show_main_menu()
 	if performance_review:
 		performance_started_at = Time.get_ticks_msec()
@@ -136,6 +174,30 @@ func _build_materials() -> void:
 			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 			mat.albedo_color.a = 0.32
 		mats[entry[0]] = mat
+	var grass_texture_path := "res://assets/dev_local/environment/grass.jpg"
+	if ResourceLoader.exists(grass_texture_path):
+		mats.grass.albedo_texture = load(grass_texture_path)
+		mats.grass.albedo_color = Color("#b8d9a4")
+		mats.grass.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+		mats.grass.texture_repeat = true
+		mats.grass.uv1_scale = Vector3(16.0, 16.0, 16.0)
+	var water := StandardMaterial3D.new()
+	water.albedo_color = Color("#58b8c9")
+	water.roughness = 0.22
+	water.metallic = 0.04
+	water.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	water.texture_repeat = true
+	water.uv1_scale = Vector3(2.8, 2.8, 2.8)
+	var water_albedo_path := "res://assets/dev_local/environment/water_albedo.png"
+	var water_normal_path := "res://assets/dev_local/environment/water_normal.png"
+	if ResourceLoader.exists(water_albedo_path) and ResourceLoader.exists(water_normal_path):
+		var animated_water := ShaderMaterial.new()
+		animated_water.shader = load("res://shaders/cozy_water.gdshader")
+		animated_water.set_shader_parameter("water_pattern", load(water_albedo_path))
+		animated_water.set_shader_parameter("water_normal", load(water_normal_path))
+		mats.water = animated_water
+	else:
+		mats.water = water
 
 func _clear_scene() -> void:
 	if is_instance_valid(world_root):
@@ -155,6 +217,7 @@ func _clear_scene() -> void:
 	player_parts.clear()
 	nearest_spot = -1
 	active_study_spot = null
+	pending_study_spot = null
 
 func show_main_menu() -> void:
 	screen = Screen.MENU
@@ -199,8 +262,7 @@ func _build_character_review(yaw: float, seated: bool, animation_state := "") ->
 	if not animation_state.is_empty():
 		character_loader.play_animation(character, animation_state, 0.0)
 	if seated:
-		_build_armchair(Vector3(0, 0, 0.22), PI, mats.teal)
-		character.position = Vector3(0, 0.08, -0.03)
+		_build_armchair(Vector3(0, 0, 0.22), 0.0, mats.teal)
 	var cam := _make_camera(Vector3(0, 2.45, 6.6), Vector3(0, 1.42, 0), 28.0)
 	cam.current = true
 	var title := _label("MASTER CHARACTER 01  ·  %s" % ("SEATED" if seated else "MODEL REVIEW"), 18, CREAM)
@@ -296,6 +358,9 @@ func build_room(index: int) -> void:
 	_update_camera_current()
 
 func _process(delta: float) -> void:
+	if mats.has("water") and mats.water is StandardMaterial3D:
+		var water_material := mats.water as StandardMaterial3D
+		water_material.uv1_offset += Vector3(delta * 0.010, delta * 0.006, 0.0)
 	if performance_review:
 		_collect_performance_sample()
 	if is_instance_valid(menu_character):
@@ -386,11 +451,13 @@ func _create_player() -> void:
 	capsule.radius = profile.collider_radius if using_imported else 0.43
 	capsule.height = profile.collider_height if using_imported else 1.85
 	shape.shape = capsule
-	shape.position.y = capsule.height * 0.5
+	shape.position.y = profile.collider_y_offset if using_imported else capsule.height * 0.5
 	player.add_child(shape)
 	player_visual = _create_character(player, GameState.selected_character, false)
 	player_parts = player_visual.get_meta("parts", {})
-	player.configure_spawn(Transform3D(Basis.IDENTITY, current_room_config.spawn))
+	# Start in a readable three-quarter pose; movement immediately takes over
+	# facing without affecting the fixed world-space camera yaw.
+	player.configure_spawn(Transform3D(Basis(Vector3.UP, -PI * 0.75), current_room_config.spawn))
 	player.locomotion_changed.connect(_on_player_locomotion_changed)
 	var label := Label3D.new()
 	player.add_child(label)
@@ -513,12 +580,18 @@ func _build_library() -> void:
 	_place_local_prop("tote_bag", "", Vector3(9.7,0,9.3), Vector3.ONE)
 	_place_local_prop("corkboard", "", Vector3(-19.7,1.25,13.0), Vector3.ONE, PI / 2.0)
 	_place_local_prop("pendulum_clock", "", Vector3(-19.6,1.35,8.4), Vector3.ONE, PI / 2.0)
+	_place_local_prop("wall_clock", "", Vector3(17.5,2.2,-15.30), Vector3.ONE)
+	_place_local_prop("potted_summer_flowers", "", Vector3(14.0,0,12.4), Vector3.ONE)
+	_place_local_prop("potted_winter_flowers", "", Vector3(-14.0,0,12.4), Vector3.ONE)
 	for z in [-12.0, -7.5, -3.0, 1.5, 6.0, 10.5]:
-		_build_bookshelf(Vector3(-21.55, 2.35, z), -PI / 2.0, 3.8, 4.45, 0.52, int(z * 10.0 + 160.0))
-	# Central stack aisles create long readable routes without choking navigation.
+		# Generated shelves expose their book side on local +Z after GLTF axis
+		# conversion, so +90 degrees faces the left-wall units into the room.
+		_build_bookshelf(Vector3(-21.55, 2.35, z), PI / 2.0, 3.8, 4.45, 0.52, int(z * 10.0 + 160.0))
+	# Every free-standing aisle is an intentional back-to-back pair: books face
+	# the walkable aisles and the thin unfinished backs meet in the middle.
 	for x in [-9.0, 0.0, 9.0]:
-		for z in [-5.2, 0.3]:
-			_build_bookshelf(Vector3(x, 2.05, z), 0.0, 5.8, 3.8, 0.72, int(x * 8.0 + z * 11.0 + 220.0))
+		for aisle_center_z in [-5.5, 1.2]:
+			_build_double_bookshelf(Vector3(x, 0.0, aisle_center_z), 0.0)
 	_build_fireplace(Vector3(0, 0, -15.55))
 	_box(world_root, Vector3(13.0, 0.05, 7.0), Vector3(0, 0.03, -11.0), mats.red)
 	for pos in [Vector3(-4.0,0,-11.2), Vector3(-1.4,0,-9.4), Vector3(1.4,0,-9.4), Vector3(4.0,0,-11.2)]:
@@ -527,24 +600,27 @@ func _build_library() -> void:
 		_place_local_prop("mini_diy_workbench", "", data[0], Vector3(1.2,0.72,1.0), data[1])
 	_place_local_prop("coffee_grinder", "", Vector3(-2.6,0.86,-11.0), Vector3.ONE)
 	_place_local_prop("cup_of_coffee", "", Vector3(2.7,0.83,-11.0), Vector3.ONE)
+	_place_local_prop("horoscope_set", "", Vector3(-0.2,0.84,-11.0), Vector3.ONE)
+	_place_local_prop("fossil", "", Vector3(0.8,0.83,-10.9), Vector3.ONE)
+	_place_local_prop("rug", "res://assets/external/kenney_furniture_kit/rugRounded.glb", Vector3(0,0.055,-11.0), Vector3(25.0,1.0,22.0))
 	# Quiet desk area on the east side.
 	for data in [[Vector3(15.5,0,-7.0),true],[Vector3(15.5,0,-1.0),false],[Vector3(15.5,0,5.0),true]]:
 		_build_study_table(data[0], data[1])
-		_add_study_spot(data[0] + Vector3(0,0,1.25), data[0] + Vector3(0,0.05,0.75), 0.0, "Laptop", data[0] + Vector3(6.5,4.2,6.7), data[0] + Vector3(0,1.15,0))
 		_place_local_prop("hardcover_books", "res://assets/external/kenney_furniture_kit/books.glb", data[0] + Vector3(-1.0,1.28,-0.18), Vector3.ONE)
 		_place_local_prop("coffee_mug", "", data[0] + Vector3(1.1,1.24,0.22), Vector3.ONE)
 		_place_local_prop("paperback_books", "", data[0] + Vector3(0.15,1.28,0.38), Vector3.ONE * 0.9, 0.16)
+	_place_local_prop("cup_of_hot_chocolate", "", Vector3(16.5,1.25,-6.7), Vector3.ONE)
+	_place_local_prop("thank_you_mom_dad_mugs", "", Vector3(14.4,1.25,-0.8), Vector3.ONE)
 	# Communal reading tables fill the formerly empty approach to the stacks.
 	for data in [[Vector3(-7.0,0,5.4),false],[Vector3(0.0,0,6.0),true],[Vector3(7.0,0,5.4),false]]:
-		_build_study_table(data[0], data[1])
+		_build_study_table(data[0], data[1], "Book")
 		_place_local_prop("lost_book", "", data[0] + Vector3(-0.9,1.27,0.18), Vector3.ONE, -0.12)
 		_place_local_prop("nookphone", "", data[0] + Vector3(0.9,1.27,0.2), Vector3.ONE, 0.18)
 	_place_local_prop("desk_fan", "", Vector3(0.0,1.27,6.0), Vector3.ONE)
 	# Window reading area and side study nook.
 	for pos in [Vector3(-16.0,0,-10.5), Vector3(-12.5,0,-10.5), Vector3(-17.0,0,8.5), Vector3(-13.5,0,10.5)]:
 		_build_armchair(pos, PI, mats.green if pos.z > 0 else mats.gold)
-	_build_study_table(Vector3(-14.8,0,4.2), false)
-	_add_study_spot(Vector3(-14.8,0,5.45), Vector3(-14.8,0.05,4.95), 0.0, "Book", Vector3(-9.5,3.1,8.0), Vector3(-14.8,1.1,4.2))
+	_build_study_table(Vector3(-14.8,0,4.2), false, "Book")
 	_build_globe(Vector3(19.0, 0, 11.0))
 	for pos in [Vector3(-19.5,0,13.2), Vector3(19.5,0,13.2), Vector3(19.5,0,-13.3)]:
 		_place_local_prop("potted_autumn_flowers", "", pos, Vector3.ONE * 1.15)
@@ -568,6 +644,11 @@ func _build_library() -> void:
 	_add_world_boundaries(current_room_config.bounds)
 
 func _build_bookshelf(pos: Vector3, yaw: float, width: float, height: float, depth: float, book_seed: int) -> void:
+	var generated_path := GENERATED_ASSET_DIR + "bookshelf_single.glb"
+	if ResourceLoader.exists(generated_path):
+		_import_prop(generated_path, Vector3(pos.x, 0.0, pos.z), Vector3(width / 3.8, height / 4.45, depth / 0.68), yaw)
+		_add_blocker(pos, Vector3(width + 0.45, height + 0.2, depth + 0.45), yaw)
+		return
 	var shelf := Node3D.new()
 	world_root.add_child(shelf)
 	shelf.position = pos
@@ -594,6 +675,15 @@ func _build_bookshelf(pos: Vector3, yaw: float, width: float, height: float, dep
 			index += 1
 	_add_blocker(pos, Vector3(width + 0.45, height + 0.2, depth + 0.45), yaw)
 
+func _build_double_bookshelf(pos: Vector3, yaw: float) -> void:
+	var generated_path := GENERATED_ASSET_DIR + "bookshelf_double.glb"
+	if ResourceLoader.exists(generated_path):
+		_import_prop(generated_path, pos, Vector3.ONE, yaw)
+		_add_blocker(pos + Vector3.UP * 1.9, Vector3(6.2, 4.0, 1.68), yaw)
+		return
+	_build_bookshelf(pos + Vector3(0, 2.05, -0.43), yaw, 5.8, 3.8, 0.72, 220)
+	_build_bookshelf(pos + Vector3(0, 2.05, 0.43), yaw + PI, 5.8, 3.8, 0.72, 271)
+
 func _build_window(pos: Vector3, size: Vector2, rotated: bool) -> void:
 	var root := Node3D.new(); world_root.add_child(root); root.position = pos
 	if rotated: root.rotation.y = PI / 2.0
@@ -611,6 +701,13 @@ func _build_window(pos: Vector3, size: Vector2, rotated: bool) -> void:
 	curtain_l.scale.z = 0.55; curtain_r.scale.z = 0.55
 
 func _build_fireplace(pos: Vector3) -> void:
+	var generated_path := GENERATED_ASSET_DIR + "fireplace.glb"
+	if ResourceLoader.exists(generated_path):
+		var generated := _import_prop(generated_path, pos, Vector3.ONE)
+		var light := OmniLight3D.new(); generated.add_child(light)
+		light.position = Vector3(0, 1.25, -1.0); light.light_color = Color("#ff9e4a"); light.light_energy = 4.2; light.omni_range = 6.0
+		_add_blocker(pos + Vector3(0, 1.9, 0.15), Vector3(3.2, 3.8, 0.9), 0.0)
+		return
 	var root := Node3D.new(); world_root.add_child(root); root.position = pos
 	_box(root, Vector3(3.05, 0.32, 0.70), Vector3(0, 3.70, 0.20), mats.honey)
 	_box(root, Vector3(0.54, 3.8, 0.65), Vector3(-1.22, 1.78, 0.15), mats.stone)
@@ -628,17 +725,24 @@ func _build_fireplace(pos: Vector3) -> void:
 	light.position = Vector3(0, 1.25, -1.0); light.light_color = Color("#ff9e4a"); light.light_energy = 6.0; light.omni_range = 7.0
 	_add_blocker(pos + Vector3(0, 1.9, 0.15), Vector3(3.2, 3.8, 0.9), 0.0)
 
-func _build_study_table(pos: Vector3, flip: bool) -> void:
-	var root := Node3D.new(); world_root.add_child(root); root.position = pos
-	_box(root, Vector3(3.65, 0.24, 1.55), Vector3(0, 1.05, 0), mats.wood)
-	_box(root, Vector3(3.9, 0.09, 1.72), Vector3(0, 1.20, 0), mats.honey)
-	for x in [-1.5, 1.5]:
-		for z in [-0.55, 0.55]:
-			_capsule_mesh(root, 0.12, 1.0, Vector3(x, 0.51, z), mats.cocoa)
+func _build_study_table(pos: Vector3, flip: bool, study_type := "Laptop") -> void:
+	var generated_path := GENERATED_ASSET_DIR + "study_table.glb"
+	if ResourceLoader.exists(generated_path):
+		_import_prop(generated_path, pos, Vector3.ONE)
+	else:
+		var root := Node3D.new(); world_root.add_child(root); root.position = pos
+		_box(root, Vector3(3.65, 0.24, 1.55), Vector3(0, 1.05, 0), mats.wood)
+		_box(root, Vector3(3.9, 0.09, 1.72), Vector3(0, 1.20, 0), mats.honey)
+		for x in [-1.5, 1.5]:
+			for z in [-0.55, 0.55]:
+				_capsule_mesh(root, 0.12, 1.0, Vector3(x, 0.51, z), mats.cocoa)
 	_import_prop("res://assets/external/kenney_furniture_kit/lampRoundTable.glb", pos + Vector3(0.55 if flip else -0.55, 1.23, 0), Vector3.ONE * 0.65)
-	_import_prop("res://assets/external/kenney_furniture_kit/laptop.glb", pos + Vector3(-0.55 if flip else 0.55, 1.26, -0.08), Vector3.ONE * 0.82, PI)
-	_build_chair(pos + Vector3(0, 0, 1.14), PI)
-	_build_chair(pos + Vector3(0, 0, -1.14), 0)
+	if study_type == "Laptop":
+		_import_prop("res://assets/external/kenney_furniture_kit/laptop.glb", pos + Vector3(-0.55 if flip else 0.55, 1.26, -0.08), Vector3.ONE * 0.82, PI)
+	else:
+		_place_local_prop("lost_book", "res://assets/external/kenney_furniture_kit/books.glb", pos + Vector3(0.15, 1.26, -0.08), Vector3.ONE * 1.22, PI)
+	_build_chair(pos + Vector3(0, 0, 1.42), PI, study_type)
+	_build_chair(pos + Vector3(0, 0, -1.42), 0, study_type)
 	# Deliberately composed paper, mug and book stack.
 	_box(world_root, Vector3(0.50, 0.035, 0.68), pos + Vector3(-1.15, 1.29, 0.08), mats.paper).rotation.y = 0.12
 	_cylinder(world_root, 0.17, 0.28, pos + Vector3(1.35, 1.38, 0.12), mats.teal, 24)
@@ -646,32 +750,56 @@ func _build_study_table(pos: Vector3, flip: bool) -> void:
 		_box(world_root, Vector3(0.55 + i * 0.04, 0.10, 0.38), pos + Vector3(1.18, 1.29 + i * 0.10, -0.42), [mats.red, mats.blue, mats.green][i])
 	_add_blocker(pos + Vector3(0, 0.62, 0), Vector3(3.75, 1.24, 1.62), 0.0)
 
-func _build_chair(pos: Vector3, yaw: float) -> void:
+func _build_chair(pos: Vector3, yaw: float, study_type := "Book", seat_type := "desk_chair"):
 	var imported: Node3D = asset_loader.instantiate_prop("froggy_chair", "")
 	if imported.get_child_count() > 0:
 		world_root.add_child(imported)
 		imported.position = pos
 		imported.rotation.y = yaw
 		_add_blocker(pos + Vector3(0, 0.6, 0), Vector3(1.2, 1.2, 1.2), yaw)
-		return
-	imported.queue_free()
-	var root := Node3D.new(); world_root.add_child(root); root.position = pos; root.rotation.y = yaw
-	_box(root, Vector3(0.95, 0.18, 0.92), Vector3(0, 0.72, 0), mats.teal)
-	var back := _sphere(root, Vector3(0.54, 0.72, 0.15), Vector3(0, 1.25, 0.39), mats.teal, 24, 16)
-	back.rotation.x = -0.12
-	for x in [-0.36, 0.36]:
-		for z in [-0.34, 0.34]:
-			_capsule_mesh(root, 0.09, 0.72, Vector3(x, 0.35, z), mats.cocoa)
+	else:
+		imported.queue_free()
+		var root := Node3D.new(); world_root.add_child(root); root.position = pos; root.rotation.y = yaw
+		_box(root, Vector3(0.95, 0.18, 0.92), Vector3(0, 0.72, 0), mats.teal)
+		var back := _sphere(root, Vector3(0.54, 0.72, 0.15), Vector3(0, 1.25, 0.39), mats.teal, 24, 16)
+		back.rotation.x = -0.12
+		for x in [-0.36, 0.36]:
+			for z in [-0.34, 0.34]:
+				_capsule_mesh(root, 0.09, 0.72, Vector3(x, 0.35, z), mats.cocoa)
+	return _register_furniture_seat(pos, yaw, study_type, 0.05, 0.34, 0.96, seat_type)
 
-func _build_armchair(pos: Vector3, yaw: float, fabric: Material) -> void:
-	var root := Node3D.new(); world_root.add_child(root); root.position = pos; root.rotation.y = yaw
-	_sphere(root, Vector3(0.85, 0.34, 0.78), Vector3(0, 0.53, 0), fabric, 28, 16)
-	_sphere(root, Vector3(0.88, 0.83, 0.30), Vector3(0, 1.14, 0.44), fabric, 28, 16)
-	for x in [-0.78, 0.78]: _sphere(root, Vector3(0.23, 0.32, 0.72), Vector3(x, 0.72, 0), fabric, 20, 12)
-	for x in [-0.55, 0.55]: _capsule_mesh(root, 0.10, 0.44, Vector3(x, 0.20, 0.36), mats.cocoa)
+func _build_armchair(pos: Vector3, yaw: float, fabric: Material, study_type := "Book"):
+	var color_name := "gold" if fabric == mats.gold else ("teal" if fabric == mats.teal else "green")
+	var generated_path := GENERATED_ASSET_DIR + "armchair_%s.glb" % color_name
+	if ResourceLoader.exists(generated_path):
+		_import_prop(generated_path, pos, Vector3.ONE, yaw)
+	else:
+		var root := Node3D.new(); world_root.add_child(root); root.position = pos; root.rotation.y = yaw
+		_sphere(root, Vector3(0.85, 0.34, 0.78), Vector3(0, 0.53, 0), fabric, 28, 16)
+		_sphere(root, Vector3(0.88, 0.83, 0.30), Vector3(0, 1.14, 0.44), fabric, 28, 16)
+		for x in [-0.78, 0.78]: _sphere(root, Vector3(0.23, 0.32, 0.72), Vector3(x, 0.72, 0), fabric, 20, 12)
+		for x in [-0.55, 0.55]: _capsule_mesh(root, 0.10, 0.44, Vector3(x, 0.20, 0.36), mats.cocoa)
 	_add_blocker(pos + Vector3(0, 0.7, 0), Vector3(1.8, 1.4, 1.6), yaw)
+	return _register_furniture_seat(pos, yaw, study_type, 0.10, 0.34, 1.25, "armchair")
+
+func _register_furniture_seat(pos: Vector3, furniture_yaw: float, study_type: String, seat_height: float, forward_offset: float, stand_distance: float, seat_type := "desk_chair"):
+	var seat_yaw := wrapf(furniture_yaw - PI, -PI, PI)
+	var forward := Basis(Vector3.UP, seat_yaw) * Vector3.FORWARD
+	var right := Basis(Vector3.UP, seat_yaw) * Vector3.RIGHT
+	var sitting := pos + forward * forward_offset + Vector3.UP * seat_height
+	var standing := pos - forward * stand_distance
+	var camera_target := sitting + Vector3.UP * 1.20 + forward * 0.28
+	# Personal focus views sit across the desk at a three-quarter angle so the
+	# cat's face and animated paws remain visible instead of showing only its back.
+	var camera_position := sitting + forward * 4.6 + right * 3.25 + Vector3.UP * 2.75
+	var visual_offset: Vector3 = SEAT_VISUAL_OFFSETS.get(seat_type, Vector3.ZERO)
+	return _add_study_spot(standing, sitting, seat_yaw, study_type, camera_position, camera_target, seat_type, visual_offset, seat_height)
 
 func _build_globe(pos: Vector3) -> void:
+	var generated_path := GENERATED_ASSET_DIR + "globe.glb"
+	if ResourceLoader.exists(generated_path):
+		_import_prop(generated_path, pos, Vector3.ONE)
+		return
 	_cylinder(world_root, 0.48, 0.18, pos + Vector3(0, 0.09, 0), mats.cocoa, 28)
 	_capsule_mesh(world_root, 0.08, 1.45, pos + Vector3(0, 0.74, 0), mats.gold)
 	_sphere(world_root, Vector3(0.70, 0.70, 0.70), pos + Vector3(0, 1.48, 0), mats.blue, 32, 20)
@@ -684,16 +812,28 @@ func _build_garden() -> void:
 	for i in 35:
 		var z := 16.5 - i
 		var x := sin(i * 0.28) * 2.1
-		_sphere(world_root, Vector3(1.45, 0.08, 0.82), Vector3(x, 0.01, z), mats.stone, 20, 10)
+		var tile_path := GENERATED_ASSET_DIR + "garden_path_tile.glb"
+		if ResourceLoader.exists(tile_path):
+			_import_prop(tile_path, Vector3(x, 0.0, z), Vector3(1.42, 1.0, 0.82), i * 0.17)
+		else:
+			_sphere(world_root, Vector3(1.45, 0.08, 0.82), Vector3(x, 0.01, z), mats.stone, 20, 10)
 	# Café terrace in the north-west zone.
 	_box(world_root, Vector3(17.0, 0.28, 9.0), Vector3(-14.0, 0.06, -12.5), mats.cream)
 	for x in [-22.0, -6.0]:
 		for z in [-16.5, -8.5]: _capsule_mesh(world_root, 0.16, 4.2, Vector3(x, 2.1, z), mats.wood)
 	_box(world_root, Vector3(17.4, 0.3, 9.4), Vector3(-14.0, 4.05, -12.5), mats.honey)
 	# Pond and fountain establish the central-east destination.
-	_sphere(world_root, Vector3(5.7, 0.10, 4.2), Vector3(12.0, 0.0, 1.5), mats.blue, 36, 18)
-	_cylinder(world_root, 1.25, 0.55, Vector3(12.0, 0.28, 1.5), mats.stone, 40)
-	_cylinder(world_root, 0.25, 2.0, Vector3(12.0, 1.25, 1.5), mats.stone, 28)
+	var fountain_path := GENERATED_ASSET_DIR + "fountain_basin.glb"
+	var water_surface_path := GENERATED_ASSET_DIR + "water_surface.glb"
+	if ResourceLoader.exists(fountain_path):
+		_import_prop(fountain_path, Vector3(12.0, 0.0, 1.5), Vector3(1.78, 1.0, 1.32))
+	else:
+		_cylinder(world_root, 5.7, 0.22, Vector3(12.0, 0.08, 1.5), mats.stone, 40)
+	if ResourceLoader.exists(water_surface_path):
+		var water_surface := _import_prop(water_surface_path, Vector3(12.0, 0.54, 1.5), Vector3(2.05, 1.0, 1.45))
+		_override_mesh_material(water_surface, mats.water)
+	else:
+		_sphere(world_root, Vector3(5.3, 0.10, 3.8), Vector3(12.0, 0.12, 1.5), mats.water, 36, 18)
 	_add_blocker(Vector3(12.0, 0.55, 1.5), Vector3(4.0, 1.1, 3.4), 0.0)
 	# Owner-local ACNH trees and seasonal planters dominate the intended garden build.
 	for pos in [Vector3(-23,0,-4),Vector3(-20,0,8),Vector3(-12,0,14),Vector3(8,0,14),Vector3(21,0,12),Vector3(22,0,-10),Vector3(7,0,-14),Vector3(-2,0,-15)]:
@@ -703,20 +843,47 @@ func _build_garden() -> void:
 	_place_local_prop("palm_tree_museum", "", Vector3(23,0,3), Vector3.ONE * 0.88)
 	_place_local_prop("villager_tent", "", Vector3(18,0,-13), Vector3.ONE, -0.3)
 	_place_local_prop("recycle_box", "", Vector3(-21,0,-14), Vector3.ONE, PI / 2.0)
-	for pos in [Vector3(-5,0,8),Vector3(-9,0,10),Vector3(17,0,8),Vector3(19,0,5),Vector3(3,0,-8),Vector3(7,0,-7)]:
+	# Planters soften authored zone edges—terrace corners, the tent, path, and
+	# bench grove—without occupying the open lawn or circulation spine.
+	for pos in [Vector3(-21,0,-8.7),Vector3(-7,0,-8.7),Vector3(21,0,-11.2),Vector3(14.4,0,-8.8),Vector3(-22,0,6.0)]:
 		_place_local_prop("potted_spring_flowers", "res://assets/external/kenney_furniture_kit/pottedPlant.glb", pos, Vector3.ONE)
-	for pos in [Vector3(-4,0,13),Vector3(4,0,11),Vector3(-6,0,15),Vector3(6,0,15)]:
+	for pos in [Vector3(-7.5,0,14.5),Vector3(7.5,0,14.5),Vector3(-20.5,0,-16.2)]:
 		_place_local_prop("potted_autumn_flowers", "", pos, Vector3.ONE * 0.9, pos.x * 0.08)
 	for pos in [Vector3(7,0,2),Vector3(16,0,-1),Vector3(15,0,5),Vector3(9,0,6),Vector3(-3,0,13)]:
 		_place_local_prop("rocks", "", pos, Vector3.ONE * (0.65 + fmod(abs(pos.x), 3.0) * 0.12), pos.x * 0.08)
 	for pos in [Vector3(-16,0,4),Vector3(-13,0,7),Vector3(4,0,11),Vector3(11,0,-10),Vector3(15,0,-8),Vector3(-4,0,-10),Vector3(20,0,8)]:
 		_place_local_prop("spring_weeds", "", pos, Vector3.ONE * 0.9, pos.z * 0.13)
+	_place_local_prop("potted_summer_flowers", "", Vector3(-4,0,-13), Vector3.ONE)
+	_place_local_prop("potted_winter_flowers", "", Vector3(-7,0,-9), Vector3.ONE)
+	_place_local_prop("flower_bag", "", Vector3(-20,0,-10), Vector3.ONE)
+	_place_local_prop("stone", "", Vector3(6,0,4), Vector3.ONE)
+	# Original Blender grass tufts add restrained silhouette detail near path,
+	# pond, fence, and tree edges. Every transform is authored and deterministic.
+	var tuft_path := "res://assets/generated/environment/grass_tuft.glb"
+	if ResourceLoader.exists(tuft_path):
+		var tuft_data := [
+			[Vector3(-4.6,0.02,14.7),0.15,0.90],[Vector3(4.8,0.02,14.4),1.10,0.82],
+			[Vector3(-8.5,0.02,6.8),2.20,1.00],[Vector3(-11.2,0.02,3.9),0.70,0.78],
+			[Vector3(5.8,0.02,7.2),1.75,1.06],[Vector3(7.3,0.02,4.6),2.75,1.12],
+			[Vector3(6.8,0.02,4.1),0.85,0.92],[Vector3(8.0,0.02,4.0),2.10,0.84],
+			[Vector3(8.2,0.02,-2.9),0.30,0.94],[Vector3(13.5,0.02,-3.0),1.45,0.80],
+			[Vector3(16.0,0.02,4.8),2.45,0.90],[Vector3(18.9,0.02,9.7),0.95,0.82],
+			[Vector3(21.4,0.02,-6.2),2.95,0.98],[Vector3(17.5,0.02,-10.7),1.80,0.76],
+			[Vector3(-18.5,0.02,-2.3),0.50,0.90],[Vector3(-21.0,0.02,9.6),2.10,0.84],
+			[Vector3(2.7,0.02,-11.4),1.25,0.94],[Vector3(-4.8,0.02,-12.6),2.65,0.80],
+		]
+		for data in tuft_data:
+			var tuft := _import_prop(tuft_path, data[0], Vector3.ONE * data[2], data[1])
+			_override_mesh_material(tuft, mats.leaf)
 	# Study zones are separated across terrace, shade and quiet garden edge.
+	var cafe_index := 0
 	for data in [[Vector3(-17.0,0,-12.5),mats.teal],[Vector3(-10.0,0,-12.5),mats.gold],[Vector3(-10.0,0,4.0),mats.coral],[Vector3(18.0,0,13.0),mats.green]]:
 		_build_cafe_table(data[0], data[1])
-		_add_study_spot(data[0] + Vector3(0,0,1.3), data[0] + Vector3(0,0.05,0.72), 0.0, "Laptop", data[0] + Vector3(4.0,2.8,4.6), data[0] + Vector3(0,1.0,0))
 		_place_local_prop("coffee_mug", "", data[0] + Vector3(0.6,1.18,0.1), Vector3.ONE)
 		_place_local_prop("iced_tea", "", data[0] + Vector3(-0.55,1.18,-0.05), Vector3.ONE)
+		var treat_ids := ["bowl_of_minestrone_soup", "chocolate_donut", "cup_of_tea", "can_of_juice"]
+		_place_local_prop(treat_ids[cafe_index], "", data[0] + Vector3(0.05,1.18,0.48), Vector3.ONE)
+		cafe_index += 1
 	# A small bench grove gives the east garden a social destination.
 	for data in [[Vector3(19.0,0,-5.0),-PI / 2.0],[Vector3(19.0,0,-8.0),-PI / 2.0],[Vector3(15.8,0,-6.5),PI / 2.0]]:
 		_build_chair(data[0], data[1])
@@ -747,15 +914,22 @@ func _build_train() -> void:
 	for side in [-1.0, 1.0]:
 		_box(world_root, Vector3(12.0,0.16,48.0),Vector3(side*11.0,-0.75,0),mats.grass)
 		for z in range(-24, 25, 5):
-			_build_tree(Vector3(side*10.5, -0.5, z), 0.52)
+			_place_local_prop("oak_trees_museum", "", Vector3(side*10.5, -0.5, z), Vector3.ONE * 0.52, z * 0.09)
 		for z in [-18.0, -8.0, 2.0, 12.0, 20.0]:
-			var mountain := _sphere(world_root, Vector3(4.5, 2.8, 1.9), Vector3(side*18.0, 1.0, z), mats.blue, 20, 12)
-			mountain.rotation.z = 0.15 * side
+			var mountain_path := GENERATED_ASSET_DIR + "scenic_mountain.glb"
+			if ResourceLoader.exists(mountain_path):
+				_import_prop(mountain_path, Vector3(side * 18.0, -0.75, z), Vector3(1.25, 1.0, 0.70), side * 0.18)
+			else:
+				var mountain := _sphere(world_root, Vector3(4.5, 2.8, 1.9), Vector3(side*18.0, 1.0, z), mats.blue, 20, 12)
+				mountain.rotation.z = 0.15 * side
 	# Water and a tiny village read as separate travel beats through the east windows.
-	_box(world_root,Vector3(8.0,0.12,13.0),Vector3(13.8,-0.55,4.0),mats.blue)
+	_box(world_root,Vector3(8.0,0.12,13.0),Vector3(13.8,-0.55,4.0),mats.water)
 	for z in [-14.0,-10.5,14.0,17.5]:
-		_box(world_root,Vector3(1.8,1.4,1.8),Vector3(14.0,0.0,z),mats.cream)
-		var roof:=_box(world_root,Vector3(2.2,0.45,2.2),Vector3(14.0,0.9,z),mats.red);roof.rotation.z=0.18
+		var village_path := GENERATED_ASSET_DIR + "village_house.glb"
+		if ResourceLoader.exists(village_path):
+			_import_prop(village_path, Vector3(14.0, -0.65, z), Vector3.ONE, z * 0.07)
+		else:
+			_box(world_root,Vector3(1.8,1.4,1.8),Vector3(14.0,0.0,z),mats.cream)
 	for index in range(scenery_start, world_root.get_child_count()):
 		var scenery := world_root.get_child(index) as Node3D
 		if scenery != null:
@@ -768,12 +942,21 @@ func _build_train() -> void:
 		for x in [-8.8,8.8]: _box(world_root,Vector3(0.5,10.0,0.5),Vector3(x,0,z),mats.ink)
 	# Entry, seating, study, quiet, window and end bays now span the carriage length.
 	for z in [-16.5, -10.5, -4.5, 1.5, 7.5, 13.5]:
-		_box(world_root, Vector3(2.7, 0.18, 1.1), Vector3(-3.8, 0.72, z), mats.teal)
-		_box(world_root, Vector3(2.7, 0.18, 1.1), Vector3(3.8, 0.72, z), mats.gold)
-		_sphere(world_root, Vector3(1.3, 0.7, 0.2), Vector3(-4.0, 1.22, z + 0.44), mats.teal, 24, 14)
-		_sphere(world_root, Vector3(1.3, 0.7, 0.2), Vector3(4.0, 1.22, z + 0.44), mats.gold, 24, 14)
-		_box(world_root, Vector3(2.7, 0.16, 1.0), Vector3(0, 1.02, z), mats.wood)
-		_capsule_mesh(world_root, 0.12, 1.0, Vector3(0, 0.5, z), mats.cocoa)
+		var bench_path := GENERATED_ASSET_DIR + "train_bench.glb"
+		var train_table_path := GENERATED_ASSET_DIR + "train_table.glb"
+		if ResourceLoader.exists(bench_path):
+			# The Blender bench's upholstered back is local -Z. Keep it against
+			# the carriage wall so the cushion and seated character face the aisle.
+			_import_prop(bench_path, Vector3(-3.8, 0.0, z), Vector3.ONE, PI / 2.0)
+			_import_prop(bench_path, Vector3(3.8, 0.0, z), Vector3.ONE, -PI / 2.0)
+		else:
+			_box(world_root, Vector3(2.7, 0.18, 1.1), Vector3(-3.8, 0.72, z), mats.teal)
+			_box(world_root, Vector3(2.7, 0.18, 1.1), Vector3(3.8, 0.72, z), mats.gold)
+		if ResourceLoader.exists(train_table_path):
+			_import_prop(train_table_path, Vector3(0, 0, z), Vector3.ONE)
+		else:
+			_box(world_root, Vector3(2.7, 0.16, 1.0), Vector3(0, 1.02, z), mats.wood)
+			_capsule_mesh(world_root, 0.12, 1.0, Vector3(0, 0.5, z), mats.cocoa)
 		_import_prop("res://assets/external/kenney_furniture_kit/laptop.glb", Vector3(-0.7,1.12,z), Vector3.ONE * 0.78, PI / 2.0)
 		_place_local_prop("coffee_mug", "", Vector3(0.75,1.14,z+0.15), Vector3.ONE)
 		_place_local_prop("hardcover_books", "", Vector3(0.72,1.13,z-0.22), Vector3.ONE * 0.72, z * 0.08)
@@ -781,8 +964,13 @@ func _build_train() -> void:
 			_place_local_prop("nookphone", "", Vector3(0.05,1.13,z+0.22), Vector3.ONE, PI / 2.0)
 		else:
 			_place_local_prop("lost_book", "", Vector3(-0.05,1.13,z+0.22), Vector3.ONE, -PI / 2.0)
+		var travel_prop := "can_of_juice" if z < -8.0 else ("dal_mug" if z < 3.0 else ("grilled_cheese_sandwich" if z < 10.0 else "thank_you_mom_dad_mugs"))
+		_place_local_prop(travel_prop, "", Vector3(-0.1,1.13,z-0.30), Vector3.ONE, z * 0.05)
 		_place_local_prop("tote_bag" if z < 0 else "leather_handbag", "", Vector3(4.5,0,z+0.45), Vector3.ONE * 0.85, PI / 2.0)
-		_add_study_spot(Vector3(-3.8,0,z+1.0), Vector3(-3.8,0.05,z+0.28), PI / 2.0, "Laptop", Vector3(1.2,2.5,z+3.8), Vector3(-2.5,1.0,z))
+		for side in [-1.0, 1.0]:
+			var seat_yaw := -PI / 2.0 if side < 0.0 else PI / 2.0
+			for seat_z in [-0.46, 0.46]:
+				_register_furniture_seat(Vector3(side * 3.8, 0.0, z + seat_z), seat_yaw + PI, "Laptop" if seat_z < 0.0 else "Book", 0.05, 0.34, 0.88, "train_booth")
 		_add_blocker(Vector3(-4.0,0.75,z),Vector3(2.8,1.5,1.2),0.0)
 		_add_blocker(Vector3(4.0,0.75,z),Vector3(2.8,1.5,1.2),0.0)
 	_place_local_prop("pendulum_clock", "", Vector3(-5.1,1.45,-1.0), Vector3.ONE, PI / 2.0)
@@ -817,6 +1005,8 @@ func _build_japanese_room() -> void:
 		_place_local_prop("iced_tea", "", data[0] + Vector3(0.42,0.9,0), Vector3.ONE)
 	_place_local_prop("potted_spring_flowers", "", Vector3(-9.0,0,11.4), Vector3.ONE)
 	_place_local_prop("potted_autumn_flowers", "", Vector3(9.0,0,11.4), Vector3.ONE)
+	_place_local_prop("kadomatsu", "", Vector3(-11.5,0,11.7), Vector3.ONE)
+	_place_local_prop("potted_winter_flowers", "", Vector3(11.5,0,11.7), Vector3.ONE)
 	_box(world_root,Vector3(38.4,5.2,0.35),Vector3(0,2.45,-15.0),mats.cream)
 	for x in range(-18,19,3): _box(world_root,Vector3(0.15,5.0,0.4),Vector3(x,2.4,-14.8),mats.cocoa)
 	for y in [0.4,2.45,4.75]: _box(world_root,Vector3(38.2,0.14,0.4),Vector3(0,y,-14.8),mats.cocoa)
@@ -825,33 +1015,60 @@ func _build_japanese_room() -> void:
 	for x in [-12.0, 0.0, 12.0]: _build_window(Vector3(x,2.6,-14.72),Vector2(8.0,3.7),false)
 	_place_local_prop("pendulum_clock", "", Vector3(-16.8,1.5,-13.9), Vector3.ONE)
 	_place_local_prop("corkboard", "", Vector3(15.5,1.4,-13.9), Vector3.ONE)
+	_place_local_prop("wall_clock", "", Vector3(0.0,2.35,-14.55), Vector3.ONE)
+	_place_local_prop("broom", "", Vector3(-18.25,0.0,-12.2), Vector3.ONE, -0.22)
 	for data in [[Vector3(-16.0,0,-7.0),PI / 2.0],[Vector3(16.0,0,-7.0),-PI / 2.0]]:
 		_place_local_prop("mini_diy_workbench", "", data[0], Vector3(1.35,1.0,1.15), data[1])
+	# Finished Blender shelves turn the long side walls into intimate study bays.
+	for z in [-9.5, -1.0, 7.5]:
+		_build_bookshelf(Vector3(-18.35, 2.22, z), PI / 2.0, 3.8, 4.45, 0.68, int(180 + z * 7.0))
+		_build_bookshelf(Vector3(18.35, 2.22, z), -PI / 2.0, 3.8, 4.45, 0.68, int(240 + z * 9.0))
 	# Main study hall desks are widely separated; side rooms use distinct compositions.
 	for x in [-8.0,0.0,8.0]:
 		for z in [-5.0,3.0]:
-			_box(world_root,Vector3(2.8,0.18,1.2),Vector3(x,0.72,z),mats.wood)
-			for sx in [-1.05,1.05]: _capsule_mesh(world_root,0.09,0.7,Vector3(x+sx,0.35,z),mats.cocoa)
-			_sphere(world_root,Vector3(0.65,0.14,0.65),Vector3(x,0.16,z+1.0),mats.red,24,12)
+			var low_table_path := GENERATED_ASSET_DIR + "japanese_low_table.glb"
+			var cushion_path := GENERATED_ASSET_DIR + "floor_cushion.glb"
+			if ResourceLoader.exists(low_table_path):
+				_import_prop(low_table_path, Vector3(x, 0, z), Vector3.ONE)
+			else:
+				_box(world_root,Vector3(2.8,0.18,1.2),Vector3(x,0.72,z),mats.wood)
+				for sx in [-1.05,1.05]: _capsule_mesh(world_root,0.09,0.7,Vector3(x+sx,0.35,z),mats.cocoa)
+			if ResourceLoader.exists(cushion_path):
+				_import_prop(cushion_path, Vector3(x, 0, z + 1.0), Vector3.ONE)
+			else:
+				_sphere(world_root,Vector3(0.65,0.14,0.65),Vector3(x,0.16,z+1.0),mats.red,24,12)
 			_import_prop("res://assets/external/kenney_furniture_kit/laptop.glb",Vector3(x,0.84,z),Vector3.ONE*0.72,PI)
 			_place_local_prop("hardcover_books", "res://assets/external/kenney_furniture_kit/books.glb", Vector3(x+0.8,0.84,z), Vector3.ONE*0.8)
 			_place_local_prop("paperback_books", "", Vector3(x-0.75,0.85,z+0.18), Vector3.ONE * 0.72, x * 0.04)
 			_place_local_prop("nookphone" if z < 0 else "lost_book", "", Vector3(x,0.85,z-0.28), Vector3.ONE, 0.12)
-			_add_study_spot(Vector3(x,0,z+1.55),Vector3(x,-0.34,z+0.82),0,"Book",Vector3(x+4.5,2.2,z+4.2),Vector3(x,0.8,z))
+			if x == 0.0 and z > 0.0:
+				_place_local_prop("zodiac_snake_figurine", "", Vector3(x+0.35,0.84,z+0.12), Vector3.ONE)
+			elif x < 0.0 and z > 0.0:
+				_place_local_prop("cup_of_tea", "", Vector3(x+0.25,0.84,z+0.10), Vector3.ONE)
+			_add_study_spot(Vector3(x,0,z+1.85),Vector3(x,0.28,z+1.05),0,"Book",Vector3(x+4.5,2.7,z+4.4),Vector3(x,1.12,z+0.15),"floor_cushion",SEAT_VISUAL_OFFSETS.floor_cushion,0.28)
 			_add_blocker(Vector3(x,0.55,z),Vector3(2.9,1.1,1.3),0.0)
 	# Reading corner and low tea table create quieter destinations away from the hall.
 	for pos in [Vector3(-14,0,9),Vector3(-11,0,11),Vector3(13,0,10)]:
 		_build_armchair(pos, PI, mats.teal if pos.x < 0 else mats.gold)
 	_build_chair(Vector3(9.8,0,10.5), PI)
-	_cylinder(world_root,1.55,0.35,Vector3(13,0.3,6.5),mats.wood,40)
-	_place_local_prop("coffee_mug", "", Vector3(13.5,0.52,6.5), Vector3.ONE)
-	_place_local_prop("iced_tea", "", Vector3(12.5,0.52,6.5), Vector3.ONE)
+	var low_table_path := GENERATED_ASSET_DIR + "japanese_low_table.glb"
+	var cushion_path := GENERATED_ASSET_DIR + "floor_cushion.glb"
+	_import_prop(low_table_path, Vector3(13, 0, 6.5), Vector3(1.05, 1.0, 1.05))
+	for cushion_z in [-1.0, 1.0]:
+		_import_prop(cushion_path, Vector3(13, 0, 6.5 + cushion_z), Vector3.ONE)
+		_register_furniture_seat(Vector3(13, 0, 6.5 + cushion_z), PI if cushion_z > 0 else 0.0, "Book", 0.28, 0.20, 0.82, "floor_cushion")
+	_place_local_prop("coffee_mug", "", Vector3(13.5,0.86,6.5), Vector3.ONE)
+	_place_local_prop("iced_tea", "", Vector3(12.5,0.86,6.5), Vector3.ONE)
 	_place_local_prop("natural_basket", "", Vector3(-12.5,0,8.0), Vector3.ONE)
 	for x in [-16.6,16.6]:
 		_place_local_prop("potted_autumn_flowers" if x < 0 else "potted_spring_flowers", "res://assets/external/kenney_furniture_kit/pottedPlant.glb", Vector3(x,0,12.0), Vector3.ONE)
 		for y in [1.7,3.0]:
-			var lamp := _sphere(world_root,Vector3(0.48,0.65,0.48),Vector3(x,y,-11.9),mats.paper,24,14)
-			lamp.scale.z=0.75
+			_import_prop(GENERATED_ASSET_DIR + "wall_lamp.glb", Vector3(x, y, -14.55), Vector3.ONE * 0.82)
+	# Supplied plants, books and rugs break up repeated tatami without blocking circulation.
+	for data in [[Vector3(-16.2,0,-9.8),0.0],[Vector3(16.2,0,-9.8),0.4],[Vector3(-16.2,0,4.8),-0.2],[Vector3(16.2,0,4.8),0.2]]:
+		_place_local_prop("potted_spring_flowers", "res://assets/external/kenney_furniture_kit/pottedPlant.glb", data[0], Vector3.ONE * 0.86, data[1])
+	_import_prop("res://assets/external/kenney_furniture_kit/rugRounded.glb", Vector3(-12.5,0.03,9.7), Vector3(2.4,1.0,1.8), 0.12)
+	_import_prop("res://assets/external/kenney_furniture_kit/rugRounded.glb", Vector3(12.0,0.03,8.4), Vector3(2.0,1.0,1.55), -0.08)
 	for data in [[Vector3(-6,0.05,10.45),1,"Hana","24m"],[Vector3(8,-0.34,3.82),2,"Iko","46m"],[Vector3(0,-0.34,3.82),0,"Ren","39m"],[Vector3(-11,0.05,11),1,"Ami","17m"],[Vector3(9.8,0.05,10.5),2,"Yuki","52m"]]:
 		_create_npc(data[0],0,data[1],data[2],data[3],true)
 	_focus_camera(Vector3(15,8.0,13),Vector3(0,0.7,0),"Tatami hall wide")
@@ -862,18 +1079,22 @@ func _build_japanese_room() -> void:
 	_add_world_boundaries(current_room_config.bounds)
 
 func _build_cafe_table(pos: Vector3, accent: Material) -> void:
-	_cylinder(world_root,1.2,0.18,pos+Vector3(0,1.02,0),mats.wood,40)
-	_capsule_mesh(world_root,0.18,1.0,pos+Vector3(0,0.5,0),mats.cocoa)
-	_cylinder(world_root,0.58,0.12,pos+Vector3(0,0.06,0),mats.cocoa,32)
-	_build_chair(pos+Vector3(0,0,1.16),PI)
+	var generated_path := GENERATED_ASSET_DIR + "cafe_table.glb"
+	if ResourceLoader.exists(generated_path):
+		_import_prop(generated_path, pos, Vector3.ONE)
+	else:
+		_cylinder(world_root,1.2,0.18,pos+Vector3(0,1.02,0),mats.wood,40)
+		_capsule_mesh(world_root,0.18,1.0,pos+Vector3(0,0.5,0),mats.cocoa)
+		_cylinder(world_root,0.58,0.12,pos+Vector3(0,0.06,0),mats.cocoa,32)
+		_capsule_mesh(world_root,0.08,3.2,pos+Vector3(0,2.25,0),mats.cocoa)
+		for i in 8:
+			var petal:=_sphere(world_root,Vector3(1.25,0.10,0.52),pos+Vector3(cos(i*TAU/8.0)*0.8,3.72,sin(i*TAU/8.0)*0.8),accent,20,10)
+			petal.rotation.y=i*TAU/8.0
+	_build_chair(pos+Vector3(0,0,1.52),PI,"Laptop","cafe_chair")
 	_import_prop("res://assets/external/kenney_furniture_kit/laptop.glb",pos+Vector3(0,1.16,-0.2),Vector3.ONE*0.76,PI)
-	_cylinder(world_root,0.13,0.30,pos+Vector3(0.65,1.23,0.1),accent,24)
-	# Umbrella canopy uses overlapping petals for a designed silhouette.
-	_capsule_mesh(world_root,0.08,3.2,pos+Vector3(0,2.25,0),mats.cocoa)
-	for i in 8:
-		var petal:=_sphere(world_root,Vector3(1.25,0.10,0.52),pos+Vector3(cos(i*TAU/8.0)*0.8,3.72,sin(i*TAU/8.0)*0.8),accent,20,10)
-		petal.rotation.y=i*TAU/8.0
+	_place_local_prop("iced_tea", "", pos + Vector3(0.65, 1.17, 0.1), Vector3.ONE)
 	_add_blocker(pos + Vector3(0,0.65,0),Vector3(2.25,1.3,2.25),0.0)
+	_add_blocker(pos + Vector3(0,2.55,0),Vector3(0.22,3.5,0.22),0.0)
 
 func _build_tree(pos: Vector3, scale_value: float) -> void:
 	var root:=Node3D.new();world_root.add_child(root);root.position=pos;root.scale=Vector3.ONE*scale_value
@@ -896,11 +1117,20 @@ func _build_plant(pos: Vector3, scale_value: float) -> void:
 		leaf.rotation.x=sin(ang)*0.48
 
 func _create_npc(pos: Vector3, yaw: float, variant: int, display_name: String, timer: String, seated: bool) -> void:
-	var root=NPCControllerScript.new();world_root.add_child(root);root.position=pos;root.rotation.y=yaw
+	var assigned_spot = _find_available_spot_near(pos) if seated else null
+	if seated and assigned_spot == null:
+		push_warning("NPC %s has no available authored seat near %s" % [display_name, pos])
+		return
+	if assigned_spot != null and not assigned_spot.reserve(display_name, StudySpot.OccupantType.NPC):
+		push_warning("NPC %s could not reserve %s" % [display_name, assigned_spot.seat_id])
+		return
+	var root=NPCControllerScript.new();world_root.add_child(root)
+	root.name = "NPC_%s" % display_name
+	root.position = assigned_spot.sitting_position if assigned_spot != null else pos
+	root.rotation.y = assigned_spot.facing_yaw if assigned_spot != null else yaw
 	var visual:=_create_character(root,variant,seated)
-	visual.scale*=0.92
 	if seated:
-		character_loader.set_seated(visual, true)
+		character_loader.set_seated(visual, true, assigned_spot.seated_visual_offset)
 		if not bool(visual.get_meta("is_imported_character", false)):
 			var parts:Dictionary=visual.get_meta("parts")
 			parts.leg_l.rotation.x=-1.22;parts.leg_r.rotation.x=-1.22
@@ -908,34 +1138,67 @@ func _create_npc(pos: Vector3, yaw: float, variant: int, display_name: String, t
 			parts.arm_l.rotation.x=-0.78;parts.arm_r.rotation.x=-0.78
 	var label:=Label3D.new();root.add_child(label)
 	label.text=display_name+"  ·  "+timer
-	label.position=Vector3(0,2.75,0)
+	var profile = character_loader.get_profile(variant)
+	label.position=Vector3(0, profile.label_height, 0)
 	label.font_size=24;label.outline_size=7;label.modulate=CREAM;label.outline_modulate=Color(0.08,0.05,0.04,0.85)
 	label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-	root.setup(visual, character_loader, seated, "Laptop" if variant % 2 == 0 else "Book")
+	root.setup(visual, character_loader, seated, assigned_spot.study_type if assigned_spot != null else ("Laptop" if variant % 2 == 0 else "Book"), assigned_spot, display_name)
 	npcs.append(root)
 
-func _add_study_spot(standing: Vector3, sitting: Vector3, yaw: float, study_type: String, camera_pos: Vector3, camera_target: Vector3) -> void:
-	var spot = StudySpotScript.new(); world_root.add_child(spot); spot.name="StudySpot_%02d"%study_spots.size(); spot.configure(standing, sitting, yaw, study_type, camera_pos, camera_target)
+func _find_available_spot_near(position_hint: Vector3, maximum_distance := 4.0):
+	var best = null
+	var best_distance := maximum_distance
+	for spot in study_spots:
+		if not spot.is_available():
+			continue
+		var distance: float = position_hint.distance_to(spot.sitting_position)
+		if distance < best_distance:
+			best = spot
+			best_distance = distance
+	return best
+
+func _add_study_spot(standing: Vector3, sitting: Vector3, yaw: float, study_type: String, camera_pos: Vector3, camera_target: Vector3, seat_type := "desk_chair", seated_visual_offset := Vector3.ZERO, seat_height := 0.0):
+	var spot = StudySpotScript.new()
+	world_root.add_child(spot)
+	spot.name = "StudySpot_%02d" % study_spots.size()
+	spot.configure("%s-seat-%02d" % [current_room_config.get("id", "review"), study_spots.size()], standing, sitting, yaw, study_type, camera_pos, camera_target, seat_type, seated_visual_offset, seat_height)
 	var debug_root:=Node3D.new();spot.add_child(debug_root);debug_root.name="DebugVisual";debug_root.visible=false
 	var stand_marker:=_cylinder(debug_root,0.22,0.04,standing+Vector3(0,0.05,0),mats.green,18)
 	var sit_marker:=_cylinder(debug_root,0.22,0.04,sitting+Vector3(0,0.08,0),mats.coral,18)
+	var radius_ring := MeshInstance3D.new(); debug_root.add_child(radius_ring); radius_ring.position = standing + Vector3.UP * 0.035
+	var torus := TorusMesh.new(); torus.inner_radius = 1.96; torus.outer_radius = 2.05; torus.rings = 48; torus.ring_segments = 8
+	var ring_material := StandardMaterial3D.new(); ring_material.albedo_color = Color(0.25, 1.0, 0.45, 0.58); ring_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; ring_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	torus.material = ring_material; radius_ring.mesh = torus
 	var arrow:=_box(debug_root,Vector3(0.08,0.08,0.9),sitting+Vector3(0,0.15,-0.42),mats.gold);arrow.rotation.y=yaw
+	var seat_label := Label3D.new(); debug_root.add_child(seat_label); seat_label.position = sitting + Vector3.UP * 0.55
+	seat_label.font_size = 22; seat_label.outline_size = 6; seat_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	spot.debug_visual = debug_root
+	spot.debug_stand_marker = stand_marker
+	spot.debug_sit_marker = sit_marker
+	spot.debug_radius_marker = radius_ring
+	spot.debug_label = seat_label
 	study_spots.append(spot)
+	spot.update_debug(false)
+	return spot
 
 func _update_nearest_spot() -> void:
 	if not is_instance_valid(player):return
-	var best:=-1;var best_distance:=2.05
+	var best:=-1;var best_distance:=INF
 	for i in study_spots.size():
+		if not study_spots[i].is_available(): continue
 		var d:float=player.global_position.distance_to(study_spots[i].standing_position)
-		if d<best_distance:best=i;best_distance=d
+		if d <= study_spots[i].interaction_radius and d < best_distance:best=i;best_distance=d
 	nearest_spot=best
+	if debug_spots_visible:
+		for i in study_spots.size(): study_spots[i].update_debug(i == best)
 	if is_instance_valid(prompt_label):
 		prompt_label.visible=best>=0
 		if best>=0:prompt_label.text="E   Study here  ·  "+study_spots[best].study_type
 
 func _set_debug_spots(value: bool) -> void:
-	for spot in study_spots:spot.debug_visual.visible=value
+	for i in study_spots.size():
+		study_spots[i].debug_visual.visible=value
+		study_spots[i].update_debug(i == nearest_spot)
 	_show_toast("StudySpot anchors "+("visible" if value else "hidden"))
 
 func _set_collision_debug(value: bool) -> void:
@@ -962,6 +1225,11 @@ func _build_room_ui() -> void:
 func _open_focus_setup(spot_index: int) -> void:
 	if study_spots.is_empty():return
 	spot_index=clampi(spot_index,0,study_spots.size()-1)
+	var spot = study_spots[spot_index]
+	if not spot.reserve("local_player", StudySpot.OccupantType.PLAYER):
+		_show_toast("That seat is occupied")
+		return
+	pending_study_spot = spot
 	_set_movement_enabled(false)
 	var overlay:=ColorRect.new();ui_root.add_child(overlay);overlay.name="FocusSetupOverlay";overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);overlay.color=Color(0.06,0.04,0.03,0.68)
 	var panel:=PanelContainer.new();overlay.add_child(panel);panel.position=Vector2(355,115);panel.size=Vector2(570,490);panel.add_theme_stylebox_override("panel",_panel_style(CREAM,30,5,HONEY))
@@ -993,18 +1261,27 @@ func _choose_duration(seconds: int, grid: GridContainer) -> void:
 func _close_focus_setup() -> void:
 	var overlay:=ui_root.get_node_or_null("FocusSetupOverlay")
 	if overlay:overlay.queue_free()
+	if pending_study_spot != null and is_instance_valid(pending_study_spot):
+		pending_study_spot.release("local_player")
+		pending_study_spot.update_debug(false)
+	pending_study_spot = null
 	_set_movement_enabled(true)
 
 func _begin_focus(spot_index: int) -> void:
 	var task:=task_input.text if is_instance_valid(task_input) else "Quiet focus"
 	var spot = study_spots[spot_index]
+	if not spot.reserve("local_player", StudySpot.OccupantType.PLAYER):
+		_show_toast("That seat is occupied")
+		_close_focus_setup()
+		return
 	active_study_spot = spot
+	pending_study_spot = null
 	var overlay:=ui_root.get_node_or_null("FocusSetupOverlay");if overlay:overlay.queue_free()
 	# Author-authored anchors are used directly for deterministic seat alignment.
 	await _transition_player_to_study_spot(spot)
 	player.velocity=Vector3.ZERO
 	if bool(player_visual.get_meta("is_imported_character", false)):
-		character_loader.set_seated(player_visual, true)
+		character_loader.set_seated(player_visual, true, spot.seated_visual_offset)
 		character_loader.play_animation(player_visual, "StudyLaptop" if spot.study_type == "Laptop" else "StudyBook")
 	elif player_parts.has("leg_l"):
 		player_parts.leg_l.rotation.x=-1.22;player_parts.leg_r.rotation.x=-1.22
@@ -1012,8 +1289,7 @@ func _begin_focus(spot_index: int) -> void:
 	_set_movement_enabled(false)
 	screen=Screen.FOCUS
 	_build_focus_hud(task)
-	# The first camera is spot-specific, followed by authored room B-roll.
-	var personal:=_make_camera(_readable_focus_position(spot.camera_position, spot.camera_target),spot.camera_target,38.0,false);focus_cameras.push_front(personal)
+	_prepare_focus_camera_pool(spot)
 	focus_shot_index=-1
 	next_shot_at=0
 	FocusManager.start_session(task,selected_duration)
@@ -1029,16 +1305,19 @@ func _transition_player_to_study_spot(spot) -> void:
 	var settle := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	settle.tween_property(player, "global_position", spot.sitting_position, 0.42)
 	await settle.finished
-	character_loader.set_seated(player_visual, true)
+	character_loader.set_seated(player_visual, true, spot.seated_visual_offset)
 
 func _begin_review_focus() -> void:
 	if study_spots.is_empty(): return
 	var spot = study_spots[0]
+	if not spot.is_available():
+		spot = study_spots.filter(func(candidate): return candidate.is_available()).front()
+	spot.reserve("local_player", StudySpot.OccupantType.PLAYER)
 	active_study_spot = spot
 	player.position = spot.sitting_position
 	player.rotation.y = spot.facing_yaw
 	player.velocity = Vector3.ZERO
-	character_loader.set_seated(player_visual, true)
+	character_loader.set_seated(player_visual, true, spot.seated_visual_offset)
 	character_loader.play_animation(player_visual, "StudyLaptop" if spot.study_type == "Laptop" else "StudyBook", 0.0)
 	if player_parts.has("leg_l"):
 		player_parts.leg_l.rotation.x = -1.22
@@ -1048,9 +1327,32 @@ func _begin_review_focus() -> void:
 	_set_movement_enabled(false)
 	screen = Screen.FOCUS
 	_build_focus_hud("Reference analysis notes")
-	var personal := _make_camera(_readable_focus_position(spot.camera_position, spot.camera_target), spot.camera_target, 38.0, false)
-	personal.set_meta("shot_name", "Personal desk")
-	focus_cameras.push_front(personal)
+	_prepare_focus_camera_pool(spot)
+	focus_shot_index = -1
+	next_shot_at = 0
+	FocusManager.start_session("Reference analysis notes", 1500)
+
+func _begin_review_focus_at(spot_index: int) -> void:
+	if study_spots.is_empty():
+		return
+	var clamped_index := clampi(spot_index, 0, study_spots.size() - 1)
+	if not study_spots[clamped_index].is_available():
+		var available = study_spots.filter(func(candidate): return candidate.is_available())
+		if available.is_empty():
+			return
+		clamped_index = study_spots.find(available.front())
+	var chosen = study_spots[clamped_index]
+	chosen.reserve("local_player", StudySpot.OccupantType.PLAYER)
+	active_study_spot = chosen
+	player.position = chosen.sitting_position
+	player.rotation.y = chosen.facing_yaw
+	player.velocity = Vector3.ZERO
+	character_loader.set_seated(player_visual, true, chosen.seated_visual_offset)
+	character_loader.play_animation(player_visual, "StudyLaptop" if chosen.study_type == "Laptop" else "StudyBook", 0.0)
+	_set_movement_enabled(false)
+	screen = Screen.FOCUS
+	_build_focus_hud("Reference analysis notes")
+	_prepare_focus_camera_pool(chosen)
 	focus_shot_index = -1
 	next_shot_at = 0
 	FocusManager.start_session("Reference analysis notes", 1500)
@@ -1060,10 +1362,84 @@ func _begin_review_walk() -> void:
 	await get_tree().create_timer(2.2).timeout
 	Input.action_release("move_forward")
 
+func _begin_review_walk_side() -> void:
+	Input.action_press("move_right")
+	await get_tree().create_timer(2.8).timeout
+	Input.action_release("move_right")
+
+func _begin_npc_walk_review() -> void:
+	if npcs.is_empty():
+		return
+	player.visible = false
+	var npc = npcs.front()
+	npc.global_position = Vector3(-4.0, 0.05, 9.2)
+	npc.walk_to(Vector3(4.0, 0.05, 9.2), 3.4)
+	_make_camera(Vector3(2.2, 3.3, 15.0), Vector3(0.0, 1.25, 9.2), 40.0)
+
+func _begin_seating_review(seat_type: String) -> void:
+	var matching := study_spots.filter(func(spot): return spot.is_available() and spot.seat_type == seat_type)
+	if matching.is_empty():
+		return
+	var spot = matching.front()
+	spot.reserve("local_player", StudySpot.OccupantType.PLAYER)
+	active_study_spot = spot
+	player.global_position = spot.sitting_position
+	player.rotation.y = spot.facing_yaw
+	player.velocity = Vector3.ZERO
+	character_loader.set_seated(player_visual, true, spot.seated_visual_offset)
+	character_loader.play_animation(player_visual, "SeatedIdle", 0.0)
+	_set_movement_enabled(false)
+	var forward := Basis(Vector3.UP, spot.facing_yaw) * Vector3.FORWARD
+	var right := Basis(Vector3.UP, spot.facing_yaw) * Vector3.RIGHT
+	var target: Vector3 = spot.sitting_position + Vector3.UP * 1.18
+	var camera_offset := forward * 3.25 + right * 2.65 + Vector3.UP * 1.45
+	if seat_type == "train_booth":
+		camera_offset = forward * 2.20 + right * 3.80 + Vector3.UP * 1.45
+	elif seat_type == "floor_cushion":
+		camera_offset = forward * 0.85 + right * 4.10 + Vector3.UP * 1.35
+	_make_camera(target + camera_offset, target, 40.0)
+
 func _activate_review_camera(index: int) -> void:
 	if focus_cameras.is_empty():
 		return
 	focus_cameras[clampi(index, 0, focus_cameras.size() - 1)].current = true
+
+func _activate_shelf_review() -> void:
+	_make_camera(Vector3(-8.0, 4.3, 7.4), Vector3(0.0, 1.85, 1.15), 40.0)
+
+func _activate_wall_shelf_review() -> void:
+	_make_camera(Vector3(-10.2, 3.4, 5.8), Vector3(-18.0, 2.0, 0.5), 38.0)
+
+func _activate_garden_tuft_review() -> void:
+	_make_camera(Vector3(8.8, 1.35, 7.4), Vector3(7.25, 0.26, 4.25), 34.0)
+
+func _activate_plant_review() -> void:
+	_make_camera(Vector3(13.5, 4.4, 15.0), Vector3(7.8, 0.85, 10.9), 40.0)
+
+func _activate_prop_grounding_review() -> void:
+	_make_camera(Vector3(11.0, 3.5, 10.5), Vector3(6.5, 0.8, 9.8), 40.0)
+
+func _activate_npc_review() -> void:
+	if npcs.is_empty():
+		return
+	var review_index := 3
+	if str(current_room_config.get("id", "")) == "garden":
+		# The east-edge table sits under dense tree canopies. Review the open
+		# central café seat so foliage cannot conceal the seated silhouette.
+		review_index = 1
+	var reviewed_npc = npcs[mini(review_index, npcs.size() - 1)]
+	if reviewed_npc.assigned_spot == null:
+		return
+	var spot = reviewed_npc.assigned_spot
+	var forward := Basis(Vector3.UP, spot.facing_yaw) * Vector3.FORWARD
+	var right := Basis(Vector3.UP, spot.facing_yaw) * Vector3.RIGHT
+	var target: Vector3 = spot.sitting_position + Vector3.UP * 1.25
+	var camera_offset := forward * 0.75 + right * 4.0 + Vector3.UP * 1.55
+	if spot.seat_type == "cafe_chair":
+		camera_offset = -forward * 0.40 + right * 4.20 + Vector3.UP * 1.55
+	if spot.seat_type == "train_booth":
+		camera_offset = forward * 2.20 + right * 3.80 + Vector3.UP * 1.45
+	_make_camera(target + camera_offset, target, 40.0)
 
 func _build_focus_hud(task: String) -> void:
 	for child in ui_root.get_children():child.queue_free()
@@ -1082,13 +1458,91 @@ func _on_focus_tick(remaining: int) -> void:
 	if is_instance_valid(focus_time_label):focus_time_label.text="%02d:%02d"%[remaining/60,remaining%60]
 
 func _cycle_focus_camera() -> void:
-	if focus_cameras.is_empty():return
-	focus_shot_index=(focus_shot_index+1)%focus_cameras.size()
+	if focus_cameras.is_empty():
+		return
+	var to_camera: Camera3D
+	for _attempt in focus_cameras.size():
+		focus_shot_index = (focus_shot_index + 1) % focus_cameras.size()
+		var candidate := focus_cameras[focus_shot_index]
+		if active_study_spot == null or _is_focus_shot_clear(candidate.global_position, active_study_spot):
+			to_camera = candidate
+			break
+	if not is_instance_valid(to_camera):
+		push_warning("All focus-camera candidates became obstructed; retaining the current clear shot")
+		next_shot_at = Time.get_unix_time_from_system() + 5.0
+		return
 	var from_camera := get_viewport().get_camera_3d()
-	var to_camera := focus_cameras[focus_shot_index]
 	focus_camera_director.transition(from_camera, to_camera, 0.72)
 	next_shot_at=Time.get_unix_time_from_system()+25.0
 	if is_instance_valid(focus_shot_label):focus_shot_label.text="FOCUS  ·  shot %d of %d"%[focus_shot_index+1,focus_cameras.size()]
+
+func _prepare_focus_camera_pool(spot, report := true) -> void:
+	# Room-establishing cameras remain useful for exploration reviews, but focus
+	# mode gets a fresh seat-relative pool so every shot keeps the current player
+	# readable. Candidates are accepted only after live collision ray checks.
+	for camera in focus_cameras:
+		if is_instance_valid(camera):
+			camera.queue_free()
+	focus_cameras.clear()
+	focus_candidates_evaluated = 0
+	focus_candidates_rejected = 0
+	var room_id := str(current_room_config.get("id", "library"))
+	var offsets := [
+		Vector3(4.15, 2.55, 1.65), Vector3(-4.15, 2.50, 1.65),
+		Vector3(2.15, 2.55, 4.30), Vector3(-2.15, 2.45, 4.10),
+		Vector3(1.10, 3.15, 5.25), Vector3(-1.10, 3.00, 5.00),
+		Vector3(2.75, 3.25, 3.55), Vector3(-2.75, 3.15, 3.55),
+		Vector3(0.60, 3.75, 4.10), Vector3(-0.60, 3.65, 4.10),
+	]
+	if room_id == "train":
+		offsets = [
+			Vector3(2.35, 2.65, 2.45), Vector3(-2.35, 2.60, 2.45),
+			Vector3(1.10, 2.55, 3.85), Vector3(-1.10, 2.45, 3.70),
+			Vector3(1.75, 2.90, 3.25), Vector3(-1.75, 2.80, 3.20),
+			Vector3(0.45, 3.35, 3.60), Vector3(-0.45, 3.25, 3.55),
+		]
+	var forward := Basis(Vector3.UP, spot.facing_yaw) * Vector3.FORWARD
+	var right := Basis(Vector3.UP, spot.facing_yaw) * Vector3.RIGHT
+	var target: Vector3 = spot.sitting_position + Vector3.UP * 1.48 + forward * 0.06
+	for index in offsets.size():
+		var offset: Vector3 = offsets[index]
+		var position: Vector3 = spot.sitting_position + right * offset.x + Vector3.UP * offset.y + forward * offset.z
+		focus_candidates_evaluated += 1
+		if not _is_focus_shot_clear(position, spot):
+			focus_candidates_rejected += 1
+			continue
+		var camera := _make_camera(position, target, 38.0, false)
+		camera.set_meta("shot_name", "%s clear angle %d" % [spot.seat_type.capitalize(), index + 1])
+		camera.set_meta("focus_target", target)
+		focus_cameras.append(camera)
+	if focus_cameras.is_empty():
+		push_error("No clear focus camera found for %s" % spot.seat_id)
+		return
+	if report:
+		print("FOCUS_POOL room=%s seat=%s accepted=%d rejected=%d" % [room_id, spot.seat_id, focus_cameras.size(), focus_candidates_rejected])
+
+func _is_focus_shot_clear(camera_position: Vector3, spot) -> bool:
+	if spot == null or not is_instance_valid(spot) or not is_inside_tree():
+		return false
+	var bounds: Vector2 = current_room_config.get("bounds", Vector2(20.0, 15.0))
+	if absf(camera_position.x) > bounds.x - 0.35 or absf(camera_position.z) > bounds.y - 0.35:
+		return false
+	var distance := camera_position.distance_to(spot.sitting_position)
+	if distance < 2.6 or distance > 7.5 or camera_position.y < 1.65:
+		return false
+	var forward := Basis(Vector3.UP, spot.facing_yaw) * Vector3.FORWARD
+	var target_points := [
+		spot.sitting_position + Vector3.UP * 1.62 + forward * 0.04,
+		spot.sitting_position + Vector3.UP * 2.18 + forward * 0.02,
+	]
+	for target_point in target_points:
+		var query := PhysicsRayQueryParameters3D.create(camera_position, target_point, 1)
+		if player is CollisionObject3D:
+			query.exclude = [player.get_rid()]
+		var hit: Dictionary = world_root.get_world_3d().direct_space_state.intersect_ray(query)
+		if not hit.is_empty():
+			return false
+	return true
 
 func _on_focus_completed() -> void:
 	if screen!=Screen.FOCUS:return
@@ -1118,6 +1572,8 @@ func _restore_player_standing() -> void:
 	if active_study_spot != null and is_instance_valid(active_study_spot):
 		player.global_position = active_study_spot.standing_position
 		player.rotation.y = active_study_spot.facing_yaw
+		active_study_spot.release("local_player")
+		active_study_spot.update_debug(false)
 	character_loader.set_seated(player_visual, false)
 	character_loader.play_animation(player_visual, "Idle")
 	player.velocity = Vector3.ZERO
@@ -1151,7 +1607,7 @@ func _readable_focus_position(authored_position: Vector3, target: Vector3) -> Ve
 	var direction := authored_position - target
 	if direction.length_squared() < 0.001:
 		direction = Vector3(1.0, 0.45, 1.0)
-	return target + direction.normalized() * maxf(direction.length(), 9.5)
+	return target + direction.normalized() * maxf(direction.length(), 6.8)
 
 func _focus_camera(pos: Vector3,target: Vector3,shot_name: String) -> void:
 	var cam:=_make_camera(pos,target,36.0,false);cam.set_meta("shot_name",shot_name);focus_cameras.append(cam)
@@ -1242,6 +1698,12 @@ func _import_prop(path: String,pos: Vector3,scale_value: Vector3,yaw: float=0.0)
 		var scene=load(path)
 		if scene is PackedScene:holder.add_child(scene.instantiate())
 	return holder
+
+func _override_mesh_material(root: Node, material: Material) -> void:
+	if root is MeshInstance3D:
+		root.material_override = material
+	for child in root.get_children():
+		_override_mesh_material(child, material)
 
 func _panel_style(color: Color, radius: int, border_width: int=0, border_color: Color=Color.TRANSPARENT) -> StyleBoxFlat:
 	var style:=StyleBoxFlat.new();style.bg_color=color

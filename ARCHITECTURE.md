@@ -10,10 +10,11 @@ StudyTown is a Godot 4.7 GDScript project using the Compatibility renderer for m
 - `scripts/player/player_controller.gd` owns acceleration, deceleration, grounded gravity, floor snapping, -Z facing, locomotion state, and below-world recovery to a validated spawn.
 - `scripts/player/character_profile.gd` and `scripts/assets/character_loader.gd` read `assets/local_asset_manifest.json`, select owner-local cat GLBs when present, and otherwise instantiate the committed fallback.
 - `scripts/characters/character_animation_controller.gd` centralizes state-to-clip mapping, looping states, and one-shot return behaviour for player and NPC cats.
-- `scripts/camera/follow_camera.gd` follows X/Z with damping, fixed authored orientation, subtle velocity look-ahead, and a world-collision ray. `focus_camera_director.gd` blends to and from authored B-roll.
+- `scripts/camera/follow_camera.gd` follows X/Z with damping, a fixed near-frontal authored orientation, subtle velocity look-ahead, and a world-collision ray. `focus_camera_director.gd` blends between focus shots and back to exploration.
 - `scripts/world/room_floor.gd` creates the reusable `StaticBody3D` structural floor. World, Player, NPC, and Interaction are physics layers 1–4.
 - `scripts/rooms/room_definitions.gd` centralizes footprint, spawn, bounds, camera offset, look height, FOV, and damping.
-- `StudySpot` nodes contain explicit standing/sitting transforms, yaw, activity, camera position, camera target, and debug visuals. Furniture origins never determine seating.
+- `StudySpot` nodes contain explicit standing/sitting transforms, yaw, activity, seat type, seat height, seat-specific visual offset, camera data, occupancy, and debug visuals. Furniture origins never determine seating. `CharacterLoader` combines the seat offset with the selected `CharacterProfile` offset for both players and NPCs.
+- Focus mode discards the exploration B-roll pool and generates a curated set of seat-relative front/side angles. Shoulder and head rays must both be clear before a camera is admitted; the same validation runs again whenever shots cycle, so newly blocked views are skipped.
 
 ## State flow
 

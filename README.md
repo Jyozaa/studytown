@@ -6,9 +6,9 @@ StudyTown is a cozy 3D social study game built in Godot. Choose a character and 
 
 - Three owner-local cat profiles (Bob, Rosie, and Raymond) with a runnable public fallback
 - 44×32 Grand Library, 52×38 Garden Café, 11×42 Scenic Train, and 38×30 Japanese Study Room, each split into distinct activity zones
-- Smooth fixed-orientation elevated follow camera for exploration and authored cinematic cameras for focus sessions
+- Smooth, straighter fixed-orientation elevated follow camera for exploration and seat-relative cinematic cameras with live obstruction rejection for focus sessions
 - Collision-backed structural floors, walls, boundaries, and major furniture; grounded gravity and validated per-room spawn points
-- Calm NPC populations of 6/5/4/5 with explicit anchors and occasional non-looping ambient actions
+- Calm NPC populations of 6/5/4/5 with explicit seat-type anchors, shared sitting offsets, readable skeletal walking, and occasional non-looping ambient actions
 - Camera-relative CharacterBody3D WASD movement, smooth acceleration/deceleration, canonical -Z facing, skeletal locomotion/study animation, wave response, and compact labels
 - Task entry, 25/50/90/120-minute presets, 10-second developer session, timestamp-based countdown, completion reward, and local persistence
 - Focus Coins, total minutes, completed sessions, and recent-session save data
@@ -23,10 +23,10 @@ StudyTown is a cozy 3D social study game built in Godot. Choose a character and 
 
 ## Run
 
-Open `project.godot` in Godot and press F6/F5, or on this Mac:
+Open `project.godot` in Godot and press F6/F5, or from the repository root on the documented development Mac:
 
 ```bash
-/Applications/Godot.app/Contents/MacOS/Godot --path /Users/joe/Desktop/studytown
+/Applications/Godot.app/Contents/MacOS/Godot --path .
 ```
 
 ## Controls
@@ -68,6 +68,7 @@ The local development build can load owner-supplied character and prop reference
 - `scripts/rooms/room_definitions.gd` — footprints, validated spawns, walkable bounds, and per-room camera tuning
 - `tools/local_assets/` — metadata audit and local-only Blender inspection/normalization pipelines
 - `assets/external/` — selected game-ready CC0 support assets
+- `assets/generated/` — original Blender-authored public assets, including the Garden grass tuft and its editable source
 - `assets/source_external/` — retained original pack source and license; ignored by Godot import
 - `art_reviews/` — screenshot-driven visual QA
 - `web/` — export and local serving scripts

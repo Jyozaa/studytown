@@ -60,6 +60,7 @@ def inspect(path: Path) -> dict:
     return {
         "path": str(path),
         "mesh_names": [obj.name for obj in meshes],
+        "meshes": [mesh_report(obj) for obj in meshes],
         "mesh_count": len(meshes),
         "vertex_count": sum(len(obj.data.vertices) for obj in meshes),
         "material_names": sorted({slot.material.name for obj in meshes for slot in obj.material_slots if slot.material}),
@@ -70,6 +71,15 @@ def inspect(path: Path) -> dict:
                 "name": armature.name,
                 "bone_count": len(armature.data.bones),
                 "bone_names": [bone.name for bone in armature.data.bones],
+                "bones": [
+                    {
+                        "name": bone.name,
+                        "parent": bone.parent.name if bone.parent else "",
+                        "head": [round(float(value), 6) for value in bone.head_local],
+                        "tail": [round(float(value), 6) for value in bone.tail_local],
+                    }
+                    for bone in armature.data.bones
+                ],
             }
             for armature in armatures
         ],
@@ -81,6 +91,33 @@ def inspect(path: Path) -> dict:
             }
             for action in bpy.data.actions
         ],
+    }
+
+
+def mesh_report(obj: bpy.types.Object) -> dict:
+    points = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
+    minimum = Vector(tuple(min(point[i] for point in points) for i in range(3)))
+    maximum = Vector(tuple(max(point[i] for point in points) for i in range(3)))
+    return {
+        "name": obj.name,
+        "vertices": len(obj.data.vertices),
+        "materials": [slot.material.name for slot in obj.material_slots if slot.material],
+        "vertex_groups": [group.name for group in obj.vertex_groups],
+        "modifiers": [
+            {
+                "name": modifier.name,
+                "type": modifier.type,
+                "object": modifier.object.name if hasattr(modifier, "object") and modifier.object else "",
+            }
+            for modifier in obj.modifiers
+        ],
+        "visible_viewport": not obj.hide_viewport,
+        "visible_render": not obj.hide_render,
+        "bounds": {
+            "minimum": [round(float(value), 6) for value in minimum],
+            "maximum": [round(float(value), 6) for value in maximum],
+            "dimensions": [round(float(maximum[i] - minimum[i]), 6) for i in range(3)],
+        },
     }
 
 
