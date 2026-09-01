@@ -6,10 +6,10 @@ Local prototypes may use models and textures originating from **Animal Crossing:
 
 - These files are Nintendo-origin proprietary reference assets. They are **not CC0**, public domain, or original StudyTown assets.
 - They are used locally for development/testing only and are not part of StudyTown's distributable asset licence.
-- Meshes, textures, archives, extracted sources, and local optimized derivatives live under gitignored `assets/dev_only_acnh/`.
-- The repository commits integration code, example metadata, diagnostics, import tools, and public fallback assets only.
+- Meshes, textures, archives, extracted sources, and local optimized derivatives live under gitignored `assets/dev_local/`.
+- The repository commits integration code, metadata-only inventory/diagnostics, import tools, and public fallback assets only.
 - All such references must be removed, replaced with original work, or properly licensed before any public/commercial distribution.
-- Current local character candidates: Alfonso, Gayle, and Drago. Current local prop references: hardcover books, coffee mug, oak tree, and potted spring flowers; example manifest entries also describe chair candidates.
+- Current local character selections are Bob, Rosie, and Raymond from the owner-supplied Cats archive. Selected local props and environment models are enumerated in `docs/ROOM_ASSET_USAGE.md`; all 106 supplied primary archives and 23 cat variants are accounted for in `docs/ASSET_AUDIT.md`.
 
 This section is intentionally separate from the CC0 register below.
 

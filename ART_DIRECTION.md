@@ -9,7 +9,7 @@ StudyTown's signature is **storybook scholarship**: honey wood, cream paper, sat
 ## Character rules
 
 - Gameplay forward is always **-Z**. Imported source axes are corrected on `VisualRoot`; movement math never changes per character.
-- Local development profiles currently use ACNH villager references. Preserve their texture-based material personality and never flatten them into the procedural palette.
+- Local development profiles use three distinct cat variants. Preserve their texture-based material personality and never flatten them into the procedural palette.
 - `CharacterProfile` owns scale, visual offset, forward correction, collider dimensions, label height, animation map, and seating offset.
 - The committed procedural character is a public fallback, not the intended hero path.
 - Imported animation must match velocity: Idle at rest, Walk in motion, and no translated static models or moonwalking.
@@ -20,7 +20,7 @@ StudyTown's signature is **storybook scholarship**: honey wood, cream paper, sat
 - Architecture has thickness, trim, framing, and integrated furniture. Camera-facing walls use intentional cutaways.
 - Bookshelves are open-front constructions with backing, frame rails, shelf boards, irregular books, tilt, gaps, and several colours.
 - Props are composed in small stories: laptop + mug + paper; book stack + lamp; armchairs + globe + plant.
-- ACNH development props are preferred locally when present. CC0 Kenney and procedural assets remain coherent public fallbacks.
+- Registry-selected local props are preferred when present. CC0 Kenney and procedural assets remain coherent public fallbacks.
 - Structural primitives remain appropriate for floors, walls, invisible boundaries, and collision—not as the default hero furniture language.
 
 ## Palette
@@ -37,4 +37,4 @@ Accents: leaf `#287847`, green `#3F8F58`, teal `#2F8F92`, blue `#4B73CB`, gold `
 
 ## Anti-goals
 
-No floating-platform wide shots, grey boxes, high-density NPC crowds, mouse-orbit camera, backwards walking, collisionless floors, or procedurally scattered clutter.
+No floating-platform wide shots, grey boxes, chaotic NPC crowds, mouse-orbit camera, backwards walking, collisionless floors, or procedurally scattered clutter.

@@ -13,6 +13,7 @@ var movement_enabled := true
 var spawn_transform := Transform3D.IDENTITY
 var respawn_depth := -12.0
 var current_locomotion := "Idle"
+var movement_camera: Camera3D
 
 func _ready() -> void:
 	floor_snap_length = floor_snap
@@ -31,11 +32,25 @@ func set_movement_enabled(value: bool) -> void:
 		velocity = Vector3.ZERO
 		_set_locomotion("Idle")
 
+func set_movement_camera(value: Camera3D) -> void:
+	movement_camera = value
+
+func get_camera_relative_direction(input: Vector2) -> Vector3:
+	if not is_instance_valid(movement_camera):
+		return Vector3(input.x, 0.0, input.y).normalized()
+	var forward := -movement_camera.global_basis.z
+	var right := movement_camera.global_basis.x
+	forward.y = 0.0
+	right.y = 0.0
+	forward = forward.normalized()
+	right = right.normalized()
+	return (right * input.x + forward * -input.y).normalized()
+
 func _physics_process(delta: float) -> void:
 	if not movement_enabled:
 		return
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-	var direction := Vector3(input.x, 0.0, input.y).normalized()
+	var direction := get_camera_relative_direction(input)
 	var target_velocity := direction * move_speed
 	var rate := acceleration if direction.length_squared() > 0.0 else deceleration
 	velocity.x = move_toward(velocity.x, target_velocity.x, rate * delta)

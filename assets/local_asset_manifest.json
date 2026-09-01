@@ -1,0 +1,6859 @@
+{
+  "schema_version": 1,
+  "notice": "Expected metadata for owner-supplied local assets. Binary assets are intentionally absent from Git.",
+  "source_root": "res://assets/dev_local/source/",
+  "runtime_root": "res://assets/dev_local/",
+  "assets": [
+    {
+      "asset_id": "player_tent",
+      "display_name": "Player Tent",
+      "category": "architecture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Buildings - Player Tent.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "19 texture/image files in source archive",
+      "tags": [
+        "architecture",
+        "buildings"
+      ],
+      "source_group": "Buildings",
+      "model_files": 4,
+      "image_files": 19,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "plaza",
+      "display_name": "Plaza",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Buildings - Plaza.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "51 texture/image files in source archive",
+      "tags": [
+        "buildings",
+        "environment"
+      ],
+      "source_group": "Buildings",
+      "model_files": 6,
+      "image_files": 51,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "villager_tent",
+      "display_name": "Villager Tent",
+      "category": "architecture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Buildings - Villager Tent.zip",
+      "runtime_relative_path": "res://assets/dev_local/environment/villager_tent.glb",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.691,
+        0.53,
+        0.465
+      ],
+      "material_notes": "29 texture/image files in source archive",
+      "tags": [
+        "architecture",
+        "buildings"
+      ],
+      "source_group": "Buildings",
+      "model_files": 8,
+      "image_files": 29,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "garden"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "nanakusa_gayu",
+      "display_name": "Nanakusa Gayu",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Food - Nanakusa Gayu.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "food"
+      ],
+      "source_group": "Food",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "acnh_nintendo_switch",
+      "display_name": "ACNH Nintendo Switch",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Miscellaneous) - ACNH Nintendo Switch.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "5 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "furniture_(miscellaneous)"
+      ],
+      "source_group": "Furniture (Miscellaneous)",
+      "model_files": 2,
+      "image_files": 5,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "coffee_grinder",
+      "display_name": "Coffee Grinder",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Miscellaneous) - Coffee Grinder.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/coffee_grinder.glb",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.021,
+        0.016,
+        0.027
+      ],
+      "material_notes": "5 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "furniture_(miscellaneous)"
+      ],
+      "source_group": "Furniture (Miscellaneous)",
+      "model_files": 2,
+      "image_files": 5,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "dal_model_plane",
+      "display_name": "DAL Model Plane",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Miscellaneous) - DAL Model Plane.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "18 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "furniture_(miscellaneous)"
+      ],
+      "source_group": "Furniture (Miscellaneous)",
+      "model_files": 2,
+      "image_files": 18,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "dal_mug",
+      "display_name": "DAL Mug",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Miscellaneous) - DAL Mug.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "furniture_(miscellaneous)"
+      ],
+      "source_group": "Furniture (Miscellaneous)",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "kagamimochi",
+      "display_name": "Kagamimochi",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Miscellaneous) - Kagamimochi.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "furniture_(miscellaneous)"
+      ],
+      "source_group": "Furniture (Miscellaneous)",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "osechi",
+      "display_name": "Osechi",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Miscellaneous) - Osechi.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "27 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "furniture_(miscellaneous)"
+      ],
+      "source_group": "Furniture (Miscellaneous)",
+      "model_files": 2,
+      "image_files": 27,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "thank_you_mom_dad_mugs",
+      "display_name": "Thank-you Mom & Dad Mugs",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Miscellaneous) - Thank-you Mom & Dad Mugs.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "12 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "furniture_(miscellaneous)"
+      ],
+      "source_group": "Furniture (Miscellaneous)",
+      "model_files": 4,
+      "image_files": 12,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "yut_nori",
+      "display_name": "Yut Nori",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Miscellaneous) - Yut Nori.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "furniture_(miscellaneous)"
+      ],
+      "source_group": "Furniture (Miscellaneous)",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "zodiac_snake_figurine",
+      "display_name": "Zodiac Snake Figurine",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Miscellaneous) - Zodiac Snake Figurine.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "furniture_(miscellaneous)"
+      ],
+      "source_group": "Furniture (Miscellaneous)",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "corkboard",
+      "display_name": "Corkboard",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Wall-Mounted) - Corkboard.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/corkboard.glb",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.348,
+        0.026,
+        0.209
+      ],
+      "material_notes": "21 texture/image files in source archive",
+      "tags": [
+        "furniture",
+        "furniture_(wall-mounted)"
+      ],
+      "source_group": "Furniture (Wall-Mounted)",
+      "model_files": 2,
+      "image_files": 21,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "new_year_s_shimekazari",
+      "display_name": "New Year's Shimekazari",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Wall-Mounted) - New Year's Shimekazari.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "12 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "furniture_(wall-mounted)"
+      ],
+      "source_group": "Furniture (Wall-Mounted)",
+      "model_files": 2,
+      "image_files": 12,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "pendulum_clock",
+      "display_name": "Pendulum Clock",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture (Wall-Mounted) - Pendulum Clock.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/pendulum_clock.glb",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.072,
+        0.033,
+        0.123
+      ],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "furniture",
+        "furniture_(wall-mounted)"
+      ],
+      "source_group": "Furniture (Wall-Mounted)",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "froggy_chair",
+      "display_name": "Froggy Chair",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture - Froggy Chair.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/froggy_chair/Froggy Chair.dae",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        14.0,
+        14.0,
+        14.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.992,
+        1.201,
+        1.037
+      ],
+      "material_notes": "10 texture/image files in source archive",
+      "tags": [
+        "furniture"
+      ],
+      "source_group": "Furniture",
+      "model_files": 1,
+      "image_files": 10,
+      "formats": [
+        "dae"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "garden",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "gaming_chair",
+      "display_name": "Gaming Chair",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture - Gaming Chair.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "40 texture/image files in source archive",
+      "tags": [
+        "furniture"
+      ],
+      "source_group": "Furniture",
+      "model_files": 1,
+      "image_files": 40,
+      "formats": [
+        "dae"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "horoscope_set",
+      "display_name": "Horoscope Set",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture - Horoscope Set.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "76 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "furniture"
+      ],
+      "source_group": "Furniture",
+      "model_files": 24,
+      "image_files": 76,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "kadomatsu",
+      "display_name": "Kadomatsu",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture - Kadomatsu.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "furniture"
+      ],
+      "source_group": "Furniture",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "mini_diy_workbench",
+      "display_name": "Mini DIY Workbench",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture - Mini DIY Workbench.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/mini_workbench.glb",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.083,
+        0.077,
+        0.104
+      ],
+      "material_notes": "45 texture/image files in source archive",
+      "tags": [
+        "furniture"
+      ],
+      "source_group": "Furniture",
+      "model_files": 2,
+      "image_files": 45,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "moai_statue",
+      "display_name": "Moai Statue",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture - Moai Statue.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "5 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "furniture"
+      ],
+      "source_group": "Furniture",
+      "model_files": 2,
+      "image_files": 5,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "scarecrow",
+      "display_name": "Scarecrow",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture - Scarecrow.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "13 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "furniture"
+      ],
+      "source_group": "Furniture",
+      "model_files": 2,
+      "image_files": 13,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "trash_bags",
+      "display_name": "Trash Bags",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Furniture - Trash Bags.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "16 texture/image files in source archive",
+      "tags": [
+        "furniture",
+        "personal_prop"
+      ],
+      "source_group": "Furniture",
+      "model_files": 1,
+      "image_files": 16,
+      "formats": [
+        "dae"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "cedar_sapling",
+      "display_name": "Cedar Sapling",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Cedar Sapling.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "cedar_tree",
+      "display_name": "Cedar Tree",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Cedar Tree.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "clump_of_weeds",
+      "display_name": "Clump of Weeds",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Clump of Weeds.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "flooring",
+      "display_name": "Flooring",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Flooring.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "flower_bag",
+      "display_name": "Flower Bag",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Flower Bag.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "fossil",
+      "display_name": "Fossil",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Fossil.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "island_map",
+      "display_name": "Island Map",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Island Map.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "items",
+        "personal_prop"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "itemized_bill",
+      "display_name": "Itemized Bill",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Itemized Bill.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "lost_autograph_book",
+      "display_name": "Lost Autograph Book",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Lost Autograph Book.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "furniture",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "lost_bag",
+      "display_name": "Lost Bag",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Lost Bag.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "items",
+        "personal_prop"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "lost_book",
+      "display_name": "Lost Book",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Lost Book.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/lost_book.glb",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.017,
+        0.018,
+        0.007
+      ],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "furniture",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "maple_leaf",
+      "display_name": "Maple Leaf",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Maple Leaf.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "items",
+        "personal_prop"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "medicine",
+      "display_name": "Medicine",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Medicine.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "nookphone",
+      "display_name": "NookPhone",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - NookPhone.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/nook_phone.glb",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.023,
+        0.024,
+        0.011
+      ],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "items",
+        "personal_prop"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "orange",
+      "display_name": "Orange",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Orange.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "otoshidama_envelope",
+      "display_name": "Otoshidama Envelope",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Otoshidama Envelope.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "palm_tree",
+      "display_name": "Palm Tree",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Palm Tree.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "paper_bag",
+      "display_name": "Paper Bag",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Paper Bag.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "items",
+        "personal_prop"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "peach",
+      "display_name": "Peach",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Peach.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "pear",
+      "display_name": "Pear",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Pear.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "rug",
+      "display_name": "Rug",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Rug.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "furniture",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 4,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "socks",
+      "display_name": "Socks",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Socks.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "stone",
+      "display_name": "Stone",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Stone.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "timer",
+      "display_name": "Timer",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Timer.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "items",
+        "personal_prop"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "tree_branch",
+      "display_name": "Tree Branch",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Tree Branch.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "4 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 4,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "wasp_nest",
+      "display_name": "Wasp Nest",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Wasp Nest.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "5 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 5,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "wood",
+      "display_name": "Wood",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Wood.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "young_spring_bamboo",
+      "display_name": "Young Spring Bamboo",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Items - Young Spring Bamboo.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "items"
+      ],
+      "source_group": "Items",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "big_tree_museum",
+      "display_name": "Big Tree (Museum)",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Big Tree (Museum).zip",
+      "runtime_relative_path": "res://assets/dev_local/environment/big_tree.glb",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.53,
+        0.32,
+        0.589
+      ],
+      "material_notes": "18 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 18,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "garden"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "bird_owl",
+      "display_name": "Bird & Owl",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Bird & Owl.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "36 texture/image files in source archive",
+      "tags": [
+        "map_objects",
+        "personal_prop"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 8,
+      "image_files": 36,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "card_stand",
+      "display_name": "Card Stand",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Card Stand.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "map_objects",
+        "personal_prop"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "coffee_mug",
+      "display_name": "Coffee Mug",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Coffee Mug.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/coffee_mug.glb",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.033,
+        0.024,
+        0.027
+      ],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "construction_box",
+      "display_name": "Construction Box",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Construction Box.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "8 texture/image files in source archive",
+      "tags": [
+        "map_objects",
+        "personal_prop"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 6,
+      "image_files": 8,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "custom_design_portal",
+      "display_name": "Custom Design Portal",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Custom Design Portal.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "24 texture/image files in source archive",
+      "tags": [
+        "map_objects",
+        "personal_prop"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 24,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "desk_fan",
+      "display_name": "Desk Fan",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Desk Fan.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/desk_fan.glb",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.056,
+        0.048,
+        0.069
+      ],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "furniture",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "train"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "iced_tea",
+      "display_name": "Iced Tea",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Iced Tea.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/iced_tea.glb",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.038,
+        0.038,
+        0.039
+      ],
+      "material_notes": "12 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 12,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "garden",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "lloid_gyroid_assistant",
+      "display_name": "Lloid (Gyroid Assistant)",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Lloid (Gyroid Assistant).zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "19 texture/image files in source archive",
+      "tags": [
+        "map_objects",
+        "personal_prop"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 6,
+      "image_files": 19,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "oak_trees_museum",
+      "display_name": "Oak Trees (Museum)",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Oak Trees (Museum).zip",
+      "runtime_relative_path": "res://assets/dev_local/environment/oak_tree.glb",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.708,
+        0.441,
+        0.879
+      ],
+      "material_notes": "64 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 16,
+      "image_files": 64,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "garden"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "palm_tree_museum",
+      "display_name": "Palm Tree (Museum)",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Palm Tree (Museum).zip",
+      "runtime_relative_path": "res://assets/dev_local/environment/palm_tree.glb",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.931,
+        0.72,
+        0.972
+      ],
+      "material_notes": "13 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 13,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "garden"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "potted_autumn_flowers",
+      "display_name": "Potted Autumn Flowers",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Potted Autumn Flowers.zip",
+      "runtime_relative_path": "res://assets/dev_local/environment/potted_autumn_flowers.glb",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.159,
+        0.137,
+        0.173
+      ],
+      "material_notes": "18 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 18,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "garden",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "potted_spring_flowers",
+      "display_name": "Potted Spring Flowers",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Potted Spring Flowers.zip",
+      "runtime_relative_path": "res://assets/dev_local/environment/potted_spring_flowers.glb",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.127,
+        0.101,
+        0.173
+      ],
+      "material_notes": "18 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 18,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "garden",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "potted_summer_flowers",
+      "display_name": "Potted Summer Flowers",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Potted Summer Flowers.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "18 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 18,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "potted_winter_flowers",
+      "display_name": "Potted Winter Flowers",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Potted Winter Flowers.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "18 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 18,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "recycle_box",
+      "display_name": "Recycle Box",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Recycle Box.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/recycle_box.glb",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.366,
+        0.182,
+        0.193
+      ],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "map_objects",
+        "personal_prop"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "garden"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "rocks",
+      "display_name": "Rocks",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Rocks.zip",
+      "runtime_relative_path": "res://assets/dev_local/environment/rocks.glb",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.372,
+        0.342,
+        0.236
+      ],
+      "material_notes": "26 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 10,
+      "image_files": 26,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "garden"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "spring_weeds",
+      "display_name": "Spring Weeds",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Spring Weeds.zip",
+      "runtime_relative_path": "res://assets/dev_local/environment/spring_weeds.glb",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.081,
+        0.088,
+        0.055
+      ],
+      "material_notes": "21 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 10,
+      "image_files": 21,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "garden"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "summer_weeds",
+      "display_name": "Summer Weeds",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Summer Weeds.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "21 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 14,
+      "image_files": 21,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "wall_clock",
+      "display_name": "Wall Clock",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Map Objects - Wall Clock.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "furniture",
+        "map_objects"
+      ],
+      "source_group": "Map Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "cherry_blossom_petal_particle",
+      "display_name": "Cherry-Blossom Petal Particle",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Miscellaneous - Cherry-Blossom Petal Particle.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "3 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "miscellaneous"
+      ],
+      "source_group": "Miscellaneous",
+      "model_files": 2,
+      "image_files": 3,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "maple_leaf_particle",
+      "display_name": "Maple Leaf Particle",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Miscellaneous - Maple Leaf Particle.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "3 texture/image files in source archive",
+      "tags": [
+        "miscellaneous",
+        "personal_prop"
+      ],
+      "source_group": "Miscellaneous",
+      "model_files": 2,
+      "image_files": 3,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "rock_debris",
+      "display_name": "Rock Debris",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Miscellaneous - Rock Debris.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "3 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "miscellaneous"
+      ],
+      "source_group": "Miscellaneous",
+      "model_files": 2,
+      "image_files": 3,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "water",
+      "display_name": "Water",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Miscellaneous - Water.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "miscellaneous"
+      ],
+      "source_group": "Miscellaneous",
+      "model_files": 4,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "bowl_of_minestrone_soup",
+      "display_name": "Bowl of Minestrone Soup",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Bowl of Minestrone Soup.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "broom",
+      "display_name": "Broom",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Broom.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "can_of_juice",
+      "display_name": "Can of Juice",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Can of Juice.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "chocolate_donut",
+      "display_name": "Chocolate Donut",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Chocolate Donut.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "cup_of_coffee",
+      "display_name": "Cup of Coffee",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Cup of Coffee.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/cup_coffee.glb",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.044,
+        0.033,
+        0.026
+      ],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "cup_of_hot_chocolate",
+      "display_name": "Cup of Hot Chocolate",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Cup of Hot Chocolate.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "cup_of_tea",
+      "display_name": "Cup of Tea",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Cup of Tea.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "cute_saddlebag",
+      "display_name": "Cute Saddlebag",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Cute Saddlebag.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "objects",
+        "personal_prop"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "duster",
+      "display_name": "Duster",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Duster.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "fruit_designed_bag",
+      "display_name": "Fruit-Designed Bag",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Fruit-Designed Bag.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "objects",
+        "personal_prop"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "grilled_cheese_sandwich",
+      "display_name": "Grilled Cheese Sandwich",
+      "category": "cafe_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Grilled Cheese Sandwich.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden",
+        "library",
+        "train"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "cafe_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "grilled_skewer",
+      "display_name": "Grilled Skewer",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Grilled Skewer.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "hardcover_books_1",
+      "display_name": "Hardcover Books (1)",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Hardcover Books (1).zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "19 texture/image files in source archive",
+      "tags": [
+        "furniture",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 19,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "hardcover_books",
+      "display_name": "Hardcover Books",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Hardcover Books.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/hardcover_books.glb",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.023,
+        0.016,
+        0.013
+      ],
+      "material_notes": "19 texture/image files in source archive",
+      "tags": [
+        "furniture",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 19,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "leather_handbag",
+      "display_name": "Leather Handbag",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Leather Handbag.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/leather_handbag.glb",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.272,
+        0.205,
+        0.131
+      ],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "objects",
+        "personal_prop"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "train"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "natural_basket",
+      "display_name": "Natural Basket",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Natural Basket.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/natural_basket.glb",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.154,
+        0.139,
+        0.124
+      ],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "garden",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "nook_inc_uchiwa_fan",
+      "display_name": "Nook Inc. Uchiwa Fan",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Nook Inc. Uchiwa Fan.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "paper_bag",
+      "display_name": "Paper Bag",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Paper Bag.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "objects",
+        "personal_prop"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "paperback_books",
+      "display_name": "Paperback Books",
+      "category": "furniture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Paperback Books.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/paperback_books.glb",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        0.014,
+        0.009,
+        0.008
+      ],
+      "material_notes": "11 texture/image files in source archive",
+      "tags": [
+        "furniture",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 4,
+      "image_files": 11,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "japanese"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "party_popper",
+      "display_name": "Party Popper",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Party Popper.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "popsicle",
+      "display_name": "Popsicle",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Popsicle.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "8 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 8,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "stick",
+      "display_name": "Stick",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Stick.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "tote_bag",
+      "display_name": "Tote Bag",
+      "category": "personal_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Tote Bag.zip",
+      "runtime_relative_path": "res://assets/dev_local/props/tote_bag.glb",
+      "room_tags": [
+        "library",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [
+        1.087,
+        1.004,
+        0.306
+      ],
+      "material_notes": "7 texture/image files in source archive",
+      "tags": [
+        "objects",
+        "personal_prop"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 7,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "library",
+        "train"
+      ],
+      "notes": "Runtime-ready local derivative in active use."
+    },
+    {
+      "asset_id": "water_spray",
+      "display_name": "Water Spray",
+      "category": "environment",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Water Spray.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "environment",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "wood_branches",
+      "display_name": "Wood Branches",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Objects - Wood Branches.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "objects"
+      ],
+      "source_group": "Objects",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "customization_brush",
+      "display_name": "Customization Brush",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Tools - Customization Brush.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "tools"
+      ],
+      "source_group": "Tools",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "flimsy_axe",
+      "display_name": "Flimsy Axe",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Tools - Flimsy Axe.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "tools"
+      ],
+      "source_group": "Tools",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "flimsy_shovel",
+      "display_name": "Flimsy Shovel",
+      "category": "decorative_prop",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Tools - Flimsy Shovel.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "library",
+        "garden",
+        "train",
+        "japanese"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "6 texture/image files in source archive",
+      "tags": [
+        "decorative_prop",
+        "tools"
+      ],
+      "source_group": "Tools",
+      "model_files": 2,
+      "image_files": 6,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "path_building_tool",
+      "display_name": "Path Building Tool",
+      "category": "architecture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Tools - Path Building Tool.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "12 texture/image files in source archive",
+      "tags": [
+        "architecture",
+        "tools"
+      ],
+      "source_group": "Tools",
+      "model_files": 4,
+      "image_files": 12,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "housedooranimation_hashimoto_test",
+      "display_name": "HouseDoorAnimation (Hashimoto Test)",
+      "category": "architecture",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Unused Content - HouseDoorAnimation (Hashimoto Test).zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "garden"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "none",
+      "dimensions": [],
+      "material_notes": "2 texture/image files in source archive",
+      "tags": [
+        "architecture",
+        "unused_content"
+      ],
+      "source_group": "Unused Content",
+      "model_files": 2,
+      "image_files": 2,
+      "formats": [
+        "dae",
+        "fbx"
+      ],
+      "textures_present": true,
+      "rigged": false,
+      "skeleton": "",
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Audited; retained as an optional local source asset."
+    },
+    {
+      "asset_id": "bob",
+      "display_name": "Bob",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/bob.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [
+        1.55,
+        2.7,
+        1.52
+      ],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "playable"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "StudyLaptop",
+        "StudyBook",
+        "Wave",
+        "Stretch"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "No source clips; local skeletal actions generated."
+    },
+    {
+      "asset_id": "rosie",
+      "display_name": "Rosie",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/rosie.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [
+        1.55,
+        2.7,
+        1.52
+      ],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "playable"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "StudyLaptop",
+        "StudyBook",
+        "Wave",
+        "Stretch"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "No source clips; local skeletal actions generated."
+    },
+    {
+      "asset_id": "raymond",
+      "display_name": "Raymond",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/raymond.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [
+        1.55,
+        2.7,
+        1.52
+      ],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "playable"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "StudyLaptop",
+        "StudyBook",
+        "Wave",
+        "Stretch"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "No source clips; local skeletal actions generated."
+    },
+    {
+      "asset_id": "ankha",
+      "display_name": "Ankha",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "felicity",
+      "display_name": "Felicity",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "kabuki",
+      "display_name": "Kabuki",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "katt",
+      "display_name": "Katt",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "kid_cat",
+      "display_name": "Kid Cat",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "kiki",
+      "display_name": "Kiki",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "kitty",
+      "display_name": "Kitty",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "lolly",
+      "display_name": "Lolly",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "merry",
+      "display_name": "Merry",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "mitzi",
+      "display_name": "Mitzi",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "moe",
+      "display_name": "Moe",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "monique",
+      "display_name": "Monique",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "olivia",
+      "display_name": "Olivia",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "punchy",
+      "display_name": "Punchy",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "purrl",
+      "display_name": "Purrl",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "rudy",
+      "display_name": "Rudy",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "stinky",
+      "display_name": "Stinky",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "tabby",
+      "display_name": "Tabby",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "tangy",
+      "display_name": "Tangy",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    },
+    {
+      "asset_id": "tom",
+      "display_name": "Tom",
+      "category": "character",
+      "source_relative_path": "_supplemental_characters/Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "dimensions": [],
+      "material_notes": "Variant body, eye, mouth, and top textures",
+      "tags": [
+        "cat",
+        "variant"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "Wave": "Wave",
+        "Stretch": "Stretch"
+      },
+      "rigged": true,
+      "bone_count": 51,
+      "animation_clips": [],
+      "imported": false,
+      "currently_used": false,
+      "where_used": [],
+      "notes": "Texture variant audited; not selected for runtime conversion."
+    }
+  ]
+}

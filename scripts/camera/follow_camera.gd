@@ -40,7 +40,8 @@ func _physics_process(delta: float) -> void:
 	var weight := 1.0 - exp(-position_damping * delta)
 	global_position = global_position.lerp(_resolve_obstruction(desired_look, desired_position), weight)
 	smoothed_look = smoothed_look.lerp(desired_look, 1.0 - exp(-look_damping * delta))
-	look_at(smoothed_look, Vector3.UP)
+	if global_position.distance_squared_to(smoothed_look) > 0.0001:
+		look_at(smoothed_look, Vector3.UP)
 
 func _resolve_obstruction(from: Vector3, desired: Vector3) -> Vector3:
 	if not is_inside_tree():

@@ -56,6 +56,11 @@ var asset_loader
 var focus_camera_director
 var current_room_config: Dictionary = {}
 var collision_debug_visible := false
+var train_scenery_nodes: Array[Node3D] = []
+var active_study_spot
+var performance_review := false
+var performance_started_at := 0
+var performance_samples: Array[int] = []
 
 var mats := {}
 
@@ -78,9 +83,13 @@ func _ready() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("review="): review = arg.trim_prefix("review=")
 		elif arg.begins_with("--review="): review = arg.trim_prefix("--review=")
+		elif arg in ["perf", "--perf"]: performance_review = true
 	match review:
 		"library": current_room_name = GameState.ROOMS[0]; build_room(0)
 		"focus": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_focus")
+		"garden_focus": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_begin_review_focus")
+		"train_focus": current_room_name = GameState.ROOMS[2]; build_room(2); call_deferred("_begin_review_focus")
+		"japanese_focus": current_room_name = GameState.ROOMS[3]; build_room(3); call_deferred("_begin_review_focus")
 		"garden": current_room_name = GameState.ROOMS[1]; build_room(1)
 		"train": current_room_name = GameState.ROOMS[2]; build_room(2)
 		"japanese": current_room_name = GameState.ROOMS[3]; build_room(3)
@@ -88,12 +97,21 @@ func _ready() -> void:
 		"library_hall": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_review_camera", 0)
 		"library_fireplace": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_review_camera", 3)
 		"train_scenery": current_room_name = GameState.ROOMS[2]; build_room(2); call_deferred("_activate_review_camera", 5)
-		"character_front": _build_character_review(PI, false)
-		"character_three_quarter": _build_character_review(PI + 0.62, false)
-		"character_side": _build_character_review(PI + PI / 2.0, false)
-		"character_back": _build_character_review(0.0, false)
-		"character_sitting": _build_character_review(PI + 0.32, true)
+		"character_front": _build_character_review(0.0, false)
+		"character_three_quarter": _build_character_review(0.62, false)
+		"character_side": _build_character_review(PI / 2.0, false)
+		"character_back": _build_character_review(PI, false)
+		"character_sitting": _build_character_review(0.32, true)
+		"cat_idle": _build_character_review(0.0, false, "Idle")
+		"cat_walk": _build_character_review(0.0, false, "Walk")
+		"cat_sit": _build_character_review(0.32, true, "Sit")
+		"cat_study_laptop": _build_character_review(0.32, true, "StudyLaptop")
+		"cat_study_book": _build_character_review(0.32, true, "StudyBook")
+		"cat_wave": _build_character_review(0.0, false, "Wave")
+		"cat_stretch": _build_character_review(0.0, false, "Stretch")
 		_: show_main_menu()
+	if performance_review:
+		performance_started_at = Time.get_ticks_msec()
 
 func _build_materials() -> void:
 	for entry in [
@@ -133,8 +151,10 @@ func _clear_scene() -> void:
 	study_spots.clear()
 	npcs.clear()
 	focus_cameras.clear()
+	train_scenery_nodes.clear()
 	player_parts.clear()
 	nearest_spot = -1
+	active_study_spot = null
 
 func show_main_menu() -> void:
 	screen = Screen.MENU
@@ -169,13 +189,15 @@ func _build_menu_world() -> void:
 	light.omni_range = 12.0
 	light.shadow_enabled = true
 
-func _build_character_review(yaw: float, seated: bool) -> void:
+func _build_character_review(yaw: float, seated: bool, animation_state := "") -> void:
 	screen = Screen.MENU
 	_clear_scene()
 	_add_environment(Color("#b98f78"), Color("#fff0ce"), 0.82)
 	_cylinder(world_root, 2.0, 0.34, Vector3(0, -0.17, 0), mats.cream, 48)
 	var character := _create_character(world_root, 0, seated)
 	character.rotation.y = yaw
+	if not animation_state.is_empty():
+		character_loader.play_animation(character, animation_state, 0.0)
 	if seated:
 		_build_armchair(Vector3(0, 0, 0.22), PI, mats.teal)
 		character.position = Vector3(0, 0.08, -0.03)
@@ -220,7 +242,7 @@ func _build_menu_ui() -> void:
 	var chars := HBoxContainer.new()
 	chars.add_theme_constant_override("separation", 10)
 	stack.add_child(chars)
-	var char_names := ["Alfonso", "Gayle", "Drago"]
+	var char_names := ["Bob", "Rosie", "Raymond"]
 	for i in 3:
 		var b := _button(char_names[i], i == GameState.selected_character)
 		b.custom_minimum_size = Vector2(104, 52)
@@ -228,7 +250,7 @@ func _build_menu_ui() -> void:
 		chars.add_child(b)
 	stack.add_child(_label("Where do you want to focus?", 20, INK))
 	var room_names := ["Grand Library", "Garden Café", "Scenic Train", "Japanese Study Room"]
-	var descriptors := ["Warm & bookish  ·  3 studying", "Sunny & leafy  ·  2 studying", "Mountain views  ·  2 studying", "Quiet & serene  ·  2 studying"]
+	var descriptors := ["Warm & bookish  ·  6 studying", "Sunny & leafy  ·  5 studying", "Mountain views  ·  4 studying", "Quiet & serene  ·  5 studying"]
 	for i in 4:
 		var card := Button.new()
 		card.text = room_names[i] + "\n" + descriptors[i]
@@ -274,8 +296,10 @@ func build_room(index: int) -> void:
 	_update_camera_current()
 
 func _process(delta: float) -> void:
+	if performance_review:
+		_collect_performance_sample()
 	if is_instance_valid(menu_character):
-		menu_character.rotation.y = PI + sin(Time.get_ticks_msec() * 0.0005) * 0.18
+		menu_character.rotation.y = sin(Time.get_ticks_msec() * 0.0005) * 0.18
 	if screen == Screen.ROOM:
 		_update_nearest_spot()
 		if is_instance_valid(player_visual) and not bool(player_visual.get_meta("is_imported_character", false)):
@@ -286,12 +310,35 @@ func _process(delta: float) -> void:
 				_animate_idle(delta)
 	if screen == Screen.FOCUS and Time.get_unix_time_from_system() >= next_shot_at:
 		_cycle_focus_camera()
+	if current_room_config.get("id", "") == "train":
+		for scenery in train_scenery_nodes:
+			if is_instance_valid(scenery):
+				scenery.position.z += delta * float(scenery.get_meta("parallax_speed", 2.0))
+				if scenery.position.z > 25.0:
+					scenery.position.z -= 50.0
 	if wave_time > 0.0:
 		wave_time -= delta
 		if player_parts.has("arm_r"):
 			player_parts.arm_r.rotation.z = -1.9 + sin(wave_time * 11.0) * 0.28
 	elif player_parts.has("arm_r") and screen != Screen.FOCUS:
 		player_parts.arm_r.rotation.z = lerpf(player_parts.arm_r.rotation.z, -0.08, delta * 8.0)
+
+func _collect_performance_sample() -> void:
+	var elapsed := Time.get_ticks_msec() - performance_started_at
+	if elapsed >= 3000 and elapsed < 7000:
+		var expected_count := int((elapsed - 3000) / 1000) + 1
+		if performance_samples.size() < expected_count:
+			performance_samples.append(Engine.get_frames_per_second())
+	elif elapsed >= 7000:
+		var total := 0
+		var minimum := 100000
+		for sample in performance_samples:
+			total += sample
+			minimum = mini(minimum, sample)
+		var average := roundi(float(total) / maxf(performance_samples.size(), 1.0))
+		print("PERF_RESULT room=%s average_fps=%d minimum_fps=%d samples=%d" % [current_room_config.get("id", "menu"), average, minimum if not performance_samples.is_empty() else 0, performance_samples.size()])
+		performance_review = false
+		get_tree().quit()
 
 func _physics_process(delta: float) -> void:
 	if is_instance_valid(debug_label) and debug_label.visible:
@@ -453,6 +500,19 @@ func _build_library() -> void:
 	_box(world_root, Vector3(0.5, 0.8, 32.0), Vector3(22.0, 0.3, 0), mats.cream)
 	for x in [-16.5, -9.5, -2.5, 4.5, 11.5, 18.5]:
 		_build_window(Vector3(x, 3.1, -15.72), Vector2(4.6, 3.8), false)
+	# The entrance is composed as a real reception zone instead of open floor.
+	_box(world_root, Vector3(11.0, 0.05, 5.8), Vector3(0, 0.025, 10.5), mats.red)
+	for data in [[Vector3(-7.4,0,10.2),PI / 2.0],[Vector3(-7.4,0,8.6),PI / 2.0]]:
+		_place_local_prop("mini_diy_workbench", "", data[0], Vector3(1.65,1.25,1.35), data[1])
+	_build_chair(Vector3(-5.8,0,9.4), -PI / 2.0)
+	_build_armchair(Vector3(6.0,0,10.6), PI, mats.green)
+	_build_armchair(Vector3(9.0,0,10.6), PI, mats.gold)
+	_place_local_prop("potted_spring_flowers", "", Vector3(4.2,0,12.3), Vector3.ONE)
+	_place_local_prop("potted_autumn_flowers", "", Vector3(10.8,0,12.2), Vector3.ONE)
+	_place_local_prop("natural_basket", "", Vector3(7.5,0,8.9), Vector3.ONE)
+	_place_local_prop("tote_bag", "", Vector3(9.7,0,9.3), Vector3.ONE)
+	_place_local_prop("corkboard", "", Vector3(-19.7,1.25,13.0), Vector3.ONE, PI / 2.0)
+	_place_local_prop("pendulum_clock", "", Vector3(-19.6,1.35,8.4), Vector3.ONE, PI / 2.0)
 	for z in [-12.0, -7.5, -3.0, 1.5, 6.0, 10.5]:
 		_build_bookshelf(Vector3(-21.55, 2.35, z), -PI / 2.0, 3.8, 4.45, 0.52, int(z * 10.0 + 160.0))
 	# Central stack aisles create long readable routes without choking navigation.
@@ -463,12 +523,23 @@ func _build_library() -> void:
 	_box(world_root, Vector3(13.0, 0.05, 7.0), Vector3(0, 0.03, -11.0), mats.red)
 	for pos in [Vector3(-4.0,0,-11.2), Vector3(-1.4,0,-9.4), Vector3(1.4,0,-9.4), Vector3(4.0,0,-11.2)]:
 		_build_armchair(pos, 0.0, mats.teal if pos.x < 0 else mats.gold)
+	for data in [[Vector3(-2.6,0,-11.0),0.0],[Vector3(2.6,0,-11.0),PI]]:
+		_place_local_prop("mini_diy_workbench", "", data[0], Vector3(1.2,0.72,1.0), data[1])
+	_place_local_prop("coffee_grinder", "", Vector3(-2.6,0.86,-11.0), Vector3.ONE)
+	_place_local_prop("cup_of_coffee", "", Vector3(2.7,0.83,-11.0), Vector3.ONE)
 	# Quiet desk area on the east side.
 	for data in [[Vector3(15.5,0,-7.0),true],[Vector3(15.5,0,-1.0),false],[Vector3(15.5,0,5.0),true]]:
 		_build_study_table(data[0], data[1])
-		_add_study_spot(data[0] + Vector3(0,0,1.25), data[0] + Vector3(0,0.05,0.75), 0.0, "Laptop", data[0] + Vector3(4.0,3.0,4.0), data[0] + Vector3(0,1.15,0))
-		_place_development_prop("hardcover_books", "res://assets/external/kenney_furniture_kit/books.glb", data[0] + Vector3(-1.0,1.28,-0.18), Vector3.ONE)
-		_place_development_prop("coffee_mug", "", data[0] + Vector3(1.1,1.24,0.22), Vector3.ONE)
+		_add_study_spot(data[0] + Vector3(0,0,1.25), data[0] + Vector3(0,0.05,0.75), 0.0, "Laptop", data[0] + Vector3(6.5,4.2,6.7), data[0] + Vector3(0,1.15,0))
+		_place_local_prop("hardcover_books", "res://assets/external/kenney_furniture_kit/books.glb", data[0] + Vector3(-1.0,1.28,-0.18), Vector3.ONE)
+		_place_local_prop("coffee_mug", "", data[0] + Vector3(1.1,1.24,0.22), Vector3.ONE)
+		_place_local_prop("paperback_books", "", data[0] + Vector3(0.15,1.28,0.38), Vector3.ONE * 0.9, 0.16)
+	# Communal reading tables fill the formerly empty approach to the stacks.
+	for data in [[Vector3(-7.0,0,5.4),false],[Vector3(0.0,0,6.0),true],[Vector3(7.0,0,5.4),false]]:
+		_build_study_table(data[0], data[1])
+		_place_local_prop("lost_book", "", data[0] + Vector3(-0.9,1.27,0.18), Vector3.ONE, -0.12)
+		_place_local_prop("nookphone", "", data[0] + Vector3(0.9,1.27,0.2), Vector3.ONE, 0.18)
+	_place_local_prop("desk_fan", "", Vector3(0.0,1.27,6.0), Vector3.ONE)
 	# Window reading area and side study nook.
 	for pos in [Vector3(-16.0,0,-10.5), Vector3(-12.5,0,-10.5), Vector3(-17.0,0,8.5), Vector3(-13.5,0,10.5)]:
 		_build_armchair(pos, PI, mats.green if pos.z > 0 else mats.gold)
@@ -476,11 +547,14 @@ func _build_library() -> void:
 	_add_study_spot(Vector3(-14.8,0,5.45), Vector3(-14.8,0.05,4.95), 0.0, "Book", Vector3(-9.5,3.1,8.0), Vector3(-14.8,1.1,4.2))
 	_build_globe(Vector3(19.0, 0, 11.0))
 	for pos in [Vector3(-19.5,0,13.2), Vector3(19.5,0,13.2), Vector3(19.5,0,-13.3)]:
-		_build_plant(pos, 1.2)
+		_place_local_prop("potted_autumn_flowers", "", pos, Vector3.ONE * 1.15)
 	var npc_positions := [
 		[Vector3(4.0, 0.05, -11.2), 0, 1, "Jamie", "18m"],
 		[Vector3(-16.0, 0.05, -10.5), PI, 2, "Nora", "42m"],
 		[Vector3(-13.5, 0.05, 10.5), PI, 0, "Kai", "26m"],
+		[Vector3(-7.0, 0.05, 4.26), PI, 1, "Mina", "34m"],
+		[Vector3(15.5, 0.05, 3.86), PI, 2, "Theo", "51m"],
+		[Vector3(7.0, 0.05, 4.26), PI, 0, "Eli", "22m"],
 	]
 	for data in npc_positions:
 		_create_npc(data[0], data[1], data[2], data[3], data[4], true)
@@ -573,6 +647,14 @@ func _build_study_table(pos: Vector3, flip: bool) -> void:
 	_add_blocker(pos + Vector3(0, 0.62, 0), Vector3(3.75, 1.24, 1.62), 0.0)
 
 func _build_chair(pos: Vector3, yaw: float) -> void:
+	var imported: Node3D = asset_loader.instantiate_prop("froggy_chair", "")
+	if imported.get_child_count() > 0:
+		world_root.add_child(imported)
+		imported.position = pos
+		imported.rotation.y = yaw
+		_add_blocker(pos + Vector3(0, 0.6, 0), Vector3(1.2, 1.2, 1.2), yaw)
+		return
+	imported.queue_free()
 	var root := Node3D.new(); world_root.add_child(root); root.position = pos; root.rotation.y = yaw
 	_box(root, Vector3(0.95, 0.18, 0.92), Vector3(0, 0.72, 0), mats.teal)
 	var back := _sphere(root, Vector3(0.54, 0.72, 0.15), Vector3(0, 1.25, 0.39), mats.teal, 24, 16)
@@ -615,16 +697,31 @@ func _build_garden() -> void:
 	_add_blocker(Vector3(12.0, 0.55, 1.5), Vector3(4.0, 1.1, 3.4), 0.0)
 	# Owner-local ACNH trees and seasonal planters dominate the intended garden build.
 	for pos in [Vector3(-23,0,-4),Vector3(-20,0,8),Vector3(-12,0,14),Vector3(8,0,14),Vector3(21,0,12),Vector3(22,0,-10),Vector3(7,0,-14),Vector3(-2,0,-15)]:
-		_place_development_prop("oak_tree", "", pos, Vector3.ONE)
+		_place_local_prop("oak_trees_museum", "", pos, Vector3.ONE)
 		_add_blocker(pos + Vector3(0,1.3,0), Vector3(1.6,2.6,1.6), 0.0)
+	_place_local_prop("big_tree_museum", "", Vector3(-19,0,-1), Vector3.ONE)
+	_place_local_prop("palm_tree_museum", "", Vector3(23,0,3), Vector3.ONE * 0.88)
+	_place_local_prop("villager_tent", "", Vector3(18,0,-13), Vector3.ONE, -0.3)
+	_place_local_prop("recycle_box", "", Vector3(-21,0,-14), Vector3.ONE, PI / 2.0)
 	for pos in [Vector3(-5,0,8),Vector3(-9,0,10),Vector3(17,0,8),Vector3(19,0,5),Vector3(3,0,-8),Vector3(7,0,-7)]:
-		_place_development_prop("potted_flowers", "res://assets/external/kenney_furniture_kit/pottedPlant.glb", pos, Vector3.ONE)
+		_place_local_prop("potted_spring_flowers", "res://assets/external/kenney_furniture_kit/pottedPlant.glb", pos, Vector3.ONE)
+	for pos in [Vector3(-4,0,13),Vector3(4,0,11),Vector3(-6,0,15),Vector3(6,0,15)]:
+		_place_local_prop("potted_autumn_flowers", "", pos, Vector3.ONE * 0.9, pos.x * 0.08)
+	for pos in [Vector3(7,0,2),Vector3(16,0,-1),Vector3(15,0,5),Vector3(9,0,6),Vector3(-3,0,13)]:
+		_place_local_prop("rocks", "", pos, Vector3.ONE * (0.65 + fmod(abs(pos.x), 3.0) * 0.12), pos.x * 0.08)
+	for pos in [Vector3(-16,0,4),Vector3(-13,0,7),Vector3(4,0,11),Vector3(11,0,-10),Vector3(15,0,-8),Vector3(-4,0,-10),Vector3(20,0,8)]:
+		_place_local_prop("spring_weeds", "", pos, Vector3.ONE * 0.9, pos.z * 0.13)
 	# Study zones are separated across terrace, shade and quiet garden edge.
 	for data in [[Vector3(-17.0,0,-12.5),mats.teal],[Vector3(-10.0,0,-12.5),mats.gold],[Vector3(-10.0,0,4.0),mats.coral],[Vector3(18.0,0,13.0),mats.green]]:
 		_build_cafe_table(data[0], data[1])
 		_add_study_spot(data[0] + Vector3(0,0,1.3), data[0] + Vector3(0,0.05,0.72), 0.0, "Laptop", data[0] + Vector3(4.0,2.8,4.6), data[0] + Vector3(0,1.0,0))
-		_place_development_prop("coffee_mug", "", data[0] + Vector3(0.6,1.18,0.1), Vector3.ONE)
-	for data in [[Vector3(-17.0,0.05,-11.78),1,"Lumi","20m"],[Vector3(-10.0,0.05,4.72),2,"Ben","37m"]]:
+		_place_local_prop("coffee_mug", "", data[0] + Vector3(0.6,1.18,0.1), Vector3.ONE)
+		_place_local_prop("iced_tea", "", data[0] + Vector3(-0.55,1.18,-0.05), Vector3.ONE)
+	# A small bench grove gives the east garden a social destination.
+	for data in [[Vector3(19.0,0,-5.0),-PI / 2.0],[Vector3(19.0,0,-8.0),-PI / 2.0],[Vector3(15.8,0,-6.5),PI / 2.0]]:
+		_build_chair(data[0], data[1])
+	_place_local_prop("natural_basket", "", Vector3(17.4,0,-6.5), Vector3.ONE)
+	for data in [[Vector3(19.0,0.05,-8.0),1,"Lumi","20m"],[Vector3(-10.0,0.05,4.72),2,"Ben","37m"],[Vector3(-10.0,0.05,-11.78),0,"Sora","48m"],[Vector3(18.0,0.05,13.72),1,"Poppy","31m"],[Vector3(19.0,0.05,-5.0),2,"Ash","16m"]]:
 		_create_npc(data[0],0,data[1],data[2],data[3],true)
 	_focus_camera(Vector3(22, 12, 18), Vector3(0, 1, 0), "Garden wide")
 	_focus_camera(Vector3(-4, 3.2, 10), Vector3(-9, 1, 8), "Among the flowers")
@@ -636,6 +733,7 @@ func _build_garden() -> void:
 func _build_train() -> void:
 	_add_environment(Color("#416b91"), Color("#f8e6ba"), 0.78)
 	_box(world_root, Vector3(11.0, 0.35, 42.0), Vector3(0, -0.22, 0), mats.cream)
+	_box(world_root, Vector3(2.25, 0.035, 39.0), Vector3(0, 0.02, 0), mats.red)
 	for x in [-5.5, 5.5]:
 		_box(world_root, Vector3(0.36, 1.0, 42.0), Vector3(x, 0.48, 0), mats.red)
 		_box(world_root, Vector3(0.36, 0.68, 42.0), Vector3(x, 3.85, 0), mats.red)
@@ -645,6 +743,7 @@ func _build_train() -> void:
 			var root := Node3D.new(); world_root.add_child(root); root.position = Vector3(x, 2.45, z); root.rotation.y = PI / 2.0
 			_build_window(root.position, Vector2(3.8, 2.1), true)
 	# Layered exterior scenery: meadow foreground, trees, water, villages, distant mountains and a tunnel section.
+	var scenery_start := world_root.get_child_count()
 	for side in [-1.0, 1.0]:
 		_box(world_root, Vector3(12.0,0.16,48.0),Vector3(side*11.0,-0.75,0),mats.grass)
 		for z in range(-24, 25, 5):
@@ -657,6 +756,12 @@ func _build_train() -> void:
 	for z in [-14.0,-10.5,14.0,17.5]:
 		_box(world_root,Vector3(1.8,1.4,1.8),Vector3(14.0,0.0,z),mats.cream)
 		var roof:=_box(world_root,Vector3(2.2,0.45,2.2),Vector3(14.0,0.9,z),mats.red);roof.rotation.z=0.18
+	for index in range(scenery_start, world_root.get_child_count()):
+		var scenery := world_root.get_child(index) as Node3D
+		if scenery != null:
+			var distance := absf(scenery.position.x)
+			scenery.set_meta("parallax_speed", 5.2 if distance < 12.5 else (2.8 if distance < 16.0 else 1.15))
+			train_scenery_nodes.append(scenery)
 	# Dark frames imply a tunnel without enclosing the gameplay carriage.
 	for z in [-21.0,-19.5]:
 		_box(world_root,Vector3(18.0,0.5,0.5),Vector3(0,5.0,z),mats.ink)
@@ -670,11 +775,20 @@ func _build_train() -> void:
 		_box(world_root, Vector3(2.7, 0.16, 1.0), Vector3(0, 1.02, z), mats.wood)
 		_capsule_mesh(world_root, 0.12, 1.0, Vector3(0, 0.5, z), mats.cocoa)
 		_import_prop("res://assets/external/kenney_furniture_kit/laptop.glb", Vector3(-0.7,1.12,z), Vector3.ONE * 0.78, PI / 2.0)
-		_place_development_prop("coffee_mug", "", Vector3(0.75,1.14,z+0.15), Vector3.ONE)
+		_place_local_prop("coffee_mug", "", Vector3(0.75,1.14,z+0.15), Vector3.ONE)
+		_place_local_prop("hardcover_books", "", Vector3(0.72,1.13,z-0.22), Vector3.ONE * 0.72, z * 0.08)
+		if int(z + 20.0) % 2 == 0:
+			_place_local_prop("nookphone", "", Vector3(0.05,1.13,z+0.22), Vector3.ONE, PI / 2.0)
+		else:
+			_place_local_prop("lost_book", "", Vector3(-0.05,1.13,z+0.22), Vector3.ONE, -PI / 2.0)
+		_place_local_prop("tote_bag" if z < 0 else "leather_handbag", "", Vector3(4.5,0,z+0.45), Vector3.ONE * 0.85, PI / 2.0)
 		_add_study_spot(Vector3(-3.8,0,z+1.0), Vector3(-3.8,0.05,z+0.28), PI / 2.0, "Laptop", Vector3(1.2,2.5,z+3.8), Vector3(-2.5,1.0,z))
 		_add_blocker(Vector3(-4.0,0.75,z),Vector3(2.8,1.5,1.2),0.0)
 		_add_blocker(Vector3(4.0,0.75,z),Vector3(2.8,1.5,1.2),0.0)
-	for data in [[Vector3(-3.8,0.05,-16.22),1,"Pip","29m"],[Vector3(3.8,0.05,7.78),2,"Zoe","43m"]]:
+	_place_local_prop("pendulum_clock", "", Vector3(-5.1,1.45,-1.0), Vector3.ONE, PI / 2.0)
+	_place_local_prop("corkboard", "", Vector3(5.05,1.4,10.0), Vector3.ONE, -PI / 2.0)
+	_place_local_prop("desk_fan", "", Vector3(0.0,1.12,13.5), Vector3.ONE * 0.8)
+	for data in [[Vector3(3.8,0.05,-16.22),1,"Pip","29m"],[Vector3(3.8,0.05,7.78),2,"Zoe","43m"],[Vector3(-3.8,0.05,-4.22),0,"Milo","19m"],[Vector3(3.8,0.05,13.78),1,"June","54m"]]:
 		_create_npc(data[0],PI / 2.0 if data[0].x < 0 else -PI / 2.0,data[1],data[2],data[3],true)
 	_focus_camera(Vector3(7.5, 5.8, 18.0), Vector3(0, 1, 5), "Carriage wide")
 	_focus_camera(Vector3(1.0, 2.2, -12.0), Vector3(-3.8, 1.15, -16.0), "Player by window")
@@ -693,12 +807,26 @@ func _build_japanese_room() -> void:
 		for z in range(-12,13,4):
 			var tatami := _box(world_root,Vector3(3.55,0.04,3.55),Vector3(x,0.02,z),mats.stone)
 			tatami.rotation.y = PI / 2.0 if (x + z) % 4 == 0 else 0
+	# An entry runner and two compact tea-reading clusters fill the foreground view.
+	_box(world_root, Vector3(11.4,0.05,4.9),Vector3(0,0.025,10.0),mats.wood)
+	_box(world_root, Vector3(10.9,0.055,4.45),Vector3(0,0.055,10.0),mats.cocoa)
+	for data in [[Vector3(-6.0,0,9.0),0.0],[Vector3(6.0,0,9.0),PI]]:
+		_place_local_prop("mini_diy_workbench", "", data[0], Vector3(1.55,0.82,1.25), data[1])
+		_build_chair(data[0] + Vector3(0,0,1.45), PI)
+		_place_local_prop("hardcover_books", "", data[0] + Vector3(-0.45,0.92,0), Vector3.ONE * 0.72, 0.18)
+		_place_local_prop("iced_tea", "", data[0] + Vector3(0.42,0.9,0), Vector3.ONE)
+	_place_local_prop("potted_spring_flowers", "", Vector3(-9.0,0,11.4), Vector3.ONE)
+	_place_local_prop("potted_autumn_flowers", "", Vector3(9.0,0,11.4), Vector3.ONE)
 	_box(world_root,Vector3(38.4,5.2,0.35),Vector3(0,2.45,-15.0),mats.cream)
 	for x in range(-18,19,3): _box(world_root,Vector3(0.15,5.0,0.4),Vector3(x,2.4,-14.8),mats.cocoa)
 	for y in [0.4,2.45,4.75]: _box(world_root,Vector3(38.2,0.14,0.4),Vector3(0,y,-14.8),mats.cocoa)
 	_box(world_root,Vector3(0.35,5.2,30),Vector3(-19.0,2.45,0),mats.cocoa)
 	_box(world_root,Vector3(0.35,0.8,30),Vector3(19.0,0.3,0),mats.cocoa)
 	for x in [-12.0, 0.0, 12.0]: _build_window(Vector3(x,2.6,-14.72),Vector2(8.0,3.7),false)
+	_place_local_prop("pendulum_clock", "", Vector3(-16.8,1.5,-13.9), Vector3.ONE)
+	_place_local_prop("corkboard", "", Vector3(15.5,1.4,-13.9), Vector3.ONE)
+	for data in [[Vector3(-16.0,0,-7.0),PI / 2.0],[Vector3(16.0,0,-7.0),-PI / 2.0]]:
+		_place_local_prop("mini_diy_workbench", "", data[0], Vector3(1.35,1.0,1.15), data[1])
 	# Main study hall desks are widely separated; side rooms use distinct compositions.
 	for x in [-8.0,0.0,8.0]:
 		for z in [-5.0,3.0]:
@@ -706,20 +834,25 @@ func _build_japanese_room() -> void:
 			for sx in [-1.05,1.05]: _capsule_mesh(world_root,0.09,0.7,Vector3(x+sx,0.35,z),mats.cocoa)
 			_sphere(world_root,Vector3(0.65,0.14,0.65),Vector3(x,0.16,z+1.0),mats.red,24,12)
 			_import_prop("res://assets/external/kenney_furniture_kit/laptop.glb",Vector3(x,0.84,z),Vector3.ONE*0.72,PI)
-			_place_development_prop("hardcover_books", "res://assets/external/kenney_furniture_kit/books.glb", Vector3(x+0.8,0.84,z), Vector3.ONE*0.8)
-			_add_study_spot(Vector3(x,0,z+1.55),Vector3(x,0.04,z+0.82),0,"Book",Vector3(x+4.5,2.2,z+4.2),Vector3(x,0.8,z))
+			_place_local_prop("hardcover_books", "res://assets/external/kenney_furniture_kit/books.glb", Vector3(x+0.8,0.84,z), Vector3.ONE*0.8)
+			_place_local_prop("paperback_books", "", Vector3(x-0.75,0.85,z+0.18), Vector3.ONE * 0.72, x * 0.04)
+			_place_local_prop("nookphone" if z < 0 else "lost_book", "", Vector3(x,0.85,z-0.28), Vector3.ONE, 0.12)
+			_add_study_spot(Vector3(x,0,z+1.55),Vector3(x,-0.34,z+0.82),0,"Book",Vector3(x+4.5,2.2,z+4.2),Vector3(x,0.8,z))
 			_add_blocker(Vector3(x,0.55,z),Vector3(2.9,1.1,1.3),0.0)
 	# Reading corner and low tea table create quieter destinations away from the hall.
 	for pos in [Vector3(-14,0,9),Vector3(-11,0,11),Vector3(13,0,10)]:
 		_build_armchair(pos, PI, mats.teal if pos.x < 0 else mats.gold)
+	_build_chair(Vector3(9.8,0,10.5), PI)
 	_cylinder(world_root,1.55,0.35,Vector3(13,0.3,6.5),mats.wood,40)
-	_place_development_prop("coffee_mug", "", Vector3(13.5,0.52,6.5), Vector3.ONE)
+	_place_local_prop("coffee_mug", "", Vector3(13.5,0.52,6.5), Vector3.ONE)
+	_place_local_prop("iced_tea", "", Vector3(12.5,0.52,6.5), Vector3.ONE)
+	_place_local_prop("natural_basket", "", Vector3(-12.5,0,8.0), Vector3.ONE)
 	for x in [-16.6,16.6]:
-		_place_development_prop("potted_flowers", "res://assets/external/kenney_furniture_kit/pottedPlant.glb", Vector3(x,0,12.0), Vector3.ONE)
+		_place_local_prop("potted_autumn_flowers" if x < 0 else "potted_spring_flowers", "res://assets/external/kenney_furniture_kit/pottedPlant.glb", Vector3(x,0,12.0), Vector3.ONE)
 		for y in [1.7,3.0]:
 			var lamp := _sphere(world_root,Vector3(0.48,0.65,0.48),Vector3(x,y,-11.9),mats.paper,24,14)
 			lamp.scale.z=0.75
-	for data in [[Vector3(-8,0.05,-4.18),1,"Hana","24m"],[Vector3(8,0.05,3.82),2,"Iko","46m"]]:
+	for data in [[Vector3(-6,0.05,10.45),1,"Hana","24m"],[Vector3(8,-0.34,3.82),2,"Iko","46m"],[Vector3(0,-0.34,3.82),0,"Ren","39m"],[Vector3(-11,0.05,11),1,"Ami","17m"],[Vector3(9.8,0.05,10.5),2,"Yuki","52m"]]:
 		_create_npc(data[0],0,data[1],data[2],data[3],true)
 	_focus_camera(Vector3(15,8.0,13),Vector3(0,0.7,0),"Tatami hall wide")
 	_focus_camera(Vector3(-3.2,2.7,-1.0),Vector3(-8.0,0.8,-5.0),"Quiet desk study")
@@ -767,11 +900,8 @@ func _create_npc(pos: Vector3, yaw: float, variant: int, display_name: String, t
 	var visual:=_create_character(root,variant,seated)
 	visual.scale*=0.92
 	if seated:
-		visual.position.y+=0.02
-		visual.position.z=-0.05
-		if bool(visual.get_meta("is_imported_character", false)):
-			character_loader.play_animation(visual, "StudyLaptop")
-		else:
+		character_loader.set_seated(visual, true)
+		if not bool(visual.get_meta("is_imported_character", false)):
 			var parts:Dictionary=visual.get_meta("parts")
 			parts.leg_l.rotation.x=-1.22;parts.leg_r.rotation.x=-1.22
 			parts.leg_l.position.y=0.63;parts.leg_r.position.y=0.63
@@ -781,16 +911,8 @@ func _create_npc(pos: Vector3, yaw: float, variant: int, display_name: String, t
 	label.position=Vector3(0,2.75,0)
 	label.font_size=24;label.outline_size=7;label.modulate=CREAM;label.outline_modulate=Color(0.08,0.05,0.04,0.85)
 	label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-	root.setup(visual)
+	root.setup(visual, character_loader, seated, "Laptop" if variant % 2 == 0 else "Book")
 	npcs.append(root)
-
-func _animate_npcs(_delta: float) -> void:
-	var t:=Time.get_ticks_msec()*0.001
-	for npc in npcs:
-		if is_instance_valid(npc) and npc.get_child_count()>0:
-			var visual:=npc.get_child(0) as Node3D
-			visual.position.y=0.02+sin(t*1.2+float(npc.get_meta("phase")))*0.012
-			visual.rotation.y=sin(t*0.37+float(npc.get_meta("phase")))*0.035
 
 func _add_study_spot(standing: Vector3, sitting: Vector3, yaw: float, study_type: String, camera_pos: Vector3, camera_target: Vector3) -> void:
 	var spot = StudySpotScript.new(); world_root.add_child(spot); spot.name="StudySpot_%02d"%study_spots.size(); spot.configure(standing, sitting, yaw, study_type, camera_pos, camera_target)
@@ -876,11 +998,13 @@ func _close_focus_setup() -> void:
 func _begin_focus(spot_index: int) -> void:
 	var task:=task_input.text if is_instance_valid(task_input) else "Quiet focus"
 	var spot = study_spots[spot_index]
+	active_study_spot = spot
 	var overlay:=ui_root.get_node_or_null("FocusSetupOverlay");if overlay:overlay.queue_free()
 	# Author-authored anchors are used directly for deterministic seat alignment.
 	await _transition_player_to_study_spot(spot)
 	player.velocity=Vector3.ZERO
 	if bool(player_visual.get_meta("is_imported_character", false)):
+		character_loader.set_seated(player_visual, true)
 		character_loader.play_animation(player_visual, "StudyLaptop" if spot.study_type == "Laptop" else "StudyBook")
 	elif player_parts.has("leg_l"):
 		player_parts.leg_l.rotation.x=-1.22;player_parts.leg_r.rotation.x=-1.22
@@ -889,7 +1013,7 @@ func _begin_focus(spot_index: int) -> void:
 	screen=Screen.FOCUS
 	_build_focus_hud(task)
 	# The first camera is spot-specific, followed by authored room B-roll.
-	var personal:=_make_camera(spot.camera_position,spot.camera_target,36.0,false);focus_cameras.push_front(personal)
+	var personal:=_make_camera(_readable_focus_position(spot.camera_position, spot.camera_target),spot.camera_target,38.0,false);focus_cameras.push_front(personal)
 	focus_shot_index=-1
 	next_shot_at=0
 	FocusManager.start_session(task,selected_duration)
@@ -905,13 +1029,17 @@ func _transition_player_to_study_spot(spot) -> void:
 	var settle := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	settle.tween_property(player, "global_position", spot.sitting_position, 0.42)
 	await settle.finished
+	character_loader.set_seated(player_visual, true)
 
 func _begin_review_focus() -> void:
 	if study_spots.is_empty(): return
 	var spot = study_spots[0]
+	active_study_spot = spot
 	player.position = spot.sitting_position
 	player.rotation.y = spot.facing_yaw
 	player.velocity = Vector3.ZERO
+	character_loader.set_seated(player_visual, true)
+	character_loader.play_animation(player_visual, "StudyLaptop" if spot.study_type == "Laptop" else "StudyBook", 0.0)
 	if player_parts.has("leg_l"):
 		player_parts.leg_l.rotation.x = -1.22
 		player_parts.leg_r.rotation.x = -1.22
@@ -920,7 +1048,7 @@ func _begin_review_focus() -> void:
 	_set_movement_enabled(false)
 	screen = Screen.FOCUS
 	_build_focus_hud("Reference analysis notes")
-	var personal := _make_camera(spot.camera_position, spot.camera_target, 36.0, false)
+	var personal := _make_camera(_readable_focus_position(spot.camera_position, spot.camera_target), spot.camera_target, 38.0, false)
 	personal.set_meta("shot_name", "Personal desk")
 	focus_cameras.push_front(personal)
 	focus_shot_index = -1
@@ -966,11 +1094,13 @@ func _on_focus_completed() -> void:
 	if screen!=Screen.FOCUS:return
 	var minutes:=roundi(float(FocusManager.duration_seconds)/60.0)
 	var reward:=GameState.award_session(FocusManager.task,minutes,current_room_name)
+	_restore_player_standing()
 	_transition_back_to_follow_camera()
 	_show_completion(minutes,reward)
 
 func _on_focus_cancelled() -> void:
 	if screen==Screen.FOCUS:
+		_restore_player_standing()
 		_transition_back_to_follow_camera()
 		await get_tree().create_timer(0.7).timeout
 		build_room(GameState.selected_room)
@@ -981,6 +1111,17 @@ func _transition_back_to_follow_camera() -> void:
 	var from_camera := get_viewport().get_camera_3d()
 	if is_instance_valid(from_camera):
 		focus_camera_director.transition(from_camera, explore_camera, 0.72)
+
+func _restore_player_standing() -> void:
+	if not is_instance_valid(player) or not is_instance_valid(player_visual):
+		return
+	if active_study_spot != null and is_instance_valid(active_study_spot):
+		player.global_position = active_study_spot.standing_position
+		player.rotation.y = active_study_spot.facing_yaw
+	character_loader.set_seated(player_visual, false)
+	character_loader.play_animation(player_visual, "Idle")
+	player.velocity = Vector3.ZERO
+	active_study_spot = null
 
 func _show_completion(minutes: int, reward: int) -> void:
 	var overlay:=ColorRect.new();ui_root.add_child(overlay);overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);overlay.color=Color(0.05,0.035,0.025,0.72)
@@ -997,14 +1138,20 @@ func _add_environment(background: Color, ambient: Color, energy: float) -> void:
 	var environment:=WorldEnvironment.new();world_root.add_child(environment)
 	var env:=Environment.new();environment.environment=env
 	env.background_mode=Environment.BG_COLOR;env.background_color=background;env.background_energy_multiplier=0.75
-	env.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR;env.ambient_light_color=ambient;env.ambient_light_energy=0.36
-	env.tonemap_mode=Environment.TONE_MAPPER_FILMIC;env.tonemap_exposure=0.86
+	env.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR;env.ambient_light_color=ambient;env.ambient_light_energy=0.28
+	env.tonemap_mode=Environment.TONE_MAPPER_FILMIC;env.tonemap_exposure=0.72
 	env.glow_enabled=true;env.glow_intensity=0.16;env.glow_bloom=0.05
 	var sun:=DirectionalLight3D.new();world_root.add_child(sun);sun.rotation_degrees=Vector3(-55,-30,0);sun.light_color=ambient;sun.light_energy=energy;sun.shadow_enabled=true;sun.directional_shadow_max_distance=40
-	var fill:=OmniLight3D.new();world_root.add_child(fill);fill.position=Vector3(-5,7,6);fill.light_color=Color("#ffcf94");fill.light_energy=0.95;fill.omni_range=22;fill.shadow_enabled=true
+	var fill:=OmniLight3D.new();world_root.add_child(fill);fill.position=Vector3(-5,7,6);fill.light_color=Color("#ffcf94");fill.light_energy=0.68;fill.omni_range=22;fill.shadow_enabled=true
 
 func _make_camera(pos: Vector3, target: Vector3, fov: float, make_current: bool=true) -> Camera3D:
 	var cam:=Camera3D.new();world_root.add_child(cam);cam.position=pos;cam.fov=fov;cam.look_at_from_position(pos,target);cam.current=make_current;return cam
+
+func _readable_focus_position(authored_position: Vector3, target: Vector3) -> Vector3:
+	var direction := authored_position - target
+	if direction.length_squared() < 0.001:
+		direction = Vector3(1.0, 0.45, 1.0)
+	return target + direction.normalized() * maxf(direction.length(), 9.5)
 
 func _focus_camera(pos: Vector3,target: Vector3,shot_name: String) -> void:
 	var cam:=_make_camera(pos,target,36.0,false);cam.set_meta("shot_name",shot_name);focus_cameras.append(cam)
@@ -1022,6 +1169,8 @@ func _create_follow_camera() -> void:
 	follow_camera_rig.name = "FollowCameraRig"
 	world_root.add_child(follow_camera_rig)
 	explore_camera = follow_camera_rig.setup(player, current_room_config)
+	if player is PlayerController:
+		player.set_movement_camera(explore_camera)
 
 func _add_world_boundaries(extents: Vector2) -> void:
 	for data in [[Vector3(extents.x+0.3,1.5,0),Vector3(0.4,3.0,extents.y*2.0)],[Vector3(-extents.x-0.3,1.5,0),Vector3(0.4,3.0,extents.y*2.0)],[Vector3(0,1.5,extents.y+0.3),Vector3(extents.x*2.0,3.0,0.4)],[Vector3(0,1.5,-extents.y-0.3),Vector3(extents.x*2.0,3.0,0.4)]]:
@@ -1060,13 +1209,13 @@ func _add_collision_debug_mesh(parent: Node3D, size: Vector3) -> void:
 	debug_mesh.visible = false
 	parent.add_child(debug_mesh)
 
-func _place_development_prop(asset_id: String, fallback_path: String, pos: Vector3, scale_value: Vector3, yaw := 0.0) -> Node3D:
+func _place_local_prop(asset_id: String, fallback_path: String, pos: Vector3, scale_value: Vector3, yaw := 0.0) -> Node3D:
 	var holder: Node3D = asset_loader.instantiate_prop(asset_id, fallback_path)
 	if holder.get_child_count() == 0:
 		holder.queue_free()
 		match asset_id:
-			"oak_tree": _build_tree(pos, scale_value.x)
-			"potted_flowers": _build_plant(pos, scale_value.x)
+			"oak_trees_museum": _build_tree(pos, scale_value.x)
+			"potted_spring_flowers": _build_plant(pos, scale_value.x)
 			"coffee_mug": _cylinder(world_root, 0.13 * scale_value.x, 0.26 * scale_value.y, pos + Vector3(0, 0.13 * scale_value.y, 0), mats.teal, 20)
 		return holder
 	world_root.add_child(holder)
