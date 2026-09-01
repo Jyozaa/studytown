@@ -16,7 +16,15 @@ import bpy
 from mathutils import Vector
 
 
-LOOP_ACTIONS = {"Idle", "Walk", "SeatedIdle", "StudyLaptop", "StudyBook"}
+LOOP_ACTIONS = {
+    "Idle",
+    "Walk",
+    "SeatedIdle",
+    "StudyLaptop",
+    "StudyBook",
+    "FloorStudy",
+    "TrainStudy",
+}
 
 
 def arguments() -> argparse.Namespace:
@@ -225,23 +233,274 @@ def create_actions(armature: bpy.types.Object) -> None:
     walk_b = {"rotation": {"Leg_1_L": (-0.96, 0.0, 0.05), "Leg_2_L": (0.68, 0.0, 0.0), "Leg_1_R": (1.16, 0.0, -0.05), "Leg_2_R": (-0.48, 0.0, 0.0), "Arm_1_L": (2.24, -1.50, 0.18), "Arm_1_R": (-0.76, -1.50, -0.18), "Spine_2": (0.045, 0.0, -0.11), "Head": (-0.025, 0.055, 0.065), "Ear_1_L": (0.0, 0.0, 0.038), "Ear_1_R": (0.0, 0.0, -0.050), "S_Tail_1": (0.0, -0.08, 0.34), "S_Tail_2": (0.0, -0.11, 0.24), "S_Tail_3": (0.0, -0.08, 0.14)}, "location": {"Trans_Root": (0.0, 0.0, 0.015)}}
     create_action(armature, "Walk", [(1, walk_a), (7, walk_mid), (13, walk_b), (19, walk_mid), (25, walk_a)], 25)
 
-    sit = {"rotation": {"Leg_1_L": (-1.38, 0.0, 0.07), "Leg_2_L": (1.62, 0.0, 0.0), "Ankle_L": (-0.18, 0.0, 0.0), "Leg_1_R": (-1.38, 0.0, -0.07), "Leg_2_R": (1.62, 0.0, 0.0), "Ankle_R": (-0.18, 0.0, 0.0), "Arm_1_L": (0.0, -1.50, -1.34), "Arm_2_L": (0.0, -1.50, 1.0), "Arm_1_R": (0.50, -1.50, 1.34), "Arm_2_R": (0.0, 1.50, -0.50), "Spine_2": (0.10, 0.0, 0.0)}}
-    create_action(armature, "Sit", [(1, arms_down), (9, scaled_pose(sit, 0.52)), (18, sit), (24, sit)], 24)
+        # Chair sitting deliberately exaggerates the hip bend while keeping the
+    # lower legs angled rather than perfectly vertical. At gameplay distance
+    # this reads as "sitting" instead of a standing model intersecting a seat.
+    chair_sit = {
+        "rotation": {
+            "Leg_1_L": (-1.30, 0.0, 0.08),
+            "Leg_2_L": (1.62, 0.0, 0.0),
+            "Ankle_L": (-0.20, 0.0, 0.0),
 
-    seated_idle_a = merged(sit, {"rotation": {"Head": (0.08, -0.025, 0.018), "S_Tail_2": (0.0, 0.08, -0.06)}})
-    seated_idle_b = merged(sit, {"rotation": {"Head": (0.11, 0.025, -0.018), "S_Tail_2": (0.0, -0.08, 0.06)}})
-    create_action(armature, "SeatedIdle", [(1, seated_idle_a), (32, seated_idle_b), (64, seated_idle_a)], 64)
+            "Leg_1_R": (-1.30, 0.0, -0.08),
+            "Leg_2_R": (1.62, 0.0, 0.0),
+            "Ankle_R": (-0.20, 0.0, 0.0),
 
-    # The source rig's left/right arm bases are not simple Euler mirrors. These
-    # rotations were solved against wrist endpoints in armature space so both
-    # paws land together, forward of the torso, instead of producing a T-pose.
-    laptop_a = merged(sit, {"rotation": {"Spine_2": (0.22, 0.0, 0.0), "Head": (0.16, -0.02, 0.0), "Arm_1_L": (0.0, -1.50, -1.34), "Arm_2_L": (0.0, -1.36, 1.08), "Arm_1_R": (0.50, -1.50, 1.34), "Arm_2_R": (0.0, 1.36, -0.58), "Wrist_L": (0.0, 0.0, 0.28), "Wrist_R": (0.0, 0.0, -0.24), "Hand_L": (0.0, 0.10, 0.0), "Hand_R": (0.0, -0.10, 0.0)}})
-    laptop_b = merged(laptop_a, {"rotation": {"Head": (0.19, 0.025, 0.018), "Arm_2_L": (0.08, -1.46, 0.94), "Arm_2_R": (-0.08, 1.46, -0.44), "Wrist_L": (0.0, 0.0, -0.28), "Wrist_R": (0.0, 0.0, 0.24), "Hand_L": (0.0, -0.12, 0.0), "Hand_R": (0.0, 0.12, 0.0)}})
-    create_action(armature, "StudyLaptop", [(1, laptop_a), (8, laptop_b), (16, laptop_a), (24, laptop_b), (32, laptop_a)], 32)
+            "Arm_1_L": (0.0, -1.50, -1.34),
+            "Arm_2_L": (0.0, -1.50, 1.0),
 
-    book_a = merged(sit, {"rotation": {"Spine_2": (0.12, 0.0, 0.0), "Head": (0.22, -0.02, 0.0), "Arm_1_L": (0.0, -1.50, -1.34), "Arm_2_L": (0.0, -1.50, 1.0), "Arm_1_R": (0.50, -1.50, 1.34), "Arm_2_R": (0.0, 1.50, -0.50)}})
-    book_b = merged(book_a, {"rotation": {"Head": (0.27, 0.06, 0.025), "Arm_2_R": (0.12, 1.36, -0.36), "Wrist_R": (0.0, 0.0, 0.32), "Hand_R": (0.0, 0.18, 0.0)}})
-    create_action(armature, "StudyBook", [(1, book_a), (28, book_a), (42, book_b), (56, book_a), (72, book_a)], 72)
+            "Arm_1_R": (0.50, -1.50, 1.34),
+            "Arm_2_R": (0.0, 1.50, -0.50),
+
+            "Spine_2": (0.10, 0.0, 0.0),
+        }
+    }
+
+    create_action(
+        armature,
+        "Sit",
+        [
+            (1, arms_down),
+            (9, scaled_pose(chair_sit, 0.52)),
+            (18, chair_sit),
+            (24, chair_sit),
+        ],
+        24,
+    )
+
+    seated_idle_a = merged(
+        chair_sit,
+        {
+            "rotation": {
+                "Head": (0.08, -0.025, 0.018),
+                "S_Tail_2": (0.0, 0.08, -0.06),
+            }
+        },
+    )
+
+    seated_idle_b = merged(
+        chair_sit,
+        {
+            "rotation": {
+                "Head": (0.11, 0.025, -0.018),
+                "S_Tail_2": (0.0, -0.08, 0.06),
+            }
+        },
+    )
+
+    create_action(
+        armature,
+        "SeatedIdle",
+        [
+            (1, seated_idle_a),
+            (32, seated_idle_b),
+            (64, seated_idle_a),
+        ],
+        64,
+    )
+
+    laptop_a = merged(
+        chair_sit,
+        {
+            "rotation": {
+                "Spine_2": (0.22, 0.0, 0.0),
+                "Head": (0.16, -0.02, 0.0),
+
+                "Arm_1_L": (0.0, -1.50, -1.34),
+                "Arm_2_L": (0.0, -1.36, 1.08),
+
+                "Arm_1_R": (0.50, -1.50, 1.34),
+                "Arm_2_R": (0.0, 1.36, -0.58),
+
+                "Wrist_L": (0.0, 0.0, 0.28),
+                "Wrist_R": (0.0, 0.0, -0.24),
+
+                "Hand_L": (0.0, 0.10, 0.0),
+                "Hand_R": (0.0, -0.10, 0.0),
+            }
+        },
+    )
+
+    laptop_b = merged(
+        laptop_a,
+        {
+            "rotation": {
+                "Head": (0.19, 0.025, 0.018),
+
+                "Arm_2_L": (0.08, -1.46, 0.94),
+                "Arm_2_R": (-0.08, 1.46, -0.44),
+
+                "Wrist_L": (0.0, 0.0, -0.28),
+                "Wrist_R": (0.0, 0.0, 0.24),
+
+                "Hand_L": (0.0, -0.12, 0.0),
+                "Hand_R": (0.0, 0.12, 0.0),
+            }
+        },
+    )
+
+    create_action(
+        armature,
+        "StudyLaptop",
+        [
+            (1, laptop_a),
+            (8, laptop_b),
+            (16, laptop_a),
+            (24, laptop_b),
+            (32, laptop_a),
+        ],
+        32,
+    )
+
+    book_a = merged(
+        chair_sit,
+        {
+            "rotation": {
+                "Spine_2": (0.12, 0.0, 0.0),
+                "Head": (0.22, -0.02, 0.0),
+
+                "Arm_1_L": (0.0, -1.50, -1.34),
+                "Arm_2_L": (0.0, -1.50, 1.0),
+
+                "Arm_1_R": (0.50, -1.50, 1.34),
+                "Arm_2_R": (0.0, 1.50, -0.50),
+            }
+        },
+    )
+
+    book_b = merged(
+        book_a,
+        {
+            "rotation": {
+                "Head": (0.27, 0.06, 0.025),
+                "Arm_2_R": (0.12, 1.36, -0.36),
+                "Wrist_R": (0.0, 0.0, 0.32),
+                "Hand_R": (0.0, 0.18, 0.0),
+            }
+        },
+    )
+
+    create_action(
+        armature,
+        "StudyBook",
+        [
+            (1, book_a),
+            (28, book_a),
+            (42, book_b),
+            (56, book_a),
+            (72, book_a),
+        ],
+        72,
+    )
+
+        # Train booth pose:
+    # hips remain seated on the cushion while the thighs project toward the
+    # front edge and the lower legs drop down instead of folding back onto it.
+    train_a = merged(
+        chair_sit,
+        {
+            "rotation": {
+                "Leg_1_L": (-1.16, 0.0, 0.08),
+                "Leg_2_L": (0.34, 0.0, 0.0),
+                "Ankle_L": (-0.12, 0.0, 0.0),
+
+                "Leg_1_R": (-1.16, 0.0, -0.08),
+                "Leg_2_R": (0.34, 0.0, 0.0),
+                "Ankle_R": (-0.12, 0.0, 0.0),
+
+                "Spine_2": (0.12, 0.0, 0.0),
+                "Head": (0.12, -0.02, 0.0),
+
+                "Arm_1_L": (0.0, -1.50, -1.34),
+                "Arm_2_L": (0.0, -1.50, 1.0),
+
+                "Arm_1_R": (0.50, -1.50, 1.34),
+                "Arm_2_R": (0.0, 1.50, -0.50),
+            }
+        },
+    )
+
+    train_b = merged(
+        train_a,
+        {
+            "rotation": {
+                "Head": (0.15, 0.025, 0.015),
+                "Wrist_R": (0.0, 0.0, 0.12),
+                "S_Tail_2": (0.0, 0.06, -0.05),
+            }
+        },
+    )
+
+    create_action(
+        armature,
+        "TrainStudy",
+        [
+            (1, train_a),
+            (32, train_b),
+            (64, train_a),
+        ],
+        64,
+    )
+
+    # Floor cushions need a different silhouette entirely.
+    # The thighs come forward/outward while the lower legs fold back beneath
+    # the body, giving a compact kneeling/floor-sitting pose.
+    floor_base = {
+        "rotation": {
+            "Leg_1_L": (-1.72, -0.08, 0.34),
+            "Leg_2_L": (2.42, 0.0, -0.12),
+            "Ankle_L": (-0.38, 0.0, 0.0),
+
+            "Leg_1_R": (-1.72, 0.08, -0.34),
+            "Leg_2_R": (2.42, 0.0, 0.12),
+            "Ankle_R": (-0.38, 0.0, 0.0),
+
+            "Spine_2": (0.12, 0.0, 0.0),
+
+            "Arm_1_L": (0.0, -1.50, -1.34),
+            "Arm_2_L": (0.0, -1.50, 1.0),
+
+            "Arm_1_R": (0.50, -1.50, 1.34),
+            "Arm_2_R": (0.0, 1.50, -0.50),
+        },
+        "location": {
+            "Trans_Root": (0.0, 0.0, -0.16),
+        },
+    }
+
+    floor_a = merged(
+        floor_base,
+        {
+            "rotation": {
+                "Head": (0.20, -0.025, 0.015),
+                "S_Tail_1": (0.0, 0.08, -0.16),
+                "S_Tail_2": (0.0, 0.10, -0.10),
+            }
+        },
+    )
+
+    floor_b = merged(
+        floor_base,
+        {
+            "rotation": {
+                "Head": (0.24, 0.025, -0.015),
+                "S_Tail_1": (0.0, -0.08, 0.16),
+                "S_Tail_2": (0.0, -0.10, 0.10),
+                "Wrist_R": (0.0, 0.0, 0.16),
+            }
+        },
+    )
+
+    create_action(
+        armature,
+        "FloorStudy",
+        [
+            (1, floor_a),
+            (36, floor_b),
+            (72, floor_a),
+        ],
+        72,
+    )
 
     wave_rest = {"rotation": {"Arm_1_L": (1.50, -1.50, 0.0), "Arm_1_R": (0.50, 1.0, 0.50), "Arm_2_R": (0.0, 0.0, -0.25)}}
     wave_out = {"rotation": {"Arm_1_L": (1.50, -1.50, 0.0), "Arm_1_R": (0.50, 1.0, 0.50), "Arm_2_R": (0.0, 0.0, 0.38), "Wrist_R": (0.0, 0.0, 0.25)}}

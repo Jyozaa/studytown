@@ -43,15 +43,45 @@ func _process(_delta: float) -> void:
 func _play_study() -> void:
 	if not is_instance_valid(character_loader):
 		return
+
 	state = CalmState.STUDY_LAPTOP if study_kind == "Laptop" else CalmState.STUDY_BOOK
-	character_loader.play_animation(visual, "StudyLaptop" if study_kind == "Laptop" else "StudyBook", 0.25)
+
+	var animation_name := "StudyLaptop" if study_kind == "Laptop" else "StudyBook"
+
+	if assigned_spot != null and is_instance_valid(assigned_spot):
+		if str(assigned_spot.seat_type) == "floor_cushion":
+			animation_name = "FloorStudy"
+		elif str(assigned_spot.seat_type) == "train_booth":
+			animation_name = "TrainStudy"
+
+	character_loader.play_animation(
+		visual,
+		animation_name,
+		0.25
+	)
 
 func _play_ambient_action() -> void:
 	if not is_instance_valid(character_loader):
 		return
+
+	# Floor-seated characters should remain in their dedicated compact pose.
+	# The regular Stretch/Wave clips are standing-oriented and would visually
+	# pull them out of the cushion.
+	if assigned_spot != null and is_instance_valid(assigned_spot):
+		if str(assigned_spot.seat_type) == "floor_cushion":
+			next_action_at = Time.get_unix_time_from_system() + randf_range(45.0, 85.0)
+			return
+
 	state = CalmState.STRETCH if randf() < 0.72 else CalmState.WAVE
-	character_loader.play_animation(visual, "Stretch" if state == CalmState.STRETCH else "Wave", 0.25)
+
+	character_loader.play_animation(
+		visual,
+		"Stretch" if state == CalmState.STRETCH else "Wave",
+		0.25
+	)
+
 	get_tree().create_timer(1.8).timeout.connect(_resume_study)
+
 	next_action_at = Time.get_unix_time_from_system() + randf_range(45.0, 85.0)
 
 func _resume_study() -> void:

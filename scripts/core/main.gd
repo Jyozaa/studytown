@@ -12,12 +12,26 @@ const NPCControllerScript := preload("res://scripts/npc/npc_controller.gd")
 const RoomFloorScript := preload("res://scripts/world/room_floor.gd")
 const RoomDefinitionsScript := preload("res://scripts/rooms/room_definitions.gd")
 const GENERATED_ASSET_DIR := "res://assets/dev_local/blender_generated/runtime/"
+
+# Physics layer 5.
+# This layer is queried by cinematic/focus cameras but ignored by the player.
+const CAMERA_OCCLUDER_LAYER := 1 << 4
+
+# World geometry + camera-only visual occluders.
+const FOCUS_OCCLUSION_MASK := 1 | CAMERA_OCCLUDER_LAYER
+
+# These offsets are added on top of CharacterProfile.sitting_visual_offset.
+#
+# Armchairs and especially train booths need a stronger upward correction
+# because their actual upholstered seat surfaces are higher than ordinary
+# chairs. The Blender train bench seat surface is ~0.84m and the generated
+# armchair is ~0.79m.
 const SEAT_VISUAL_OFFSETS := {
-	"desk_chair": Vector3(0.0, 0.08, -0.08),
-	"armchair": Vector3(0.0, 0.10, -0.14),
-	"cafe_chair": Vector3(0.0, 0.08, -0.10),
-	"train_booth": Vector3(0.0, 0.12, -0.10),
-	"floor_cushion": Vector3(0.0, -0.12, -0.08),
+	"desk_chair": Vector3(0.0, 0.02, 0.12),
+	"armchair": Vector3(0.0, 0.04, 0.16),
+	"cafe_chair": Vector3(0.0, 0.02, 0.12),
+	"train_booth": Vector3(0.0, 0.16, 0.02),
+	"floor_cushion": Vector3(0.0, -0.18, 0.02),
 }
 
 const CREAM := Color("#fff4d6")
@@ -38,7 +52,13 @@ var player
 var player_visual: Node3D
 var explore_camera: Camera3D
 var follow_camera_rig
+
+# Seat-relative shots that must actually see the studying player.
 var focus_cameras: Array[Camera3D] = []
+
+# Room/environment B-roll. These do not need to have the player visible.
+var room_broll_cameras: Array[Camera3D] = []
+
 var study_spots: Array = []
 var npcs: Array[Node3D] = []
 var prompt_label: Label
@@ -200,24 +220,45 @@ func _build_materials() -> void:
 		mats.water = water
 
 func _clear_scene() -> void:
+	# Queue the old scene for deletion.
 	if is_instance_valid(world_root):
 		world_root.queue_free()
+
 	if is_instance_valid(ui_root):
 		ui_root.queue_free()
-	world_root = Node3D.new()
-	world_root.name = "World"
-	add_child(world_root)
-	ui_root = CanvasLayer.new()
-	ui_root.name = "Interface"
-	add_child(ui_root)
+
+	# IMPORTANT:
+	# References to children of the old World can otherwise remain pointing at
+	# already-freed Godot Objects. Explicitly clear them whenever the room/menu
+	# scene is rebuilt.
+	player = null
+	player_visual = null
+	explore_camera = null
+	follow_camera_rig = null
+	menu_character = null
+
+	active_study_spot = null
+	pending_study_spot = null
+
+	player_parts.clear()
+
 	study_spots.clear()
 	npcs.clear()
 	focus_cameras.clear()
+	room_broll_cameras.clear()
 	train_scenery_nodes.clear()
-	player_parts.clear()
+
 	nearest_spot = -1
-	active_study_spot = null
-	pending_study_spot = null
+
+	# Create the new scene roots.
+	world_root = Node3D.new()
+	world_root.name = "World"
+	add_child(world_root)
+
+	ui_root = CanvasLayer.new()
+	ui_root.name = "Interface"
+	add_child(ui_root)
+
 
 func show_main_menu() -> void:
 	screen = Screen.MENU
@@ -343,19 +384,31 @@ func _enter_room(index: int) -> void:
 
 func build_room(index: int) -> void:
 	screen = Screen.ROOM
-	_set_movement_enabled(true)
+
+	# Destroy/reset references from the previous menu or room first.
 	_clear_scene()
+
 	current_room_config = RoomDefinitionsScript.get_room(index)
+
 	_add_structural_floor(current_room_config.size)
+
 	match index:
-		0: _build_library()
-		1: _build_garden()
-		2: _build_train()
-		3: _build_japanese_room()
+		0:
+			_build_library()
+		1:
+			_build_garden()
+		2:
+			_build_train()
+		3:
+			_build_japanese_room()
+
 	_create_player()
 	_create_follow_camera()
 	_build_room_ui()
 	_update_camera_current()
+
+	# Enable movement only after the new Player actually exists.
+	_set_movement_enabled(true)
 
 func _process(delta: float) -> void:
 	if mats.has("water") and mats.water is StandardMaterial3D:
@@ -537,7 +590,8 @@ func _on_player_locomotion_changed(state: String) -> void:
 
 func _set_movement_enabled(value: bool) -> void:
 	movement_enabled = value
-	if player is PlayerController:
+
+	if is_instance_valid(player) and player is PlayerController:
 		player.set_movement_enabled(value)
 
 func _animate_walk(amount: float) -> void:
@@ -786,7 +840,24 @@ func _register_furniture_seat(pos: Vector3, furniture_yaw: float, study_type: St
 	var seat_yaw := wrapf(furniture_yaw - PI, -PI, PI)
 	var forward := Basis(Vector3.UP, seat_yaw) * Vector3.FORWARD
 	var right := Basis(Vector3.UP, seat_yaw) * Vector3.RIGHT
-	var sitting := pos + forward * forward_offset + Vector3.UP * seat_height
+
+	# The generic furniture values put the character too close to the front
+	# edge of several seats. Keep seat placement authored by seat family.
+	var tuned_forward_offset := forward_offset
+
+	match seat_type:
+		"desk_chair":
+			tuned_forward_offset = 0.10
+		"armchair":
+			tuned_forward_offset = 0.06
+		"cafe_chair":
+			tuned_forward_offset = 0.10
+		"train_booth":
+			tuned_forward_offset = 0.40
+		"floor_cushion":
+			tuned_forward_offset = 0.0
+
+	var sitting := pos + forward * tuned_forward_offset + Vector3.UP * seat_height
 	var standing := pos - forward * stand_distance
 	var camera_target := sitting + Vector3.UP * 1.20 + forward * 0.28
 	# Personal focus views sit across the desk at a three-quarter angle so the
@@ -1267,6 +1338,21 @@ func _close_focus_setup() -> void:
 	pending_study_spot = null
 	_set_movement_enabled(true)
 
+func _study_animation_for_spot(spot) -> String:
+	if spot == null or not is_instance_valid(spot):
+		return "StudyBook"
+
+	if str(spot.seat_type) == "floor_cushion":
+		return "FloorStudy"
+
+	if str(spot.seat_type) == "train_booth":
+		return "TrainStudy"
+
+	if str(spot.study_type) == "Laptop":
+		return "StudyLaptop"
+
+	return "StudyBook"
+
 func _begin_focus(spot_index: int) -> void:
 	var task:=task_input.text if is_instance_valid(task_input) else "Quiet focus"
 	var spot = study_spots[spot_index]
@@ -1282,7 +1368,10 @@ func _begin_focus(spot_index: int) -> void:
 	player.velocity=Vector3.ZERO
 	if bool(player_visual.get_meta("is_imported_character", false)):
 		character_loader.set_seated(player_visual, true, spot.seated_visual_offset)
-		character_loader.play_animation(player_visual, "StudyLaptop" if spot.study_type == "Laptop" else "StudyBook")
+		character_loader.play_animation(
+			player_visual,
+			_study_animation_for_spot(spot)
+		)
 	elif player_parts.has("leg_l"):
 		player_parts.leg_l.rotation.x=-1.22;player_parts.leg_r.rotation.x=-1.22
 		player_parts.arm_l.rotation.x=-0.80;player_parts.arm_r.rotation.x=-0.80
@@ -1297,15 +1386,102 @@ func _begin_focus(spot_index: int) -> void:
 func _transition_player_to_study_spot(spot) -> void:
 	_set_movement_enabled(false)
 	player.velocity = Vector3.ZERO
-	var approach := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	approach.tween_property(player, "global_position", spot.standing_position, 0.32)
-	approach.parallel().tween_property(player, "rotation:y", spot.facing_yaw, 0.32)
+
+	# ------------------------------------------------------------
+	# 1. Walk/slide to the authored standing anchor.
+	# ------------------------------------------------------------
+
+	var approach := create_tween()
+	approach.set_trans(Tween.TRANS_CUBIC)
+	approach.set_ease(Tween.EASE_IN_OUT)
+
+	approach.tween_property(
+		player,
+		"global_position",
+		spot.standing_position,
+		0.32
+	)
+
+	approach.parallel().tween_property(
+		player,
+		"rotation:y",
+		spot.facing_yaw,
+		0.32
+	)
+
 	await approach.finished
-	character_loader.play_animation(player_visual, "Sit")
-	var settle := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	settle.tween_property(player, "global_position", spot.sitting_position, 0.42)
+
+	player.global_position = spot.standing_position
+	player.rotation.y = spot.facing_yaw
+
+	# ------------------------------------------------------------
+	# 2. Begin actual skeletal Sit.
+	# ------------------------------------------------------------
+
+	character_loader.play_animation(
+		player_visual,
+		"Sit",
+		0.12
+	)
+
+	# ------------------------------------------------------------
+	# 3. Move the CHARACTER ROOT into the authored chair anchor
+	#    while also blending the MODEL toward the seat-specific
+	#    visual correction.
+	#
+	# Previously the visual offset was applied only after the root
+	# had already reached the chair, which made the character sink
+	# or snap into furniture.
+	# ------------------------------------------------------------
+
+	var target_visual_offset := Vector3.ZERO
+
+	var profile = player_visual.get_meta(
+		"character_profile",
+		null
+	)
+
+	if profile != null:
+		target_visual_offset = (
+			profile.sitting_visual_offset
+			+ spot.seated_visual_offset
+		)
+
+	var settle := create_tween()
+	settle.set_trans(Tween.TRANS_CUBIC)
+	settle.set_ease(Tween.EASE_IN_OUT)
+
+	settle.tween_property(
+		player,
+		"global_position",
+		spot.sitting_position,
+		0.90
+	)
+
+	if bool(
+		player_visual.get_meta(
+			"is_imported_character",
+			false
+		)
+	):
+		settle.parallel().tween_property(
+			player_visual,
+			"position",
+			target_visual_offset,
+			0.90
+		)
+
 	await settle.finished
-	character_loader.set_seated(player_visual, true, spot.seated_visual_offset)
+
+	player.global_position = spot.sitting_position
+
+	if bool(
+		player_visual.get_meta(
+			"is_imported_character",
+			false
+		)
+	):
+		player_visual.position = target_visual_offset
 
 func _begin_review_focus() -> void:
 	if study_spots.is_empty(): return
@@ -1318,7 +1494,11 @@ func _begin_review_focus() -> void:
 	player.rotation.y = spot.facing_yaw
 	player.velocity = Vector3.ZERO
 	character_loader.set_seated(player_visual, true, spot.seated_visual_offset)
-	character_loader.play_animation(player_visual, "StudyLaptop" if spot.study_type == "Laptop" else "StudyBook", 0.0)
+	character_loader.play_animation(
+		player_visual,
+		_study_animation_for_spot(spot),
+		0.0
+	)
 	if player_parts.has("leg_l"):
 		player_parts.leg_l.rotation.x = -1.22
 		player_parts.leg_r.rotation.x = -1.22
@@ -1348,7 +1528,11 @@ func _begin_review_focus_at(spot_index: int) -> void:
 	player.rotation.y = chosen.facing_yaw
 	player.velocity = Vector3.ZERO
 	character_loader.set_seated(player_visual, true, chosen.seated_visual_offset)
-	character_loader.play_animation(player_visual, "StudyLaptop" if chosen.study_type == "Laptop" else "StudyBook", 0.0)
+	character_loader.play_animation(
+		player_visual,
+		_study_animation_for_spot(chosen),
+		0.0
+	)
 	_set_movement_enabled(false)
 	screen = Screen.FOCUS
 	_build_focus_hud("Reference analysis notes")
@@ -1386,8 +1570,24 @@ func _begin_seating_review(seat_type: String) -> void:
 	player.global_position = spot.sitting_position
 	player.rotation.y = spot.facing_yaw
 	player.velocity = Vector3.ZERO
-	character_loader.set_seated(player_visual, true, spot.seated_visual_offset)
-	character_loader.play_animation(player_visual, "SeatedIdle", 0.0)
+	character_loader.set_seated(
+		player_visual,
+		true,
+		spot.seated_visual_offset
+	)
+
+	var review_animation := "SeatedIdle"
+
+	if seat_type == "floor_cushion":
+		review_animation = "FloorStudy"
+	elif seat_type == "train_booth":
+		review_animation = "TrainStudy"
+
+	character_loader.play_animation(
+		player_visual,
+		review_animation,
+		0.0
+	)
 	_set_movement_enabled(false)
 	var forward := Basis(Vector3.UP, spot.facing_yaw) * Vector3.FORWARD
 	var right := Basis(Vector3.UP, spot.facing_yaw) * Vector3.RIGHT
@@ -1400,9 +1600,18 @@ func _begin_seating_review(seat_type: String) -> void:
 	_make_camera(target + camera_offset, target, 40.0)
 
 func _activate_review_camera(index: int) -> void:
-	if focus_cameras.is_empty():
+	var pool: Array[Camera3D] = (
+		room_broll_cameras
+		if not room_broll_cameras.is_empty()
+		else focus_cameras
+	)
+
+	if pool.is_empty():
 		return
-	focus_cameras[clampi(index, 0, focus_cameras.size() - 1)].current = true
+
+	pool[
+		clampi(index, 0, pool.size() - 1)
+	].current = true
 
 func _activate_shelf_review() -> void:
 	_make_camera(Vector3(-8.0, 4.3, 7.4), Vector3(0.0, 1.85, 1.15), 40.0)
@@ -1458,68 +1667,267 @@ func _on_focus_tick(remaining: int) -> void:
 	if is_instance_valid(focus_time_label):focus_time_label.text="%02d:%02d"%[remaining/60,remaining%60]
 
 func _cycle_focus_camera() -> void:
-	if focus_cameras.is_empty():
+	var sequence := _build_focus_sequence()
+
+	if sequence.is_empty():
 		return
+
 	var to_camera: Camera3D
-	for _attempt in focus_cameras.size():
-		focus_shot_index = (focus_shot_index + 1) % focus_cameras.size()
-		var candidate := focus_cameras[focus_shot_index]
-		if active_study_spot == null or _is_focus_shot_clear(candidate.global_position, active_study_spot):
+
+	for _attempt in sequence.size():
+		focus_shot_index = (
+			focus_shot_index + 1
+		) % sequence.size()
+
+		var candidate := sequence[focus_shot_index]
+
+		var requires_player_visibility := bool(
+			candidate.get_meta(
+				"requires_player_visibility",
+				true
+			)
+		)
+
+		if (
+			not requires_player_visibility
+			or active_study_spot == null
+			or _is_focus_shot_clear(
+				candidate.global_position,
+				active_study_spot
+			)
+		):
 			to_camera = candidate
 			break
-	if not is_instance_valid(to_camera):
-		push_warning("All focus-camera candidates became obstructed; retaining the current clear shot")
-		next_shot_at = Time.get_unix_time_from_system() + 5.0
-		return
-	var from_camera := get_viewport().get_camera_3d()
-	focus_camera_director.transition(from_camera, to_camera, 0.72)
-	next_shot_at=Time.get_unix_time_from_system()+25.0
-	if is_instance_valid(focus_shot_label):focus_shot_label.text="FOCUS  ·  shot %d of %d"%[focus_shot_index+1,focus_cameras.size()]
 
-func _prepare_focus_camera_pool(spot, report := true) -> void:
-	# Room-establishing cameras remain useful for exploration reviews, but focus
-	# mode gets a fresh seat-relative pool so every shot keeps the current player
-	# readable. Candidates are accepted only after live collision ray checks.
+	if not is_instance_valid(to_camera):
+		push_warning(
+			"All player-facing focus cameras became obstructed; "
+			+ "retaining current shot."
+		)
+
+		next_shot_at = (
+			Time.get_unix_time_from_system()
+			+ 5.0
+		)
+
+		return
+
+	var from_camera := get_viewport().get_camera_3d()
+
+	focus_camera_director.transition(
+		from_camera,
+		to_camera,
+		0.72
+	)
+
+	next_shot_at = (
+		Time.get_unix_time_from_system()
+		+ 25.0
+	)
+
+	if is_instance_valid(focus_shot_label):
+		focus_shot_label.text = (
+			"FOCUS  ·  shot %d of %d"
+			% [
+				focus_shot_index + 1,
+				sequence.size()
+			]
+		)
+
+
+func _build_focus_sequence() -> Array[Camera3D]:
+	var result: Array[Camera3D] = []
+
+	# First: personal, player-visible shots.
+	for camera in focus_cameras:
+		if is_instance_valid(camera):
+			result.append(camera)
+
+	# Then: environment B-roll.
+	for camera in _eligible_room_broll():
+		if is_instance_valid(camera):
+			result.append(camera)
+
+	return result
+
+
+func _eligible_room_broll() -> Array[Camera3D]:
+	var result: Array[Camera3D] = []
+
+	for camera in room_broll_cameras:
+		if not is_instance_valid(camera):
+			continue
+
+		var shot_name := str(
+			camera.get_meta("shot_name", "")
+		).to_lower()
+
+		# These old authored cameras were aimed at one particular desk and should
+		# not be used when the player chooses a different seat.
+		if (
+			shot_name.contains("player side")
+			or shot_name.contains("over shoulder")
+		):
+			continue
+
+		result.append(camera)
+
+		# Four room shots is enough variety without overwhelming the personal
+		# study framing.
+		if result.size() >= 4:
+			break
+
+	return result
+
+func _prepare_focus_camera_pool(
+	spot,
+	report := true
+) -> void:
+	# Delete only the dynamically generated PERSONAL cameras.
+	#
+	# Do NOT delete room_broll_cameras. They are authored room/environment
+	# compositions and live for the lifetime of the room.
 	for camera in focus_cameras:
 		if is_instance_valid(camera):
 			camera.queue_free()
+
 	focus_cameras.clear()
+
 	focus_candidates_evaluated = 0
 	focus_candidates_rejected = 0
-	var room_id := str(current_room_config.get("id", "library"))
+
+	var room_id := str(
+		current_room_config.get(
+			"id",
+			"library"
+		)
+	)
+
 	var offsets := [
-		Vector3(4.15, 2.55, 1.65), Vector3(-4.15, 2.50, 1.65),
-		Vector3(2.15, 2.55, 4.30), Vector3(-2.15, 2.45, 4.10),
-		Vector3(1.10, 3.15, 5.25), Vector3(-1.10, 3.00, 5.00),
-		Vector3(2.75, 3.25, 3.55), Vector3(-2.75, 3.15, 3.55),
-		Vector3(0.60, 3.75, 4.10), Vector3(-0.60, 3.65, 4.10),
+		Vector3(4.15, 2.55, 1.65),
+		Vector3(-4.15, 2.50, 1.65),
+
+		Vector3(2.15, 2.55, 4.30),
+		Vector3(-2.15, 2.45, 4.10),
+
+		Vector3(1.10, 3.15, 5.25),
+		Vector3(-1.10, 3.00, 5.00),
+
+		Vector3(2.75, 3.25, 3.55),
+		Vector3(-2.75, 3.15, 3.55),
+
+		Vector3(0.60, 3.75, 4.10),
+		Vector3(-0.60, 3.65, 4.10),
 	]
+
 	if room_id == "train":
 		offsets = [
-			Vector3(2.35, 2.65, 2.45), Vector3(-2.35, 2.60, 2.45),
-			Vector3(1.10, 2.55, 3.85), Vector3(-1.10, 2.45, 3.70),
-			Vector3(1.75, 2.90, 3.25), Vector3(-1.75, 2.80, 3.20),
-			Vector3(0.45, 3.35, 3.60), Vector3(-0.45, 3.25, 3.55),
+			Vector3(2.35, 2.65, 2.45),
+			Vector3(-2.35, 2.60, 2.45),
+
+			Vector3(1.10, 2.55, 3.85),
+			Vector3(-1.10, 2.45, 3.70),
+
+			Vector3(1.75, 2.90, 3.25),
+			Vector3(-1.75, 2.80, 3.20),
+
+			Vector3(0.45, 3.35, 3.60),
+			Vector3(-0.45, 3.25, 3.55),
 		]
-	var forward := Basis(Vector3.UP, spot.facing_yaw) * Vector3.FORWARD
-	var right := Basis(Vector3.UP, spot.facing_yaw) * Vector3.RIGHT
-	var target: Vector3 = spot.sitting_position + Vector3.UP * 1.48 + forward * 0.06
+
+	var basis := Basis(
+		Vector3.UP,
+		spot.facing_yaw
+	)
+
+	var forward := (
+		basis
+		* Vector3.FORWARD
+	)
+
+	var right := (
+		basis
+		* Vector3.RIGHT
+	)
+
+	var target: Vector3 = (
+		spot.sitting_position
+		+ Vector3.UP * 1.48
+		+ forward * 0.06
+	)
+
 	for index in offsets.size():
 		var offset: Vector3 = offsets[index]
-		var position: Vector3 = spot.sitting_position + right * offset.x + Vector3.UP * offset.y + forward * offset.z
+
+		var position: Vector3 = (
+			spot.sitting_position
+			+ right * offset.x
+			+ Vector3.UP * offset.y
+			+ forward * offset.z
+		)
+
 		focus_candidates_evaluated += 1
-		if not _is_focus_shot_clear(position, spot):
+
+		if not _is_focus_shot_clear(
+			position,
+			spot
+		):
 			focus_candidates_rejected += 1
 			continue
-		var camera := _make_camera(position, target, 38.0, false)
-		camera.set_meta("shot_name", "%s clear angle %d" % [spot.seat_type.capitalize(), index + 1])
-		camera.set_meta("focus_target", target)
+
+		var camera := _make_camera(
+			position,
+			target,
+			38.0,
+			false
+		)
+
+		camera.set_meta(
+			"shot_name",
+			"%s personal angle %d"
+			% [
+				spot.seat_type.capitalize(),
+				index + 1
+			]
+		)
+
+		camera.set_meta(
+			"focus_target",
+			target
+		)
+
+		camera.set_meta(
+			"requires_player_visibility",
+			true
+		)
+
+		camera.set_meta(
+			"room_broll",
+			false
+		)
+
 		focus_cameras.append(camera)
+
 	if focus_cameras.is_empty():
-		push_error("No clear focus camera found for %s" % spot.seat_id)
+		push_error(
+			"No clear player-facing focus camera found for %s"
+			% spot.seat_id
+		)
+
 		return
+
+
 	if report:
-		print("FOCUS_POOL room=%s seat=%s accepted=%d rejected=%d" % [room_id, spot.seat_id, focus_cameras.size(), focus_candidates_rejected])
+		print(
+			"FOCUS_POOL room=%s seat=%s personal=%d rejected=%d broll=%d"
+			% [
+				room_id,
+				spot.seat_id,
+				focus_cameras.size(),
+				focus_candidates_rejected,
+				_eligible_room_broll().size()
+			]
+		)
 
 func _is_focus_shot_clear(camera_position: Vector3, spot) -> bool:
 	if spot == null or not is_instance_valid(spot) or not is_inside_tree():
@@ -1536,7 +1944,11 @@ func _is_focus_shot_clear(camera_position: Vector3, spot) -> bool:
 		spot.sitting_position + Vector3.UP * 2.18 + forward * 0.02,
 	]
 	for target_point in target_points:
-		var query := PhysicsRayQueryParameters3D.create(camera_position, target_point, 1)
+		var query := PhysicsRayQueryParameters3D.create(
+			camera_position,
+			target_point,
+			FOCUS_OCCLUSION_MASK
+		)
 		if player is CollisionObject3D:
 			query.exclude = [player.get_rid()]
 		var hit: Dictionary = world_root.get_world_3d().direct_space_state.intersect_ray(query)
@@ -1609,8 +2021,25 @@ func _readable_focus_position(authored_position: Vector3, target: Vector3) -> Ve
 		direction = Vector3(1.0, 0.45, 1.0)
 	return target + direction.normalized() * maxf(direction.length(), 6.8)
 
-func _focus_camera(pos: Vector3,target: Vector3,shot_name: String) -> void:
-	var cam:=_make_camera(pos,target,36.0,false);cam.set_meta("shot_name",shot_name);focus_cameras.append(cam)
+func _focus_camera(
+	pos: Vector3,
+	target: Vector3,
+	shot_name: String
+) -> void:
+	var cam := _make_camera(
+		pos,
+		target,
+		36.0,
+		false
+	)
+
+	cam.set_meta("shot_name", shot_name)
+
+	# Environment B-roll is allowed to show the room without the player.
+	cam.set_meta("requires_player_visibility", false)
+	cam.set_meta("room_broll", true)
+
+	room_broll_cameras.append(cam)
 
 func _update_camera_current() -> void:
 	if is_instance_valid(explore_camera):explore_camera.current=true
@@ -1665,20 +2094,370 @@ func _add_collision_debug_mesh(parent: Node3D, size: Vector3) -> void:
 	debug_mesh.visible = false
 	parent.add_child(debug_mesh)
 
-func _place_local_prop(asset_id: String, fallback_path: String, pos: Vector3, scale_value: Vector3, yaw := 0.0) -> Node3D:
-	var holder: Node3D = asset_loader.instantiate_prop(asset_id, fallback_path)
+func _place_local_prop(
+	asset_id: String,
+	fallback_path: String,
+	pos: Vector3,
+	scale_value: Vector3,
+	yaw := 0.0
+) -> Node3D:
+	var holder: Node3D = asset_loader.instantiate_prop(
+		asset_id,
+		fallback_path
+	)
+
 	if holder.get_child_count() == 0:
 		holder.queue_free()
+
+		# Public fallback only.
+		# The local-development build should normally resolve the supplied asset.
 		match asset_id:
-			"oak_trees_museum": _build_tree(pos, scale_value.x)
-			"potted_spring_flowers": _build_plant(pos, scale_value.x)
-			"coffee_mug": _cylinder(world_root, 0.13 * scale_value.x, 0.26 * scale_value.y, pos + Vector3(0, 0.13 * scale_value.y, 0), mats.teal, 20)
+			"oak_trees_museum":
+				_build_tree(pos, scale_value.x)
+
+			"potted_spring_flowers":
+				_build_plant(pos, scale_value.x)
+
+			"coffee_mug":
+				_cylinder(
+					world_root,
+					0.13 * scale_value.x,
+					0.26 * scale_value.y,
+					pos + Vector3(
+						0,
+						0.13 * scale_value.y,
+						0
+					),
+					mats.teal,
+					20
+				)
+
 		return holder
+
 	world_root.add_child(holder)
+
+	# The holder is ROOM placement only.
+	# The AssetLoader's inner AssetTransform retains manifest corrections.
 	holder.position = pos
 	holder.rotation.y = yaw
-	holder.scale *= scale_value
+	holder.scale = scale_value
+
+	# Floor-level props should have their lowest rendered point touching the
+	# requested Y instead of trusting inconsistent FBX/DAE pivots.
+	#
+	# Do not auto-ground tabletop/wall items because their Y is intentionally
+	# authored as a placement height.
+	if pos.y <= 0.08:
+		_ground_floor_prop(holder, pos.y)
+
+	# Large visible props need to participate in camera obstruction even when
+	# they intentionally have no gameplay collider.
+	_add_camera_occluder_from_visual(holder)
+	_add_gameplay_blocker_from_visual(holder, asset_id)
+
 	return holder
+
+
+func _ground_floor_prop(holder: Node3D, target_y: float) -> void:
+	var bounds_result := _combined_world_aabb(holder)
+
+	if not bool(bounds_result.get("valid", false)):
+		return
+
+	var bounds: AABB = bounds_result["aabb"]
+
+	var bottom_y := bounds.position.y
+	var correction := target_y - bottom_y
+
+	# Refuse insane corrections caused by corrupt source bounds.
+	if absf(correction) > 4.0:
+		push_warning(
+			"Skipping suspicious grounding correction %.2f for %s"
+			% [correction, holder.name]
+		)
+		return
+
+	holder.global_position.y += correction
+
+
+func _add_camera_occluder_from_visual(holder: Node3D) -> void:
+	if not is_instance_valid(holder):
+		return
+
+	var bounds_result := _combined_world_aabb(holder)
+
+	if not bool(bounds_result.get("valid", false)):
+		return
+
+	var bounds: AABB = bounds_result["aabb"]
+
+	if not _should_create_camera_occluder(holder, bounds):
+		return
+
+	var body := StaticBody3D.new()
+	body.name = "CameraOccluder_%s" % str(
+		holder.get_meta("asset_id", holder.name)
+	)
+
+	body.collision_layer = CAMERA_OCCLUDER_LAYER
+	body.collision_mask = 0
+
+	world_root.add_child(body)
+
+	var shape_node := CollisionShape3D.new()
+	body.add_child(shape_node)
+
+	var box_shape := BoxShape3D.new()
+
+	# Slightly contract the visual bounds so an object only blocks the camera
+	# when it genuinely occupies the sight line.
+	box_shape.size = Vector3(
+		maxf(bounds.size.x * 0.90, 0.05),
+		maxf(bounds.size.y * 0.94, 0.05),
+		maxf(bounds.size.z * 0.90, 0.05)
+	)
+
+	shape_node.shape = box_shape
+	body.global_position = bounds.get_center()
+
+
+func _should_create_camera_occluder(
+	holder: Node3D,
+	bounds: AABB
+) -> bool:
+	var asset_id := str(
+		holder.get_meta("asset_id", "")
+	).to_lower()
+
+	# These are small storytelling props. They should never make a cinematic
+	# camera invalid.
+	var small_prop_tokens := [
+		"mug",
+		"cup",
+		"book",
+		"phone",
+		"clock",
+		"flower",
+		"plant",
+		"bag",
+		"basket",
+		"fossil",
+		"figurine",
+		"fan",
+		"grinder",
+		"juice",
+		"tea",
+		"donut",
+		"sandwich"
+	]
+
+	for token in small_prop_tokens:
+		if asset_id.contains(token):
+			return false
+
+	# Only substantial visual objects need camera-only collision.
+	var large_horizontal := maxf(
+		bounds.size.x,
+		bounds.size.z
+	) >= 1.45
+
+	var tall := bounds.size.y >= 1.65
+
+	return large_horizontal or tall
+
+
+func _combined_world_aabb(root: Node) -> Dictionary:
+	var meshes: Array[MeshInstance3D] = []
+	_collect_mesh_instances(root, meshes)
+
+	if meshes.is_empty():
+		return {
+			"valid": false,
+			"aabb": AABB()
+		}
+
+	var found := false
+	var result := AABB()
+
+	for mesh_instance in meshes:
+		if not is_instance_valid(mesh_instance):
+			continue
+
+		if mesh_instance.mesh == null:
+			continue
+
+		var local_bounds := mesh_instance.get_aabb()
+		var world_bounds: AABB = (
+			mesh_instance.global_transform
+			* local_bounds
+		)
+
+		if not found:
+			result = world_bounds
+			found = true
+		else:
+			result = result.merge(world_bounds)
+
+	return {
+		"valid": found,
+		"aabb": result
+	}
+
+func _collect_gameplay_bounds(node: Node, state: Dictionary) -> void:
+	if node is MeshInstance3D:
+		var mesh_instance := node as MeshInstance3D
+
+		if mesh_instance.mesh != null:
+			var local_bounds: AABB = mesh_instance.mesh.get_aabb()
+			var minimum := local_bounds.position
+			var maximum := local_bounds.end
+
+			var corners := [
+				Vector3(minimum.x, minimum.y, minimum.z),
+				Vector3(maximum.x, minimum.y, minimum.z),
+				Vector3(minimum.x, maximum.y, minimum.z),
+				Vector3(maximum.x, maximum.y, minimum.z),
+				Vector3(minimum.x, minimum.y, maximum.z),
+				Vector3(maximum.x, minimum.y, maximum.z),
+				Vector3(minimum.x, maximum.y, maximum.z),
+				Vector3(maximum.x, maximum.y, maximum.z),
+			]
+
+			for corner in corners:
+				var world_point: Vector3 = mesh_instance.global_transform * corner
+
+				if not bool(state.get("has_bounds", false)):
+					state["bounds"] = AABB(world_point, Vector3.ZERO)
+					state["has_bounds"] = true
+				else:
+					var current_bounds: AABB = state["bounds"]
+					current_bounds = current_bounds.expand(world_point)
+					state["bounds"] = current_bounds
+
+	for child in node.get_children():
+		_collect_gameplay_bounds(child, state)
+
+
+func _gameplay_world_aabb(root: Node) -> AABB:
+	var state := {
+		"has_bounds": false,
+		"bounds": AABB(),
+	}
+
+	_collect_gameplay_bounds(root, state)
+
+	var result: AABB = state["bounds"]
+	return result
+
+
+func _add_gameplay_blocker_from_visual(holder: Node3D, tag := "") -> void:
+	if not is_instance_valid(holder):
+		return
+
+	var bounds: AABB = _gameplay_world_aabb(holder)
+
+	if bounds.size.length_squared() <= 0.0001:
+		return
+
+	var token := str(tag).to_lower()
+
+	# Decorative/tabletop objects do not need player collision.
+	for small_token in [
+		"mug",
+		"cup",
+		"book",
+		"phone",
+		"flower",
+		"weed",
+		"grass",
+		"tuft",
+		"juice",
+		"tea",
+		"donut",
+		"sandwich",
+		"laptop",
+		"figurine",
+		"clock",
+		"basket",
+	]:
+		if token.contains(small_token):
+			return
+
+	# These are either deliberately walkable/flat or already have authored
+	# furniture collision elsewhere.
+	for handled_token in [
+		"rug",
+		"water_surface",
+		"floor_cushion",
+		"train_bench",
+		"japanese_low_table",
+		"armchair",
+		"chair",
+	]:
+		if token.contains(handled_token):
+			return
+
+	var horizontal_max := maxf(bounds.size.x, bounds.size.z)
+
+	# Skip objects too small/low to reasonably block the player.
+	if bounds.size.y < 0.45:
+		return
+
+	if horizontal_max < 0.75:
+		return
+
+	var blocker_size := Vector3(
+		maxf(bounds.size.x * 0.72, 0.55),
+		clampf(bounds.size.y, 0.60, 2.40),
+		maxf(bounds.size.z * 0.72, 0.55)
+	)
+
+	# Tree collision should represent the trunk rather than the whole canopy.
+	if token.contains("tree") or token.contains("palm"):
+		blocker_size.x = clampf(bounds.size.x * 0.28, 0.75, 1.35)
+		blocker_size.z = clampf(bounds.size.z * 0.28, 0.75, 1.35)
+		blocker_size.y = clampf(bounds.size.y, 1.20, 2.40)
+
+	# Large solid props should block most of their visible footprint.
+	elif token.contains("fountain"):
+		blocker_size.x = maxf(bounds.size.x * 0.90, 0.80)
+		blocker_size.z = maxf(bounds.size.z * 0.90, 0.80)
+
+	elif token.contains("tent"):
+		blocker_size.x = maxf(bounds.size.x * 0.82, 0.80)
+		blocker_size.z = maxf(bounds.size.z * 0.82, 0.80)
+
+	var blocker_center := bounds.position + bounds.size * 0.5
+
+	# Anchor collision upward from the bottom of the visual.
+	blocker_center.y = bounds.position.y + blocker_size.y * 0.5
+
+	var body := StaticBody3D.new()
+	body.name = "GameplayBlocker_%s" % str(tag).replace(" ", "_")
+	body.collision_layer = 1
+	body.collision_mask = 0
+	body.set_meta("gameplay_prop_blocker", true)
+
+	world_root.add_child(body)
+	body.global_position = blocker_center
+
+	var collision := CollisionShape3D.new()
+	body.add_child(collision)
+
+	var shape := BoxShape3D.new()
+	shape.size = blocker_size
+	collision.shape = shape
+
+
+func _collect_mesh_instances(
+	node: Node,
+	result: Array[MeshInstance3D]
+) -> void:
+	if node is MeshInstance3D:
+		result.append(node)
+
+	for child in node.get_children():
+		_collect_mesh_instances(child, result)
 
 func _box(parent: Node, size: Vector3, pos: Vector3, material: Material) -> MeshInstance3D:
 	var node:=MeshInstance3D.new();parent.add_child(node);var mesh:=BoxMesh.new();mesh.size=size;mesh.material=material;node.mesh=mesh;node.position=pos;node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_ON;return node
@@ -1692,11 +2471,40 @@ func _cylinder(parent: Node, radius: float, height: float, pos: Vector3, materia
 func _capsule_mesh(parent: Node, radius: float, height: float, pos: Vector3, material: Material) -> MeshInstance3D:
 	var node:=MeshInstance3D.new();parent.add_child(node);var mesh:=CapsuleMesh.new();mesh.radius=radius;mesh.height=maxf(height,radius*2.05);mesh.radial_segments=20;mesh.rings=8;mesh.material=material;node.mesh=mesh;node.position=pos;return node
 
-func _import_prop(path: String,pos: Vector3,scale_value: Vector3,yaw: float=0.0) -> Node3D:
-	var holder:=Node3D.new();world_root.add_child(holder);holder.position=pos;holder.scale=scale_value;holder.rotation.y=yaw
+func _import_prop(
+	path: String,
+	pos: Vector3,
+	scale_value: Vector3,
+	yaw: float = 0.0
+) -> Node3D:
+	var holder := Node3D.new()
+	holder.name = "ImportedProp_%s" % path.get_file().get_basename()
+
+	world_root.add_child(holder)
+
+	holder.position = pos
+	holder.scale = scale_value
+	holder.rotation.y = yaw
+
 	if ResourceLoader.exists(path):
-		var scene=load(path)
-		if scene is PackedScene:holder.add_child(scene.instantiate())
+		var resource: Resource = load(path)
+
+		if resource is PackedScene:
+			var packed_scene: PackedScene = resource as PackedScene
+			var instance: Node = packed_scene.instantiate()
+			holder.add_child(instance)
+
+	# Most generated furniture already has explicit authored blockers.
+	# The generated fountain does not, so create one from its visible bounds.
+	if holder.get_child_count() > 0:
+		var prop_tag := path.get_file().get_basename()
+
+		if prop_tag.to_lower().contains("fountain"):
+			_add_gameplay_blocker_from_visual(
+				holder,
+				prop_tag
+			)
+
 	return holder
 
 func _override_mesh_material(root: Node, material: Material) -> void:
