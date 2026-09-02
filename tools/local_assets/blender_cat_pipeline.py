@@ -393,21 +393,44 @@ def create_actions(armature: bpy.types.Object) -> None:
         72,
     )
 
-        # Train booth pose:
-    # hips remain seated on the cushion while the thighs project toward the
-    # front edge and the lower legs drop down instead of folding back onto it.
+        # Train booth seated pose.
+    #
+    # IMPORTANT:
+    # This rig's anatomical forward/back leg flexion is primarily around each
+    # leg bone's LOCAL Z axis, not local X.
+    #
+    # Positive Z on Leg_1 swings the thigh forward.
+    # Negative Z on Leg_2 bends the lower leg back downward at the knee.
     train_a = merged(
         chair_sit,
         {
             "rotation": {
-                "Leg_1_L": (-1.16, 0.0, 0.08),
-                "Leg_2_L": (0.34, 0.0, 0.0),
-                "Ankle_L": (-0.12, 0.0, 0.0),
+                # LEFT LEG
+                # Hip flexion: thigh projects forward from the body.
+                "Leg_1_L": (0.0, 0.0, 1.42),
 
-                "Leg_1_R": (-1.16, 0.0, -0.08),
-                "Leg_2_R": (0.34, 0.0, 0.0),
-                "Ankle_R": (-0.12, 0.0, 0.0),
+                # Keep the secondary thigh deform bone aligned with the upper
+                # leg instead of allowing its weighted vertices to remain
+                # close to the standing silhouette.
+                "Leg_1_L_Sub": (0.0, 0.0, 0.10),
 
+                # Knee flexion: counter-rotate so the shin drops downward.
+                "Leg_2_L": (0.0, 0.0, -1.38),
+                "Leg_2_L_Sub": (0.0, 0.0, -0.08),
+
+                # Small foot correction.
+                "Ankle_L": (0.0, 0.0, 0.18),
+
+                # RIGHT LEG
+                "Leg_1_R": (0.0, 0.0, 1.42),
+                "Leg_1_R_Sub": (0.0, 0.0, 0.10),
+
+                "Leg_2_R": (0.0, 0.0, -1.38),
+                "Leg_2_R_Sub": (0.0, 0.0, -0.08),
+
+                "Ankle_R": (0.0, 0.0, 0.18),
+
+                # Upper body
                 "Spine_2": (0.12, 0.0, 0.0),
                 "Head": (0.12, -0.02, 0.0),
 

@@ -30,7 +30,7 @@ const SEAT_VISUAL_OFFSETS := {
 	"desk_chair": Vector3(0.0, 0.02, 0.12),
 	"armchair": Vector3(0.0, 0.04, 0.16),
 	"cafe_chair": Vector3(0.0, 0.02, 0.12),
-	"train_booth": Vector3(0.0, 0.16, 0.02),
+	"train_booth": Vector3(0.0, 0.50, 0.02),
 	"floor_cushion": Vector3(0.0, -0.18, 0.02),
 }
 
