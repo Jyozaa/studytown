@@ -9,6 +9,7 @@ const LOOPING_STATES := [
 	&"StudyBook",
 	&"FloorStudy",
 	&"TrainStudy",
+	&"Resting",
 ]
 
 const ONE_SHOT_STATES := [

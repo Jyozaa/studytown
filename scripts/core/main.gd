@@ -32,7 +32,16 @@ const SEAT_VISUAL_OFFSETS := {
 	"cafe_chair": Vector3(0.0, 0.20, 0.12),
 	"train_booth": Vector3(0.0, 0.50, 0.02),
 	"floor_cushion": Vector3(0.0, -0.18, 0.02),
+	# Position tuning for the imported cat while lying on a tanning bed.
+	# The user can adjust this later without touching the Resting animation.
+	"tanning_bed": Vector3.ZERO,
 }
+
+# Tanning-bed anchors are intentionally isolated here so placement can be
+# tuned later without changing the Resting pose or timer interaction.
+const TANNING_BED_LYING_HEIGHT := 0.58
+const TANNING_BED_STAND_DISTANCE := 1.42
+const TANNING_BED_LYING_YAW_OFFSET := PI / 2.0
 
 const CREAM := Color("#fff4d6")
 const INK := Color("#2d211c")
@@ -75,6 +84,8 @@ var next_shot_at := 0.0
 var nearest_spot := -1
 var movement_enabled := true
 var selected_duration := 25 * 60
+var resting_duration := 30 * 60
+var active_session_mode := "focus"
 var task_input: LineEdit
 var current_room_name := "Grand Library"
 var player_parts: Dictionary = {}
@@ -279,6 +290,19 @@ func _build_materials() -> void:
 		stream_fallback.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		mats.fountain_stream = stream_fallback
 
+	# The upper fountain uses a continuous umbrella-shaped sheet rather than
+	# separate crown jets. A dedicated shader keeps the sheet broken-up/foamy
+	# enough to read as moving water instead of transparent glass.
+	var sheet_material := ShaderMaterial.new()
+	var sheet_shader_path := "res://shaders/garden_fountain_sheet.gdshader"
+	if ResourceLoader.exists(sheet_shader_path):
+		var sheet_shader_resource: Resource = load(sheet_shader_path)
+		if sheet_shader_resource is Shader:
+			sheet_material.shader = sheet_shader_resource as Shader
+			mats.fountain_sheet = sheet_material
+	else:
+		mats.fountain_sheet = mats.fountain_stream
+
 	var flame_outer := StandardMaterial3D.new()
 	flame_outer.albedo_color = Color("#ff6a2b")
 	flame_outer.emission_enabled = true
@@ -315,6 +339,7 @@ func _clear_scene() -> void:
 
 	active_study_spot = null
 	pending_study_spot = null
+	active_session_mode = "focus"
 
 	player_parts.clear()
 
@@ -550,7 +575,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			FocusManager.cancel_session()
 		show_main_menu()
 	elif event.is_action_pressed("interact") and screen == Screen.ROOM and nearest_spot >= 0:
-		_open_focus_setup(nearest_spot)
+		var nearest = study_spots[nearest_spot]
+		if str(nearest.seat_type) == "tanning_bed":
+			_open_resting_setup(nearest_spot)
+		else:
+			_open_focus_setup(nearest_spot)
 	elif event.is_action_pressed("wave") and screen == Screen.ROOM:
 		wave_time = 1.45
 		if bool(player_visual.get_meta("is_imported_character", false)):
@@ -1164,8 +1193,9 @@ func _build_garden_fountain(pos: Vector3) -> void:
 		_cylinder(world_root, 0.48, 1.20, pos + Vector3(0, 1.05, 0), mats.stone, 30)
 		_cylinder(world_root, 1.42, 0.20, pos + Vector3(0, 1.52, 0), mats.stone, 42)
 
-	# Animated water surface plus a central plume and several arcing side jets.
+	# Animated water in both the large lower basin and the smaller upper bowl.
 	_cylinder(world_root, 2.96, 0.055, pos + Vector3(0, 0.56, 0), mats.water, 52)
+	_build_garden_upper_basin_water(pos)
 	_add_blocker(pos + Vector3(0, 0.70, 0), Vector3(6.45, 1.40, 6.45), 0.0)
 	_build_garden_water_jet(pos)
 	_build_garden_fountain_planting(pos)
@@ -1185,88 +1215,236 @@ func _build_garden_fountain_planting(pos: Vector3) -> void:
 			_sphere(world_root, Vector3(0.65, 0.55, 0.60), plant_pos + Vector3.UP * 0.55, mats.leaf, 18, 10)
 
 
+func _build_garden_upper_basin_water(fountain_pos: Vector3) -> void:
+	# The imported upper bowl is annular: water surrounds the central stem/nozzle
+	# rather than covering it. Build a thin animated water ring just below the
+	# stone lip so the inward side jets have a believable place to land.
+	var inner_radius := 0.30
+	var outer_radius := 0.94
+	var water_y := 1.53
+	var segments := 48
+
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	surface.set_material(mats.water)
+
+	for index in range(segments):
+		var next_index: int = (index + 1) % segments
+		var a0: float = float(index) * TAU / float(segments)
+		var a1: float = float(next_index) * TAU / float(segments)
+
+		var inner0 := fountain_pos + Vector3(
+			cos(a0) * inner_radius,
+			water_y,
+			sin(a0) * inner_radius
+		)
+		var inner1 := fountain_pos + Vector3(
+			cos(a1) * inner_radius,
+			water_y,
+			sin(a1) * inner_radius
+		)
+		var outer0 := fountain_pos + Vector3(
+			cos(a0) * outer_radius,
+			water_y,
+			sin(a0) * outer_radius
+		)
+		var outer1 := fountain_pos + Vector3(
+			cos(a1) * outer_radius,
+			water_y,
+			sin(a1) * outer_radius
+		)
+
+		var u0: float = float(index) / float(segments)
+		var u1: float = float(index + 1) / float(segments)
+
+		surface.set_normal(Vector3.UP)
+		surface.set_uv(Vector2(u0, 0.0))
+		surface.add_vertex(inner0)
+		surface.set_normal(Vector3.UP)
+		surface.set_uv(Vector2(u0, 1.0))
+		surface.add_vertex(outer0)
+		surface.set_normal(Vector3.UP)
+		surface.set_uv(Vector2(u1, 1.0))
+		surface.add_vertex(outer1)
+
+		surface.set_normal(Vector3.UP)
+		surface.set_uv(Vector2(u0, 0.0))
+		surface.add_vertex(inner0)
+		surface.set_normal(Vector3.UP)
+		surface.set_uv(Vector2(u1, 1.0))
+		surface.add_vertex(outer1)
+		surface.set_normal(Vector3.UP)
+		surface.set_uv(Vector2(u1, 0.0))
+		surface.add_vertex(inner1)
+
+	var upper_water := MeshInstance3D.new()
+	upper_water.name = "FountainUpperBasinWater"
+	upper_water.mesh = surface.commit()
+	upper_water.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	world_root.add_child(upper_water)
+
+
 func _build_garden_water_jet(fountain_pos: Vector3) -> void:
-	# Reference-style fountain:
-	# - one strong central vertical plume
-	# - a soft splash crown at the top
-	# - eight thicker side jets coming from the basin nozzles and arcing inward
-	# - animated foam/highlights handled by garden_stream.gdshader
+	# The source fountain's visible lower nozzles sit on a ring at roughly
+	# radius 2.08m, with a 22.5-degree phase offset. Starting the water at those
+	# coordinates makes every stream visibly emerge from an actual nozzle.
+	# A tiny outward correction puts the stream origin on the visible tip of
+	# each orange nozzle instead of slightly behind it.
+	var nozzle_radius := 2.00
+	var nozzle_tip_y := 0.89
+	var nozzle_phase := deg_to_rad(23.0)
 
-	# Main central jet.
-	var central_stream := _build_vertical_water_plume(
-		fountain_pos + Vector3(0.0, 2.72, 0.0),
-		1.48,
-		0.062,
-		14,
-		8,
-		0.0
-	)
-	central_stream.name = "FountainCentralPlume"
-
-	# Small umbrella/splash at the top of the central jet.
-	var crown_count := 7
-	for crown_index in range(crown_count):
-		var crown_angle: float = float(crown_index) * TAU / float(crown_count)
-		var crown_start := fountain_pos + Vector3(
-			cos(crown_angle) * 0.035,
-			4.14,
-			sin(crown_angle) * 0.035
-		)
-		var crown_finish := fountain_pos + Vector3(
-			cos(crown_angle) * 0.34,
-			3.72,
-			sin(crown_angle) * 0.34
-		)
-		_build_water_arc_tube(
-			crown_start,
-			crown_finish,
-			0.11,
-			0.027,
-			8,
-			7,
-			2.0 + float(crown_index) * 0.53,
-			0.72
-		)
-
-	# Eight side jets around the fountain, matching the reference more closely.
-	# They originate near the visible basin nozzles and arc inward toward the
-	# pedestal instead of all radiating outward from the centre.
+	# Eight nozzle jets. They start narrow at the nozzle and become visibly
+	# thicker as gravity pulls them toward the landing point, per the requested
+	# fountain reference.
 	var side_jet_count := 8
 	for jet_index in range(side_jet_count):
-		var angle: float = float(jet_index) * TAU / float(side_jet_count)
+		var angle: float = (
+			nozzle_phase
+			+ float(jet_index) * TAU / float(side_jet_count)
+		)
 
 		var start := fountain_pos + Vector3(
-			cos(angle) * 2.48,
-			0.80,
-			sin(angle) * 2.48
+			cos(angle) * nozzle_radius,
+			nozzle_tip_y,
+			sin(angle) * nozzle_radius
 		)
+		# Land in the animated upper basin rather than terminating against the
+		# pedestal. The endpoint sits a few centimetres above the water surface.
 		var finish := fountain_pos + Vector3(
-			cos(angle) * 1.06,
-			1.23,
-			sin(angle) * 1.06
+			cos(angle) * 0.78,
+			1.57,
+			sin(angle) * 0.78
 		)
 
-		var height_variation: float = sin(float(jet_index) * 1.73) * 0.045
-		var width_variation: float = 0.039 + float(jet_index % 2) * 0.004
-
+		var height_variation: float = sin(float(jet_index) * 1.73) * 0.035
 		_build_water_arc_tube(
 			start,
 			finish,
-			0.68 + height_variation,
-			width_variation,
-			12,
-			8,
+			0.58 + height_variation,
+			0.038,
+			14,
+			9,
 			float(jet_index) * 0.61,
-			0.64
+			1.95
 		)
 
-		# A very small impact patch where each side jet lands. This gives the
-		# stream somewhere visually believable to "hit" instead of vanishing.
-		_build_fountain_impact_splash(
-			finish + Vector3(0.0, -0.02, 0.0),
-			angle,
-			float(jet_index) * 0.47
-		)
+	# The fountain mesh tops out at about y=1.77. The old plume began at 2.72,
+	# leaving almost a metre of empty air below it. Start directly on the top
+	# nozzle so the jet is physically connected to the fountain.
+	var top_nozzle_y := 1.77
+	var plume_height := 1.34
+	var plume_start := fountain_pos + Vector3(0.0, top_nozzle_y, 0.0)
+
+	var central_stream := _build_vertical_water_plume(
+		plume_start,
+		plume_height,
+		0.055,
+		16,
+		9,
+		0.0
+	)
+	central_stream.name = "FountainConnectedCentralPlume"
+
+	# The central jet shoots upward, then spreads into ONE continuous 360-degree
+	# falling umbrella. This is deliberately a sheet rather than a set of
+	# individual crown streams, giving the inverted-cone/enveloping shape from
+	# the reference.
+	var umbrella_apex_y: float = top_nozzle_y + plume_height - 0.03
+	_build_fountain_umbrella_sheet(
+		fountain_pos,
+		umbrella_apex_y,
+		0.82,
+		0.88,
+		56,
+		12
+	)
+
+
+func _build_fountain_umbrella_sheet(
+	origin: Vector3,
+	apex_y: float,
+	outer_radius: float,
+	drop_height: float,
+	angular_segments: int,
+	flow_segments: int
+) -> MeshInstance3D:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	surface.set_material(mats.fountain_sheet)
+
+	for flow_index in range(flow_segments):
+		var t0: float = float(flow_index) / float(flow_segments)
+		var t1: float = float(flow_index + 1) / float(flow_segments)
+
+		# Starts almost at the plume radius, expands quickly, then falls under
+		# gravity. Keeping a non-zero inner radius prevents a pinched apex.
+		var spread0: float = pow(sin(t0 * PI * 0.5), 0.82)
+		var spread1: float = pow(sin(t1 * PI * 0.5), 0.82)
+		var radius0: float = lerpf(0.050, outer_radius, spread0)
+		var radius1: float = lerpf(0.050, outer_radius, spread1)
+
+		var y0: float = apex_y - drop_height * pow(t0, 1.42)
+		var y1: float = apex_y - drop_height * pow(t1, 1.42)
+
+		for angular_index in range(angular_segments):
+			var next_index: int = (angular_index + 1) % angular_segments
+			var a0: float = float(angular_index) * TAU / float(angular_segments)
+			var a1: float = float(next_index) * TAU / float(angular_segments)
+
+			# Slightly scallop the falling edge. This keeps the silhouette organic
+			# without breaking the sheet into individual streams.
+			var edge_amount0: float = pow(t0, 3.0)
+			var edge_amount1: float = pow(t1, 3.0)
+			var ripple0: float = sin(a0 * 7.0 + t0 * 5.0) * 0.025 * edge_amount0
+			var ripple1: float = sin(a1 * 7.0 + t0 * 5.0) * 0.025 * edge_amount0
+			var ripple2: float = sin(a0 * 7.0 + t1 * 5.0) * 0.025 * edge_amount1
+			var ripple3: float = sin(a1 * 7.0 + t1 * 5.0) * 0.025 * edge_amount1
+
+			var p00 := origin + Vector3(
+				cos(a0) * radius0,
+				y0 + ripple0,
+				sin(a0) * radius0
+			)
+			var p01 := origin + Vector3(
+				cos(a1) * radius0,
+				y0 + ripple1,
+				sin(a1) * radius0
+			)
+			var p10 := origin + Vector3(
+				cos(a0) * radius1,
+				y1 + ripple2,
+				sin(a0) * radius1
+			)
+			var p11 := origin + Vector3(
+				cos(a1) * radius1,
+				y1 + ripple3,
+				sin(a1) * radius1
+			)
+
+			var u0: float = float(angular_index) / float(angular_segments)
+			var u1: float = float(angular_index + 1) / float(angular_segments)
+
+			surface.set_uv(Vector2(u0, t0))
+			surface.add_vertex(p00)
+			surface.set_uv(Vector2(u0, t1))
+			surface.add_vertex(p10)
+			surface.set_uv(Vector2(u1, t1))
+			surface.add_vertex(p11)
+
+			surface.set_uv(Vector2(u0, t0))
+			surface.add_vertex(p00)
+			surface.set_uv(Vector2(u1, t1))
+			surface.add_vertex(p11)
+			surface.set_uv(Vector2(u1, t0))
+			surface.add_vertex(p01)
+
+	var sheet := MeshInstance3D.new()
+	sheet.name = "FountainUmbrellaWaterSheet"
+	sheet.mesh = surface.commit()
+	sheet.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	world_root.add_child(sheet)
+	return sheet
 
 
 func _build_vertical_water_plume(
@@ -1277,16 +1455,12 @@ func _build_vertical_water_plume(
 	radial_segments: int,
 	phase_offset: float
 ) -> MeshInstance3D:
-	var surface := SurfaceTool.new()
-	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	surface.set_material(mats.fountain_stream)
-
 	var points: Array[Vector3] = []
 	for index in range(path_segments + 1):
 		var t: float = float(index) / float(path_segments)
 
-		# Tiny baked-in asymmetry so it isn't a perfectly straight plastic rod.
-		var sway_strength: float = sin(t * PI) * 0.018
+		# Slightly lively but still forceful/vertical.
+		var sway_strength: float = sin(t * PI) * 0.012
 		var point := start + Vector3(
 			sin(t * 10.5 + phase_offset) * sway_strength,
 			height * t,
@@ -1294,15 +1468,14 @@ func _build_vertical_water_plume(
 		)
 		points.append(point)
 
-	var stream := _build_water_tube_from_points(
+	return _build_water_tube_from_points(
 		points,
 		radius,
 		radial_segments,
 		phase_offset,
-		0.78,
-		0.88
+		0.72,
+		1.04
 	)
-	return stream
 
 
 func _build_water_arc_tube(
@@ -1313,7 +1486,7 @@ func _build_water_arc_tube(
 	path_segments: int,
 	radial_segments: int,
 	phase_offset: float = 0.0,
-	end_taper: float = 0.70
+	end_taper: float = 1.95
 ) -> MeshInstance3D:
 	var points: Array[Vector3] = []
 
@@ -1322,9 +1495,7 @@ func _build_water_arc_tube(
 		var point: Vector3 = start.lerp(finish, t)
 		point.y += sin(t * PI) * arc_height
 
-		# Tiny irregularity like a pressurised water stream, not enough to make
-		# the trajectory visibly crooked.
-		var wobble: float = sin(t * PI) * 0.010
+		var wobble: float = sin(t * PI) * 0.007
 		point.x += sin(t * 11.0 + phase_offset) * wobble
 		point.z += cos(t * 9.0 + phase_offset) * wobble
 		points.append(point)
@@ -1334,7 +1505,7 @@ func _build_water_arc_tube(
 		radius,
 		radial_segments,
 		phase_offset,
-		1.0,
+		0.68,
 		end_taper
 	)
 
@@ -1396,8 +1567,8 @@ func _build_water_tube_from_points(
 		var taper_a: float = lerpf(start_taper, end_taper, v0)
 		var taper_b: float = lerpf(start_taper, end_taper, v1)
 
-		var pulse_a: float = 0.95 + sin(v0 * TAU * 2.4 + phase_offset) * 0.045
-		var pulse_b: float = 0.95 + sin(v1 * TAU * 2.4 + phase_offset) * 0.045
+		var pulse_a: float = 0.96 + sin(v0 * TAU * 2.4 + phase_offset) * 0.035
+		var pulse_b: float = 0.96 + sin(v1 * TAU * 2.4 + phase_offset) * 0.035
 
 		var radius_a: float = radius * taper_a * pulse_a
 		var radius_b: float = radius * taper_b * pulse_b
@@ -1460,25 +1631,6 @@ func _build_water_tube_from_points(
 	return stream
 
 
-func _build_fountain_impact_splash(
-	position_value: Vector3,
-	angle: float,
-	phase: float
-) -> void:
-	# Small flat foam patch at each landing point. It uses the same animated
-	# water-stream material and is intentionally subtle.
-	var splash := MeshInstance3D.new()
-	var quad := QuadMesh.new()
-	quad.size = Vector2(0.28, 0.12)
-	quad.material = mats.fountain_stream
-
-	splash.mesh = quad
-	splash.position = position_value + Vector3.UP * 0.025
-	splash.rotation = Vector3(-PI / 2.0, angle, 0.0)
-	splash.scale = Vector3(1.0 + sin(phase) * 0.08, 1.0, 1.0)
-	splash.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	world_root.add_child(splash)
-
 func _build_garden_pool_zone() -> void:
 	var pool_pos := Vector3(-15.2, 0.0, 10.7)
 	var pool_path := GENERATED_ASSET_DIR + "garden_pool.glb"
@@ -1501,10 +1653,49 @@ func _build_garden_pool_zone() -> void:
 		[Vector3(-17.0, 0.0, 14.55), 0.06],
 		[Vector3(-13.7, 0.0, 14.55), -0.04],
 	]:
+		var bed_position: Vector3 = data[0]
+		var bed_yaw: float = float(data[1])
 		if ResourceLoader.exists(tanning_path):
-			_import_prop(tanning_path, data[0], Vector3.ONE, float(data[1]))
+			_import_prop(tanning_path, bed_position, Vector3.ONE, bed_yaw)
 		else:
-			_box(world_root, Vector3(2.45, 0.16, 0.92), data[0] + Vector3(0, 0.34, 0), mats.wood).rotation.y = float(data[1])
+			_box(
+				world_root,
+				Vector3(2.45, 0.16, 0.92),
+				bed_position + Vector3(0, 0.34, 0),
+				mats.wood
+			).rotation.y = bed_yaw
+
+		_register_garden_resting_spot(bed_position, bed_yaw)
+
+
+func _register_garden_resting_spot(
+	bed_position: Vector3,
+	bed_yaw: float
+) -> void:
+	# The actual bed/player placement is deliberately easy to tune later.
+	# The Resting skeletal animation itself handles lying flat and facing up.
+	var bed_basis := Basis(Vector3.UP, bed_yaw)
+	var standing := (
+		bed_position
+		+ bed_basis * Vector3(0.0, 0.0, TANNING_BED_STAND_DISTANCE)
+	)
+	var lying := (
+		bed_position
+		+ Vector3.UP * TANNING_BED_LYING_HEIGHT
+	)
+	var lying_yaw := bed_yaw + TANNING_BED_LYING_YAW_OFFSET
+
+	_add_study_spot(
+		standing,
+		lying,
+		lying_yaw,
+		"Resting",
+		lying + Vector3(3.8, 3.0, 3.4),
+		lying + Vector3.UP * 0.55,
+		"tanning_bed",
+		SEAT_VISUAL_OFFSETS.tanning_bed,
+		TANNING_BED_LYING_HEIGHT
+	)
 
 
 func _build_garden_campfire_zone() -> void:
@@ -1595,16 +1786,11 @@ func _build_garden_fire_effect(origin: Vector3) -> void:
 	light.omni_range = 5.4
 
 
-func _build_garden_path_network() -> void:
-	# One CSG union for the entire paved network. Intersections are boolean-
-	# merged into a single final surface, so there are no overlapping tile
-	# planes, white slab seams, or z-fighting at crossroads.
-	var path_root := CSGCombiner3D.new()
-	path_root.name = "GardenContinuousStonePaths"
-	path_root.use_collision = false
-	world_root.add_child(path_root)
-
-	var routes := [
+func _garden_path_routes() -> Array:
+	# Single source of truth for the paved Garden network. Weed placement uses
+	# these exact same centre lines, so changing a road later automatically
+	# changes the no-weed zones too.
+	return [
 		[
 			Vector3(0.0, 0.0, 17.2),
 			Vector3(-0.5, 0.0, 12.2),
@@ -1634,7 +1820,6 @@ func _build_garden_path_network() -> void:
 			Vector3(0.0, 0.0, 4.5),
 			Vector3(4.6, 0.0, 3.0),
 		],
-		# New paved branch to the campfire/fireplace circle.
 		[
 			Vector3(4.6, 0.0, 3.0),
 			Vector3(8.2, 0.0, 5.8),
@@ -1643,7 +1828,15 @@ func _build_garden_path_network() -> void:
 		],
 	]
 
-	for route in routes:
+
+func _build_garden_path_network() -> void:
+	# One CSG union for the entire paved network.
+	var path_root := CSGCombiner3D.new()
+	path_root.name = "GardenContinuousStonePaths"
+	path_root.use_collision = false
+	world_root.add_child(path_root)
+
+	for route in _garden_path_routes():
 		_add_garden_csg_path(path_root, route)
 
 
@@ -1706,18 +1899,137 @@ func _build_garden_hedges_and_weeds() -> void:
 	if not ResourceLoader.exists(weed_path):
 		return
 
-	var weeds := [
-		Vector3(-21.1,0,-6.4),Vector3(-19.2,0,-4.9),Vector3(-8.6,0,-13.1),Vector3(-7.4,0,-7.4),
-		Vector3(-6.4,0,-3.5),Vector3(-8.2,0,1.3),Vector3(-10.5,0,5.6),Vector3(-19.4,0,7.0),
-		Vector3(-19.8,0,12.7),Vector3(-8.8,0,14.4),Vector3(-3.7,0,13.2),Vector3(4.8,0,14.2),
-		Vector3(7.5,0,12.2),Vector3(9.7,0,8.0),Vector3(6.5,0,4.8),Vector3(5.7,0,1.0),
-		Vector3(7.4,0,-2.5),Vector3(9.4,0,-5.0),Vector3(11.0,0,-10.0),Vector3(12.0,0,-13.8),
-		Vector3(19.3,0,-13.7),Vector3(21.3,0,-9.0),Vector3(21.5,0,-2.0),Vector3(20.8,0,5.0),
-		Vector3(20.7,0,12.9),Vector3(17.8,0,15.0),Vector3(11.8,0,14.2),Vector3(-4.8,0,7.1),
-	]
+	# Spawn weeds procedurally on grass only. The RNG seed keeps the layout
+	# stable between launches, while the rejection test guarantees weeds do not
+	# appear on roads or inside the Garden's functional/building zones.
+	var weeds: Array[Vector3] = _generate_safe_garden_weed_positions(28)
 	for index in range(weeds.size()):
 		var scale_value: float = 0.76 + fmod(float(index * 7), 6.0) * 0.055
-		_import_prop(weed_path, weeds[index], Vector3.ONE * scale_value, float(index) * 0.71)
+		_import_prop(
+			weed_path,
+			weeds[index],
+			Vector3.ONE * scale_value,
+			float(index) * 0.71
+		)
+
+
+func _generate_safe_garden_weed_positions(count: int) -> Array[Vector3]:
+	var result: Array[Vector3] = []
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 48127
+
+	# Keep plants comfortably inside the room boundary and away from the outer
+	# hedge line.
+	var min_x := -22.4
+	var max_x := 22.4
+	var min_z := -15.4
+	var max_z := 16.0
+	var minimum_weed_spacing := 0.95
+	var max_attempts := count * 90
+	var attempts := 0
+
+	while result.size() < count and attempts < max_attempts:
+		attempts += 1
+		var candidate := Vector3(
+			rng.randf_range(min_x, max_x),
+			0.0,
+			rng.randf_range(min_z, max_z)
+		)
+
+		if not _garden_is_safe_weed_position(candidate):
+			continue
+
+		var too_close_to_weed := false
+		for existing in result:
+			if Vector2(candidate.x, candidate.z).distance_to(
+				Vector2(existing.x, existing.z)
+			) < minimum_weed_spacing:
+				too_close_to_weed = true
+				break
+
+		if too_close_to_weed:
+			continue
+
+		result.append(candidate)
+
+	return result
+
+
+func _garden_is_safe_weed_position(point: Vector3) -> bool:
+	# ROAD NETWORK
+	# Path width is 2.48m. Add another 0.72m so leaves do not hang over the
+	# stone even when the weed model is scaled up.
+	var road_clearance := 1.96
+	for route in _garden_path_routes():
+		for segment_index in range(route.size() - 1):
+			var start: Vector3 = route[segment_index]
+			var finish: Vector3 = route[segment_index + 1]
+			if _garden_distance_to_segment_xz(point, start, finish) < road_clearance:
+				return false
+
+	# OPEN-AIR CAFE
+	# Covers the whole café floor plus the rear wall, left bookcase wall,
+	# counter, tables and chairs.
+	if _garden_point_in_rect_xz(point, -24.4, -8.9, -16.5, -6.2):
+		return false
+
+	# CENTRAL FOUNTAIN + surrounding planting / circulation ring.
+	if _garden_distance_xz(point, Vector3.ZERO) < 5.15:
+		return false
+
+	# POOL + loungers.
+	if _garden_point_in_rect_xz(point, -21.2, -8.8, 6.8, 16.2):
+		return false
+
+	# CAMPFIRE, firewood, log seats and paved approach.
+	if _garden_distance_xz(point, Vector3(16.2, 0.0, 10.7)) < 5.05:
+		return false
+
+	# BIG TREE + the two study rugs.
+	if _garden_point_in_rect_xz(point, 9.2, 21.6, -14.4, -5.6):
+		return false
+
+	# Keep the immediate spawn/entrance area clear.
+	if _garden_point_in_rect_xz(point, -2.4, 2.4, 14.8, 18.5):
+		return false
+
+	return true
+
+
+func _garden_distance_to_segment_xz(
+	point: Vector3,
+	start: Vector3,
+	finish: Vector3
+) -> float:
+	var segment := Vector2(finish.x - start.x, finish.z - start.z)
+	var to_point := Vector2(point.x - start.x, point.z - start.z)
+	var length_squared := segment.length_squared()
+
+	if length_squared <= 0.000001:
+		return to_point.length()
+
+	var t: float = clampf(to_point.dot(segment) / length_squared, 0.0, 1.0)
+	var closest := Vector2(start.x, start.z) + segment * t
+	return Vector2(point.x, point.z).distance_to(closest)
+
+
+func _garden_distance_xz(a: Vector3, b: Vector3) -> float:
+	return Vector2(a.x, a.z).distance_to(Vector2(b.x, b.z))
+
+
+func _garden_point_in_rect_xz(
+	point: Vector3,
+	min_x: float,
+	max_x: float,
+	min_z: float,
+	max_z: float
+) -> bool:
+	return (
+		point.x >= min_x
+		and point.x <= max_x
+		and point.z >= min_z
+		and point.z <= max_z
+	)
 
 
 func _build_garden_rocks_and_grass() -> void:
@@ -2135,8 +2447,13 @@ func _update_nearest_spot() -> void:
 	if debug_spots_visible:
 		for i in study_spots.size(): study_spots[i].update_debug(i == best)
 	if is_instance_valid(prompt_label):
-		prompt_label.visible=best>=0
-		if best>=0:prompt_label.text="E   Study here  ·  "+study_spots[best].study_type
+		prompt_label.visible = best >= 0
+		if best >= 0:
+			var nearest = study_spots[best]
+			if str(nearest.seat_type) == "tanning_bed":
+				prompt_label.text = "E   Rest here"
+			else:
+				prompt_label.text = "E   Study here  ·  " + nearest.study_type
 
 func _set_debug_spots(value: bool) -> void:
 	for i in study_spots.size():
@@ -2162,8 +2479,151 @@ func _build_room_ui() -> void:
 	coins_label=_label("●  %d Focus Coins"%GameState.focus_coins,18,CREAM);coins_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER;coins_label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER;stats.add_child(coins_label)
 
 	prompt_label=_label("E   Study here",17,INK);ui_root.add_child(prompt_label);prompt_label.position=Vector2(490,630);prompt_label.size=Vector2(300,58);prompt_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER;prompt_label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER;prompt_label.add_theme_stylebox_override("normal",_panel_style(Color("#fff2cc"),22,3,HONEY));prompt_label.visible=false
-	var hint:=_pill("WASD move   ·   E study   ·   F wave",Vector2(28,650));ui_root.add_child(hint)
+	var hint:=_pill("WASD move   ·   E interact   ·   F wave",Vector2(28,650));ui_root.add_child(hint)
 	debug_label=_label("DEV  F3 anchors  ·  F4 collision  ·  F5 short focus  ·  F6 performance\nFPS: --   Grounded: --",13,CREAM);ui_root.add_child(debug_label);debug_label.position=Vector2(820,610);debug_label.size=Vector2(430,84);debug_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_RIGHT;debug_label.visible=false
+
+func _open_resting_setup(spot_index: int) -> void:
+	if study_spots.is_empty():
+		return
+	spot_index = clampi(spot_index, 0, study_spots.size() - 1)
+	var spot = study_spots[spot_index]
+
+	if not spot.reserve("local_player", StudySpot.OccupantType.PLAYER):
+		_show_toast("That lounger is occupied")
+		return
+
+	pending_study_spot = spot
+	_set_movement_enabled(false)
+
+	var overlay := ColorRect.new()
+	ui_root.add_child(overlay)
+	overlay.name = "RestingSetupOverlay"
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.color = Color(0.06, 0.04, 0.03, 0.68)
+
+	var panel := PanelContainer.new()
+	overlay.add_child(panel)
+	panel.position = Vector2(355, 135)
+	panel.size = Vector2(570, 430)
+	panel.add_theme_stylebox_override(
+		"panel",
+		_panel_style(CREAM, 30, 5, HONEY)
+	)
+
+	var margin := MarginContainer.new()
+	panel.add_child(margin)
+	for key in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + key, 28)
+
+	var stack := VBoxContainer.new()
+	margin.add_child(stack)
+	stack.add_theme_constant_override("separation", 16)
+
+	stack.add_child(_label("Take a rest", 30, INK))
+	stack.add_child(
+		_label(
+			"Choose how long you want to rest here.",
+			17,
+			COCOA
+		)
+	)
+
+	var presets := GridContainer.new()
+	presets.columns = 3
+	presets.add_theme_constant_override("h_separation", 10)
+	presets.add_theme_constant_override("v_separation", 10)
+	stack.add_child(presets)
+
+	for data in [
+		["10 min", 600],
+		["20 min", 1200],
+		["30 min", 1800],
+		["60 min", 3600],
+		["120 min", 7200],
+		["10 sec · DEV", 10],
+	]:
+		var button := _button(
+			data[0],
+			int(data[1]) == resting_duration
+		)
+		button.custom_minimum_size = Vector2(155, 48)
+		button.pressed.connect(
+			_choose_resting_duration.bind(
+				int(data[1]),
+				presets
+			)
+		)
+		button.set_meta("seconds", data[1])
+		presets.add_child(button)
+
+	var custom_row := HBoxContainer.new()
+	custom_row.add_theme_constant_override("separation", 12)
+	stack.add_child(custom_row)
+	custom_row.add_child(_label("Custom minutes", 16, COCOA))
+
+	var custom_minutes := SpinBox.new()
+	custom_minutes.min_value = 1
+	custom_minutes.max_value = 480
+	custom_minutes.value = clampi(resting_duration / 60, 1, 480)
+	custom_minutes.custom_minimum_size = Vector2(150, 44)
+	custom_minutes.add_theme_font_size_override("font_size", 17)
+	custom_minutes.value_changed.connect(
+		func(value: float):
+			resting_duration = int(value) * 60
+	)
+	custom_row.add_child(custom_minutes)
+
+	var actions := HBoxContainer.new()
+	actions.add_theme_constant_override("separation", 12)
+	stack.add_child(actions)
+
+	var cancel := _button("Not yet", false)
+	cancel.custom_minimum_size = Vector2(180, 58)
+	cancel.pressed.connect(_close_resting_setup)
+	actions.add_child(cancel)
+
+	var start := _button("Begin resting  →", true)
+	start.custom_minimum_size = Vector2(300, 58)
+	start.pressed.connect(_begin_resting.bind(spot_index))
+	actions.add_child(start)
+
+
+func _choose_resting_duration(
+	seconds: int,
+	grid: GridContainer
+) -> void:
+	resting_duration = seconds
+	for child in grid.get_children():
+		if child is Button:
+			var selected := (
+				int(child.get_meta("seconds")) == seconds
+			)
+			child.add_theme_stylebox_override(
+				"normal",
+				_panel_style(
+					HONEY if selected else Color("#f4e3bf"),
+					14,
+					2,
+					WOOD if selected else Color("#d8bd88")
+				)
+			)
+
+
+func _close_resting_setup() -> void:
+	var overlay := ui_root.get_node_or_null("RestingSetupOverlay")
+	if overlay:
+		overlay.queue_free()
+
+	if (
+		pending_study_spot != null
+		and is_instance_valid(pending_study_spot)
+	):
+		pending_study_spot.release("local_player")
+		pending_study_spot.update_debug(false)
+
+	pending_study_spot = null
+	_set_movement_enabled(true)
+
 
 func _open_focus_setup(spot_index: int) -> void:
 	if study_spots.is_empty():return
@@ -2253,7 +2713,128 @@ func _play_seated_character_animation(character: Node, state: String, blend := 0
 	_prepare_custom_loop_animation(character, state)
 	character_loader.play_animation(character, state, blend)
 
+func _begin_resting(spot_index: int) -> void:
+	var spot = study_spots[spot_index]
+
+	if not spot.reserve("local_player", StudySpot.OccupantType.PLAYER):
+		_show_toast("That lounger is occupied")
+		_close_resting_setup()
+		return
+
+	active_session_mode = "resting"
+	active_study_spot = spot
+	pending_study_spot = null
+
+	var overlay := ui_root.get_node_or_null("RestingSetupOverlay")
+	if overlay:
+		overlay.queue_free()
+
+	await _transition_player_to_resting_spot(spot)
+	player.velocity = Vector3.ZERO
+
+	if bool(
+		player_visual.get_meta(
+			"is_imported_character",
+			false
+		)
+	):
+		character_loader.set_seated(
+			player_visual,
+			true,
+			spot.seated_visual_offset
+		)
+		character_loader.play_animation(
+			player_visual,
+			"Resting",
+			0.18
+		)
+	elif player_parts.has("leg_l"):
+		# Public fallback only. Imported cats use the authored Resting action.
+		player_visual.rotation.x = -PI / 2.0
+
+	_set_movement_enabled(false)
+	screen = Screen.FOCUS
+
+	_build_resting_hud()
+	_prepare_focus_camera_pool(spot)
+	focus_shot_index = -1
+	next_shot_at = 0
+
+	# Reuse the existing reliable countdown/signal infrastructure, but Resting
+	# is handled separately on completion and never awards Focus Coins.
+	FocusManager.start_session(
+		"Resting",
+		resting_duration
+	)
+
+
+func _transition_player_to_resting_spot(spot) -> void:
+	_set_movement_enabled(false)
+	player.velocity = Vector3.ZERO
+
+	var approach := create_tween()
+	approach.set_trans(Tween.TRANS_CUBIC)
+	approach.set_ease(Tween.EASE_IN_OUT)
+
+	approach.tween_property(
+		player,
+		"global_position",
+		spot.standing_position,
+		0.32
+	)
+	approach.parallel().tween_property(
+		player,
+		"rotation:y",
+		spot.facing_yaw,
+		0.32
+	)
+	await approach.finished
+
+	player.global_position = spot.standing_position
+	player.rotation.y = spot.facing_yaw
+
+	var target_visual_offset := Vector3.ZERO
+	var profile = player_visual.get_meta(
+		"character_profile",
+		null
+	)
+
+	if profile != null:
+		target_visual_offset = (
+			profile.sitting_visual_offset
+			+ spot.seated_visual_offset
+		)
+
+	var settle := create_tween()
+	settle.set_trans(Tween.TRANS_CUBIC)
+	settle.set_ease(Tween.EASE_IN_OUT)
+
+	settle.tween_property(
+		player,
+		"global_position",
+		spot.sitting_position,
+		0.72
+	)
+
+	if bool(
+		player_visual.get_meta(
+			"is_imported_character",
+			false
+		)
+	):
+		settle.parallel().tween_property(
+			player_visual,
+			"position",
+			target_visual_offset,
+			0.72
+		)
+
+	await settle.finished
+	player.global_position = spot.sitting_position
+
+
 func _begin_focus(spot_index: int) -> void:
+	active_session_mode = "focus"
 	var task:=task_input.text if is_instance_valid(task_input) else "Quiet focus"
 	var spot = study_spots[spot_index]
 	if not spot.reserve("local_player", StudySpot.OccupantType.PLAYER):
@@ -2552,6 +3133,69 @@ func _activate_npc_review() -> void:
 		camera_offset = forward * 2.20 + right * 3.80 + Vector3.UP * 1.45
 	_make_camera(target + camera_offset, target, 40.0)
 
+func _build_resting_hud() -> void:
+	for child in ui_root.get_children():
+		child.queue_free()
+
+	var vignette := ColorRect.new()
+	ui_root.add_child(vignette)
+	vignette.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	vignette.color = Color(0.03, 0.02, 0.015, 0.09)
+	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var hud := PanelContainer.new()
+	ui_root.add_child(hud)
+	hud.position = Vector2(36, 36)
+	hud.size = Vector2(370, 155)
+	hud.add_theme_stylebox_override(
+		"panel",
+		_panel_style(
+			Color(0.08, 0.055, 0.04, 0.90),
+			25,
+			2,
+			Color(1, 0.83, 0.52, 0.28)
+		)
+	)
+
+	var margin := MarginContainer.new()
+	hud.add_child(margin)
+	for key in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + key, 20)
+
+	var stack := VBoxContainer.new()
+	margin.add_child(stack)
+	stack.add_child(
+		_label(
+			current_room_name.to_upper(),
+			12,
+			Color("#e2b95e")
+		)
+	)
+	focus_task_label = _label("RESTING", 18, CREAM)
+	stack.add_child(focus_task_label)
+	focus_time_label = _label(
+		"%02d:%02d" % [
+			resting_duration / 60,
+			resting_duration % 60
+		],
+		35,
+		CREAM
+	)
+	stack.add_child(focus_time_label)
+	focus_shot_label = _label(
+		"RESTING  ·  settling in",
+		13,
+		Color("#c7b496")
+	)
+	stack.add_child(focus_shot_label)
+
+	var end := _button("End resting", false)
+	ui_root.add_child(end)
+	end.position = Vector2(1070, 642)
+	end.size = Vector2(170, 48)
+	end.pressed.connect(FocusManager.cancel_session)
+
+
 func _build_focus_hud(task: String) -> void:
 	for child in ui_root.get_children():child.queue_free()
 	var vignette:=ColorRect.new();ui_root.add_child(vignette);vignette.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);vignette.color=Color(0.03,0.02,0.015,0.13);vignette.mouse_filter=Control.MOUSE_FILTER_IGNORE
@@ -2628,9 +3272,15 @@ func _cycle_focus_camera() -> void:
 	)
 
 	if is_instance_valid(focus_shot_label):
+		var session_label := (
+			"RESTING"
+			if active_session_mode == "resting"
+			else "FOCUS"
+		)
 		focus_shot_label.text = (
-			"FOCUS  ·  shot %d of %d"
+			"%s  ·  shot %d of %d"
 			% [
+				session_label,
 				focus_shot_index + 1,
 				sequence.size()
 			]
@@ -2859,17 +3509,34 @@ func _is_focus_shot_clear(camera_position: Vector3, spot) -> bool:
 	return true
 
 func _on_focus_completed() -> void:
-	if screen!=Screen.FOCUS:return
-	var minutes:=roundi(float(FocusManager.duration_seconds)/60.0)
-	var reward:=GameState.award_session(FocusManager.task,minutes,current_room_name)
-	_restore_player_standing()
-	_transition_back_to_follow_camera()
-	_show_completion(minutes,reward)
+	if screen != Screen.FOCUS:
+		return
 
-func _on_focus_cancelled() -> void:
-	if screen==Screen.FOCUS:
+	var minutes := roundi(
+		float(FocusManager.duration_seconds) / 60.0
+	)
+
+	if active_session_mode == "resting":
 		_restore_player_standing()
 		_transition_back_to_follow_camera()
+		active_session_mode = "focus"
+		_show_resting_completion(minutes)
+		return
+
+	var reward := GameState.award_session(
+		FocusManager.task,
+		minutes,
+		current_room_name
+	)
+	_restore_player_standing()
+	_transition_back_to_follow_camera()
+	_show_completion(minutes, reward)
+
+func _on_focus_cancelled() -> void:
+	if screen == Screen.FOCUS:
+		_restore_player_standing()
+		_transition_back_to_follow_camera()
+		active_session_mode = "focus"
 		await get_tree().create_timer(0.7).timeout
 		build_room(GameState.selected_room)
 
@@ -2889,9 +3556,59 @@ func _restore_player_standing() -> void:
 		active_study_spot.release("local_player")
 		active_study_spot.update_debug(false)
 	character_loader.set_seated(player_visual, false)
+	player_visual.rotation.x = 0.0
 	character_loader.play_animation(player_visual, "Idle")
 	player.velocity = Vector3.ZERO
 	active_study_spot = null
+
+func _show_resting_completion(minutes: int) -> void:
+	var overlay := ColorRect.new()
+	ui_root.add_child(overlay)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.color = Color(0.05, 0.035, 0.025, 0.72)
+
+	var panel := PanelContainer.new()
+	overlay.add_child(panel)
+	panel.position = Vector2(370, 165)
+	panel.size = Vector2(540, 360)
+	panel.add_theme_stylebox_override(
+		"panel",
+		_panel_style(CREAM, 30, 6, HONEY)
+	)
+
+	var margin := MarginContainer.new()
+	panel.add_child(margin)
+	for key in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + key, 34)
+
+	var stack := VBoxContainer.new()
+	margin.add_child(stack)
+	stack.add_theme_constant_override("separation", 18)
+
+	var done := _label("Rest complete", 39, INK)
+	done.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stack.add_child(done)
+
+	var detail := _label(
+		"%d minutes resting" % minutes,
+		24,
+		COCOA
+	)
+	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stack.add_child(detail)
+
+	var return_button := _button("Return to the garden", true)
+	return_button.custom_minimum_size = Vector2(0, 56)
+	return_button.pressed.connect(
+		build_room.bind(GameState.selected_room)
+	)
+	stack.add_child(return_button)
+
+	var places := _button("Choose another place", false)
+	places.custom_minimum_size = Vector2(0, 54)
+	places.pressed.connect(show_main_menu)
+	stack.add_child(places)
+
 
 func _show_completion(minutes: int, reward: int) -> void:
 	var overlay:=ColorRect.new();ui_root.add_child(overlay);overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);overlay.color=Color(0.05,0.035,0.025,0.72)

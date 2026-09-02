@@ -27,6 +27,7 @@ LOOP_ACTIONS = {
     "ArmchairStudyBook",
     "FloorStudy",
     "TrainStudy",
+    "Resting",
 }
 
 
@@ -1215,6 +1216,93 @@ def create_actions(armature: bpy.types.Object) -> None:
             (72, floor_a),
         ],
         72,
+    )
+
+    # ---------------------------------------------------------------------
+    # Resting / tanning-bed pose
+    # ---------------------------------------------------------------------
+    # Rotate the whole rig 90 degrees backward so the cat lies on its back
+    # with the face pointing upward. Position/height relative to the actual
+    # tanning bed is intentionally NOT baked into the animation; main.gd owns
+    # that anchor so the user can tune placement independently.
+    resting_base = {
+        "rotation": {
+            # Whole body: upright -> lying on back, face upward.
+            "Trans_Root": (-math.pi / 2.0, 0.0, 0.0),
+
+            # Relaxed straight-ish legs with a tiny natural knee bend.
+            "Leg_1_L": (0.0, 0.0, 0.06),
+            "Leg_1_L_Sub": (0.0, 0.0, 0.0),
+            "Leg_2_L": (0.0, 0.0, -0.10),
+            "Leg_2_L_Sub": (0.0, 0.0, 0.0),
+            "Ankle_L": (0.0, 0.0, 0.05),
+
+            "Leg_1_R": (0.0, 0.0, 0.04),
+            "Leg_1_R_Sub": (0.0, 0.0, 0.0),
+            "Leg_2_R": (0.0, 0.0, -0.08),
+            "Leg_2_R_Sub": (0.0, 0.0, 0.0),
+            "Ankle_R": (0.0, 0.0, 0.04),
+
+            # Arms rest alongside the body, slightly away from the torso.
+            "Arm_1_L": (1.46, -1.48, -0.16),
+            "Arm_1_L_Sub": (0.0, 0.0, -0.015),
+            "Arm_2_L": (0.0, 0.0, -0.12),
+            "Wrist_L": (0.0, 0.0, 0.06),
+
+            "Arm_1_R": (-1.46, -1.48, 0.16),
+            "Arm_1_R_Sub": (0.0, 0.0, 0.015),
+            "Arm_2_R": (0.0, 0.0, 0.12),
+            "Wrist_R": (0.0, 0.0, -0.06),
+
+            # Head stays neutral/upward instead of curling toward the chest.
+            "Head": (-0.035, 0.0, 0.0),
+
+            # Tail rests off to one side so it does not clip straight through
+            # the centre of the lounger.
+            "S_Tail_1": (0.0, 0.18, 0.20),
+            "S_Tail_2": (0.0, 0.20, 0.14),
+            "S_Tail_3": (0.0, 0.12, 0.08),
+        },
+    }
+
+    resting_a = merged(
+        resting_base,
+        {
+            "rotation": {
+                "Head": (-0.030, -0.012, 0.006),
+                "S_Tail_2": (0.0, 0.18, 0.12),
+            },
+            "scale": {
+                "Spine_2": (1.0, 1.000, 1.0),
+                "Spine_3": (1.0, 1.000, 1.0),
+            },
+        },
+    )
+
+    resting_b = merged(
+        resting_base,
+        {
+            "rotation": {
+                "Head": (-0.040, 0.012, -0.006),
+                "S_Tail_2": (0.0, 0.22, 0.16),
+            },
+            # Slow subtle breathing.
+            "scale": {
+                "Spine_2": (1.0, 1.018, 1.0),
+                "Spine_3": (1.0, 1.010, 1.0),
+            },
+        },
+    )
+
+    create_action(
+        armature,
+        "Resting",
+        [
+            (1, resting_a),
+            (48, resting_b),
+            (96, resting_a),
+        ],
+        96,
     )
 
     wave_rest = {"rotation": {"Arm_1_L": (1.50, -1.50, 0.0), "Arm_1_R": (0.50, 1.0, 0.50), "Arm_2_R": (0.0, 0.0, -0.25)}}
