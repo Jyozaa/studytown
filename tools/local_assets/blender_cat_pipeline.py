@@ -233,25 +233,48 @@ def create_actions(armature: bpy.types.Object) -> None:
     walk_b = {"rotation": {"Leg_1_L": (-0.96, 0.0, 0.05), "Leg_2_L": (0.68, 0.0, 0.0), "Leg_1_R": (1.16, 0.0, -0.05), "Leg_2_R": (-0.48, 0.0, 0.0), "Arm_1_L": (2.24, -1.50, 0.18), "Arm_1_R": (-0.76, -1.50, -0.18), "Spine_2": (0.045, 0.0, -0.11), "Head": (-0.025, 0.055, 0.065), "Ear_1_L": (0.0, 0.0, 0.038), "Ear_1_R": (0.0, 0.0, -0.050), "S_Tail_1": (0.0, -0.08, 0.34), "S_Tail_2": (0.0, -0.11, 0.24), "S_Tail_3": (0.0, -0.08, 0.14)}, "location": {"Trans_Root": (0.0, 0.0, 0.015)}}
     create_action(armature, "Walk", [(1, walk_a), (7, walk_mid), (13, walk_b), (19, walk_mid), (25, walk_a)], 25)
 
-        # Chair sitting deliberately exaggerates the hip bend while keeping the
-    # lower legs angled rather than perfectly vertical. At gameplay distance
-    # this reads as "sitting" instead of a standing model intersecting a seat.
+    # Generic chair sitting pose.
+    #
+    # The cat rig bends anatomically around the leg bones' LOCAL Z axis.
+    # This is the same proven leg configuration used by TrainStudy:
+    #
+    #   hip -> thigh forward
+    #              \
+    #               knee
+    #                |
+    #                | shin down
+    #                |
+    #
+    # Library, garden and standard Japanese-room chairs all inherit this pose
+    # through SeatedIdle / StudyLaptop / StudyBook.
     chair_sit = {
         "rotation": {
-            "Leg_1_L": (-1.30, 0.0, 0.08),
-            "Leg_2_L": (1.62, 0.0, 0.0),
-            "Ankle_L": (-0.20, 0.0, 0.0),
+            # LEFT LEG
+            "Leg_1_L": (0.0, 0.0, 1.42),
+            "Leg_1_L_Sub": (0.0, 0.0, 0.10),
 
-            "Leg_1_R": (-1.30, 0.0, -0.08),
-            "Leg_2_R": (1.62, 0.0, 0.0),
-            "Ankle_R": (-0.20, 0.0, 0.0),
+            "Leg_2_L": (0.0, 0.0, -1.38),
+            "Leg_2_L_Sub": (0.0, 0.0, -0.08),
 
+            "Ankle_L": (0.0, 0.0, 0.18),
+
+            # RIGHT LEG
+            "Leg_1_R": (0.0, 0.0, 1.42),
+            "Leg_1_R_Sub": (0.0, 0.0, 0.10),
+
+            "Leg_2_R": (0.0, 0.0, -1.38),
+            "Leg_2_R_Sub": (0.0, 0.0, -0.08),
+
+            "Ankle_R": (0.0, 0.0, 0.18),
+
+            # ARMS
             "Arm_1_L": (0.0, -1.50, -1.34),
             "Arm_2_L": (0.0, -1.50, 1.0),
 
             "Arm_1_R": (0.50, -1.50, 1.34),
             "Arm_2_R": (0.0, 1.50, -0.50),
 
+            # Slight seated torso lean.
             "Spine_2": (0.10, 0.0, 0.0),
         }
     }
@@ -465,29 +488,55 @@ def create_actions(armature: bpy.types.Object) -> None:
         64,
     )
 
-    # Floor cushions need a different silhouette entirely.
-    # The thighs come forward/outward while the lower legs fold back beneath
-    # the body, giving a compact kneeling/floor-sitting pose.
+    # Floor cushions should read as a cross-legged seated pose, similar to
+    # sitting on the floor with an upright torso.
+    #
+    # IMPORTANT:
+    # As with the corrected chair/train pose, the cat rig's meaningful leg
+    # forward/back bending is primarily around LOCAL Z, while slight outward
+    # opening of the knees is introduced with mirrored LOCAL Y offsets.
+    #
+    # This pose is intentionally built as:
+    # - thighs forward and slightly opened outward
+    # - lower legs folded inward/downward into a cross-legged silhouette
+    # - ankles rotated so the feet tuck in closer to the body
+    # - torso upright rather than hunched
     floor_base = {
         "rotation": {
-            "Leg_1_L": (-1.72, -0.08, 0.34),
-            "Leg_2_L": (2.42, 0.0, -0.12),
-            "Ankle_L": (-0.38, 0.0, 0.0),
+            # LEFT LEG
+            "Leg_1_L": (0.08, 0.34, 1.06),
+            "Leg_1_L_Sub": (0.0, 0.0, 0.08),
 
-            "Leg_1_R": (-1.72, 0.08, -0.34),
-            "Leg_2_R": (2.42, 0.0, 0.12),
-            "Ankle_R": (-0.38, 0.0, 0.0),
+            "Leg_2_L": (0.0, -0.18, -1.02),
+            "Leg_2_L_Sub": (0.0, 0.0, -0.08),
 
-            "Spine_2": (0.12, 0.0, 0.0),
+            "Ankle_L": (0.22, 0.12, 0.36),
+            "Toe_L": (0.0, 0.0, 0.18),
 
-            "Arm_1_L": (0.0, -1.50, -1.34),
-            "Arm_2_L": (0.0, -1.50, 1.0),
+            # RIGHT LEG
+            "Leg_1_R": (0.08, -0.34, 1.06),
+            "Leg_1_R_Sub": (0.0, 0.0, 0.08),
 
-            "Arm_1_R": (0.50, -1.50, 1.34),
-            "Arm_2_R": (0.0, 1.50, -0.50),
+            "Leg_2_R": (0.0, 0.18, -1.02),
+            "Leg_2_R_Sub": (0.0, 0.0, -0.08),
+
+            "Ankle_R": (0.22, -0.12, -0.36),
+            "Toe_R": (0.0, 0.0, -0.18),
+
+            # UPRIGHT TORSO
+            "Spine_2": (0.02, 0.0, 0.0),
+
+            # Keep the arms relaxed and readable for a study pose.
+            # We are only solving the floor-sitting body silhouette here.
+            "Arm_1_L": (0.10, -1.50, -1.18),
+            "Arm_2_L": (0.0, -1.42, 0.92),
+
+            "Arm_1_R": (0.32, -1.50, 1.18),
+            "Arm_2_R": (0.0, 1.42, -0.92),
         },
         "location": {
-            "Trans_Root": (0.0, 0.0, -0.16),
+            # Small root correction so the hips sit closer to the cushion/floor.
+            "Trans_Root": (0.0, -0.03, -0.10),
         },
     }
 
@@ -495,9 +544,9 @@ def create_actions(armature: bpy.types.Object) -> None:
         floor_base,
         {
             "rotation": {
-                "Head": (0.20, -0.025, 0.015),
-                "S_Tail_1": (0.0, 0.08, -0.16),
-                "S_Tail_2": (0.0, 0.10, -0.10),
+                "Head": (0.07, -0.02, 0.01),
+                "S_Tail_1": (0.0, 0.08, -0.12),
+                "S_Tail_2": (0.0, 0.08, -0.08),
             }
         },
     )
@@ -506,10 +555,10 @@ def create_actions(armature: bpy.types.Object) -> None:
         floor_base,
         {
             "rotation": {
-                "Head": (0.24, 0.025, -0.015),
-                "S_Tail_1": (0.0, -0.08, 0.16),
-                "S_Tail_2": (0.0, -0.10, 0.10),
-                "Wrist_R": (0.0, 0.0, 0.16),
+                "Head": (0.10, 0.02, -0.01),
+                "S_Tail_1": (0.0, -0.08, 0.12),
+                "S_Tail_2": (0.0, -0.08, 0.08),
+                "Wrist_R": (0.0, 0.0, 0.12),
             }
         },
     )

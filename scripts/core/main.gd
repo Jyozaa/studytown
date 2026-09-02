@@ -27,7 +27,7 @@ const FOCUS_OCCLUSION_MASK := 1 | CAMERA_OCCLUDER_LAYER
 # chairs. The Blender train bench seat surface is ~0.84m and the generated
 # armchair is ~0.79m.
 const SEAT_VISUAL_OFFSETS := {
-	"desk_chair": Vector3(0.0, 0.02, 0.12),
+	"desk_chair": Vector3(0.0, 0.15, 0.12),
 	"armchair": Vector3(0.0, 0.04, 0.16),
 	"cafe_chair": Vector3(0.0, 0.02, 0.12),
 	"train_booth": Vector3(0.0, 0.50, 0.02),
@@ -847,7 +847,7 @@ func _register_furniture_seat(pos: Vector3, furniture_yaw: float, study_type: St
 
 	match seat_type:
 		"desk_chair":
-			tuned_forward_offset = 0.10
+			tuned_forward_offset = 0.35
 		"armchair":
 			tuned_forward_offset = 0.06
 		"cafe_chair":
