@@ -87,6 +87,8 @@ var focus_camera_director
 var current_room_config: Dictionary = {}
 var collision_debug_visible := false
 var train_scenery_nodes: Array[Node3D] = []
+var garden_water_jet_nodes: Array[Node3D] = []
+var garden_fire_nodes: Array[Node3D] = []
 var active_study_spot
 var pending_study_spot
 var performance_review := false
@@ -150,8 +152,12 @@ func _ready() -> void:
 		"garden_tufts": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_garden_tuft_review")
 		"plant_placement": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_plant_review")
 		"prop_grounding": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_prop_grounding_review")
-		"garden_grass": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 1)
-		"garden_water": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 3)
+		"garden_grass": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 0)
+		"garden_cafe": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 1)
+		"garden_water": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 2)
+		"garden_tree": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 3)
+		"garden_pool": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 4)
+		"garden_campfire": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 5)
 		"train_scenery": current_room_name = GameState.ROOMS[2]; build_room(2); call_deferred("_activate_review_camera", 5)
 		"character_front": _build_character_review(0.0, false)
 		"character_three_quarter": _build_character_review(0.62, false)
@@ -204,23 +210,90 @@ func _build_materials() -> void:
 		mats.grass.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 		mats.grass.texture_repeat = true
 		mats.grass.uv1_scale = Vector3(16.0, 16.0, 16.0)
-	var water := StandardMaterial3D.new()
-	water.albedo_color = Color("#58b8c9")
-	water.roughness = 0.22
-	water.metallic = 0.04
-	water.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
-	water.texture_repeat = true
-	water.uv1_scale = Vector3(2.8, 2.8, 2.8)
-	var water_albedo_path := "res://assets/dev_local/environment/water_albedo.png"
-	var water_normal_path := "res://assets/dev_local/environment/water_normal.png"
-	if ResourceLoader.exists(water_albedo_path) and ResourceLoader.exists(water_normal_path):
-		var animated_water := ShaderMaterial.new()
-		animated_water.shader = load("res://shaders/cozy_water.gdshader")
-		animated_water.set_shader_parameter("water_pattern", load(water_albedo_path))
-		animated_water.set_shader_parameter("water_normal", load(water_normal_path))
-		mats.water = animated_water
+
+	# Garden-specific lawn. blender_garden.py converts the supplied grass image
+	# into an 8x8 atlas of small randomly rotated copies. Repeating that atlas
+	# twice over the room makes the large source-image colour spots much smaller.
+	var garden_grass := StandardMaterial3D.new()
+	garden_grass.albedo_color = Color.WHITE
+	garden_grass.roughness = 0.92
+	garden_grass.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	garden_grass.texture_repeat = true
+	garden_grass.uv1_scale = Vector3(2.0, 2.0, 2.0)
+
+	var garden_grass_texture_path := GENERATED_ASSET_DIR + "garden_grass_tile.png"
+	if ResourceLoader.exists(garden_grass_texture_path):
+		garden_grass.albedo_texture = load(garden_grass_texture_path)
 	else:
-		mats.water = water
+		var custom_garden_grass_path := "res://assets/dev_local/environment/garden_grass.jpeg"
+		if ResourceLoader.exists(custom_garden_grass_path):
+			garden_grass.albedo_texture = load(custom_garden_grass_path)
+	mats.garden_grass = garden_grass
+
+	# Seamless continuous stone path material. The supplied tile.png is mapped
+	# in world space so adjacent CSG path segments share one texture scale rather
+	# than each restarting at a tile boundary.
+	var garden_path := StandardMaterial3D.new()
+	garden_path.albedo_color = Color.WHITE
+	garden_path.roughness = 0.94
+	garden_path.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	garden_path.texture_repeat = true
+	garden_path.uv1_triplanar = true
+	garden_path.uv1_world_triplanar = true
+	garden_path.uv1_scale = Vector3(0.72, 0.72, 0.72)
+	var garden_path_texture_path := "res://assets/dev_local/environment/tile.png"
+	if ResourceLoader.exists(garden_path_texture_path):
+		garden_path.albedo_texture = load(garden_path_texture_path)
+	else:
+		garden_path.albedo_color = Color("#9c958b")
+	mats.garden_path = garden_path
+
+	# Animated water surface used by the fountain basin and pool.
+	var water_shader_material := ShaderMaterial.new()
+	var water_shader_path := "res://shaders/garden_water.gdshader"
+	if ResourceLoader.exists(water_shader_path):
+		var water_shader_resource: Resource = load(water_shader_path)
+		if water_shader_resource is Shader:
+			water_shader_material.shader = water_shader_resource as Shader
+			mats.water = water_shader_material
+	else:
+		var water_fallback := StandardMaterial3D.new()
+		water_fallback.albedo_color = Color(0.27, 0.72, 0.80, 0.86)
+		water_fallback.roughness = 0.12
+		water_fallback.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mats.water = water_fallback
+
+	# Continuous fountain streams use a separate animated translucent shader.
+	var stream_material := ShaderMaterial.new()
+	var stream_shader_path := "res://shaders/garden_stream.gdshader"
+	if ResourceLoader.exists(stream_shader_path):
+		var stream_shader_resource: Resource = load(stream_shader_path)
+		if stream_shader_resource is Shader:
+			stream_material.shader = stream_shader_resource as Shader
+			mats.fountain_stream = stream_material
+	else:
+		var stream_fallback := StandardMaterial3D.new()
+		stream_fallback.albedo_color = Color(0.68, 0.93, 1.0, 0.66)
+		stream_fallback.roughness = 0.05
+		stream_fallback.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		stream_fallback.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mats.fountain_stream = stream_fallback
+
+	var flame_outer := StandardMaterial3D.new()
+	flame_outer.albedo_color = Color("#ff6a2b")
+	flame_outer.emission_enabled = true
+	flame_outer.emission = Color("#ff5424")
+	flame_outer.emission_energy_multiplier = 2.4
+	flame_outer.roughness = 0.35
+	mats.flame_outer = flame_outer
+
+	var flame_inner := StandardMaterial3D.new()
+	flame_inner.albedo_color = Color("#ffd15c")
+	flame_inner.emission_enabled = true
+	flame_inner.emission = Color("#ffb52d")
+	flame_inner.emission_energy_multiplier = 2.8
+	flame_inner.roughness = 0.30
+	mats.flame_inner = flame_inner
 
 func _clear_scene() -> void:
 	# Queue the old scene for deletion.
@@ -250,6 +323,8 @@ func _clear_scene() -> void:
 	focus_cameras.clear()
 	room_broll_cameras.clear()
 	train_scenery_nodes.clear()
+	garden_water_jet_nodes.clear()
+	garden_fire_nodes.clear()
 
 	nearest_spot = -1
 
@@ -437,6 +512,8 @@ func _process(delta: float) -> void:
 				scenery.position.z += delta * float(scenery.get_meta("parallax_speed", 2.0))
 				if scenery.position.z > 25.0:
 					scenery.position.z -= 50.0
+	if current_room_config.get("id", "") == "garden":
+		_animate_garden_effects(delta)
 	if wave_time > 0.0:
 		wave_time -= delta
 		if player_parts.has("arm_r"):
@@ -808,21 +885,45 @@ func _build_study_table(pos: Vector3, flip: bool, study_type := "Laptop") -> voi
 	_add_blocker(pos + Vector3(0, 0.62, 0), Vector3(3.75, 1.24, 1.62), 0.0)
 
 func _build_chair(pos: Vector3, yaw: float, study_type := "Book", seat_type := "desk_chair"):
-	var imported: Node3D = asset_loader.instantiate_prop("froggy_chair", "")
-	if imported.get_child_count() > 0:
-		world_root.add_child(imported)
-		imported.position = pos
-		imported.rotation.y = yaw
-		_add_blocker(pos + Vector3(0, 0.6, 0), Vector3(1.2, 1.2, 1.2), yaw)
+	# Froggy Chair is intentionally no longer used at runtime. Standard desk
+	# seating and Garden Cafe seating now use original StudyTown Blender assets
+	# with different silhouettes appropriate to each environment.
+	var generated_name := "cafe_chair" if seat_type == "cafe_chair" else "library_chair"
+	var generated_path := GENERATED_ASSET_DIR + generated_name + ".glb"
+
+	if ResourceLoader.exists(generated_path):
+		_import_prop(generated_path, pos, Vector3.ONE, yaw)
 	else:
-		imported.queue_free()
-		var root := Node3D.new(); world_root.add_child(root); root.position = pos; root.rotation.y = yaw
-		_box(root, Vector3(0.95, 0.18, 0.92), Vector3(0, 0.72, 0), mats.teal)
-		var back := _sphere(root, Vector3(0.54, 0.72, 0.15), Vector3(0, 1.25, 0.39), mats.teal, 24, 16)
-		back.rotation.x = -0.12
-		for x in [-0.36, 0.36]:
-			for z in [-0.34, 0.34]:
-				_capsule_mesh(root, 0.09, 0.72, Vector3(x, 0.35, z), mats.cocoa)
+		# Public/development fallback. Keep this visually close to the Blender
+		# version so seating still reads correctly before local assets are built.
+		var root := Node3D.new()
+		world_root.add_child(root)
+		root.position = pos
+		root.rotation.y = yaw
+
+		if seat_type == "cafe_chair":
+			# Lightweight open-air bistro chair: slim warm-wood frame, small
+			# cream seat, and an open slatted back.
+			_box(root, Vector3(0.96, 0.16, 0.92), Vector3(0, 0.72, 0), mats.cream)
+			for x in [-0.39, 0.39]:
+				_capsule_mesh(root, 0.065, 0.76, Vector3(x, 0.36, -0.31), mats.wood)
+				_capsule_mesh(root, 0.065, 1.40, Vector3(x, 0.95, 0.36), mats.wood)
+			for y in [1.02, 1.24, 1.45]:
+				_box(root, Vector3(0.82, 0.075, 0.10), Vector3(0, y, 0.38), mats.wood)
+		else:
+			# Traditional reading-room desk chair: darker wooden frame with a
+			# modest upholstered seat and substantial back rails.
+			_box(root, Vector3(1.02, 0.18, 0.96), Vector3(0, 0.72, 0), mats.cocoa)
+			_box(root, Vector3(0.86, 0.08, 0.78), Vector3(0, 0.82, -0.02), mats.cream)
+			for x in [-0.40, 0.40]:
+				_capsule_mesh(root, 0.075, 0.82, Vector3(x, 0.37, -0.33), mats.cocoa)
+				_capsule_mesh(root, 0.085, 1.52, Vector3(x, 1.02, 0.38), mats.cocoa)
+			_box(root, Vector3(0.96, 0.12, 0.12), Vector3(0, 1.57, 0.38), mats.honey)
+			for y in [1.14, 1.34]:
+				_box(root, Vector3(0.72, 0.08, 0.10), Vector3(0, y, 0.38), mats.wood)
+
+	var blocker_size := Vector3(1.08, 1.36, 1.06) if seat_type == "cafe_chair" else Vector3(1.16, 1.48, 1.12)
+	_add_blocker(pos + Vector3(0, blocker_size.y * 0.5, 0), blocker_size, yaw)
 	return _register_furniture_seat(pos, yaw, study_type, 0.05, 0.34, 0.96, seat_type)
 
 func _build_armchair(pos: Vector3, yaw: float, fabric: Material, study_type := "Book"):
@@ -880,96 +981,851 @@ func _build_globe(pos: Vector3) -> void:
 	for x in [-0.28, 0.25]: _sphere(world_root, Vector3(0.23, 0.09, 0.10), pos + Vector3(x, 1.5, -0.64), mats.green, 18, 10)
 
 func _build_garden() -> void:
-	_add_environment(Color("#45869f"), Color("#fff3bf"), 0.86)
-	_box(world_root, Vector3(52, 0.35, 38), Vector3(0, -0.22, 0), mats.grass)
-	# A long garden path connects the entrance, terrace, pond and quiet edge tables.
-	for i in 35:
-		var z := 16.5 - i
-		var x := sin(i * 0.28) * 2.1
-		var tile_path := GENERATED_ASSET_DIR + "garden_path_tile.glb"
-		if ResourceLoader.exists(tile_path):
-			_import_prop(tile_path, Vector3(x, 0.0, z), Vector3(1.42, 1.0, 0.82), i * 0.17)
-		else:
-			_sphere(world_root, Vector3(1.45, 0.08, 0.82), Vector3(x, 0.01, z), mats.stone, 20, 10)
-	# Café terrace in the north-west zone.
-	_box(world_root, Vector3(17.0, 0.28, 9.0), Vector3(-14.0, 0.06, -12.5), mats.cream)
-	for x in [-22.0, -6.0]:
-		for z in [-16.5, -8.5]: _capsule_mesh(world_root, 0.16, 4.2, Vector3(x, 2.1, z), mats.wood)
-	_box(world_root, Vector3(17.4, 0.3, 9.4), Vector3(-14.0, 4.05, -12.5), mats.honey)
-	# Pond and fountain establish the central-east destination.
-	var fountain_path := GENERATED_ASSET_DIR + "fountain_basin.glb"
-	var water_surface_path := GENERATED_ASSET_DIR + "water_surface.glb"
-	if ResourceLoader.exists(fountain_path):
-		_import_prop(fountain_path, Vector3(12.0, 0.0, 1.5), Vector3(1.78, 1.0, 1.32))
-	else:
-		_cylinder(world_root, 5.7, 0.22, Vector3(12.0, 0.08, 1.5), mats.stone, 40)
-	if ResourceLoader.exists(water_surface_path):
-		var water_surface := _import_prop(water_surface_path, Vector3(12.0, 0.54, 1.5), Vector3(2.05, 1.0, 1.45))
-		_override_mesh_material(water_surface, mats.water)
-	else:
-		_sphere(world_root, Vector3(5.3, 0.10, 3.8), Vector3(12.0, 0.12, 1.5), mats.water, 36, 18)
-	_add_blocker(Vector3(12.0, 0.55, 1.5), Vector3(4.0, 1.1, 3.4), 0.0)
-	# Owner-local ACNH trees and seasonal planters dominate the intended garden build.
-	for pos in [Vector3(-23,0,-4),Vector3(-20,0,8),Vector3(-12,0,14),Vector3(8,0,14),Vector3(21,0,12),Vector3(22,0,-10),Vector3(7,0,-14),Vector3(-2,0,-15)]:
-		_place_local_prop("oak_trees_museum", "", pos, Vector3.ONE)
-		_add_blocker(pos + Vector3(0,1.3,0), Vector3(1.6,2.6,1.6), 0.0)
-	_place_local_prop("big_tree_museum", "", Vector3(-19,0,-1), Vector3.ONE)
-	_place_local_prop("palm_tree_museum", "", Vector3(23,0,3), Vector3.ONE * 0.88)
-	_place_local_prop("villager_tent", "", Vector3(18,0,-13), Vector3.ONE, -0.3)
-	_place_local_prop("recycle_box", "", Vector3(-21,0,-14), Vector3.ONE, PI / 2.0)
-	# Planters soften authored zone edges—terrace corners, the tent, path, and
-	# bench grove—without occupying the open lawn or circulation spine.
-	for pos in [Vector3(-21,0,-8.7),Vector3(-7,0,-8.7),Vector3(21,0,-11.2),Vector3(14.4,0,-8.8),Vector3(-22,0,6.0)]:
-		_place_local_prop("potted_spring_flowers", "res://assets/external/kenney_furniture_kit/pottedPlant.glb", pos, Vector3.ONE)
-	for pos in [Vector3(-7.5,0,14.5),Vector3(7.5,0,14.5),Vector3(-20.5,0,-16.2)]:
-		_place_local_prop("potted_autumn_flowers", "", pos, Vector3.ONE * 0.9, pos.x * 0.08)
-	for pos in [Vector3(7,0,2),Vector3(16,0,-1),Vector3(15,0,5),Vector3(9,0,6),Vector3(-3,0,13)]:
-		_place_local_prop("rocks", "", pos, Vector3.ONE * (0.65 + fmod(abs(pos.x), 3.0) * 0.12), pos.x * 0.08)
-	for pos in [Vector3(-16,0,4),Vector3(-13,0,7),Vector3(4,0,11),Vector3(11,0,-10),Vector3(15,0,-8),Vector3(-4,0,-10),Vector3(20,0,8)]:
-		_place_local_prop("spring_weeds", "", pos, Vector3.ONE * 0.9, pos.z * 0.13)
-	_place_local_prop("potted_summer_flowers", "", Vector3(-4,0,-13), Vector3.ONE)
-	_place_local_prop("potted_winter_flowers", "", Vector3(-7,0,-9), Vector3.ONE)
-	_place_local_prop("flower_bag", "", Vector3(-20,0,-10), Vector3.ONE)
-	_place_local_prop("stone", "", Vector3(6,0,4), Vector3.ONE)
-	# Original Blender grass tufts add restrained silhouette detail near path,
-	# pond, fence, and tree edges. Every transform is authored and deterministic.
-	var tuft_path := "res://assets/generated/environment/grass_tuft.glb"
-	if ResourceLoader.exists(tuft_path):
-		var tuft_data := [
-			[Vector3(-4.6,0.02,14.7),0.15,0.90],[Vector3(4.8,0.02,14.4),1.10,0.82],
-			[Vector3(-8.5,0.02,6.8),2.20,1.00],[Vector3(-11.2,0.02,3.9),0.70,0.78],
-			[Vector3(5.8,0.02,7.2),1.75,1.06],[Vector3(7.3,0.02,4.6),2.75,1.12],
-			[Vector3(6.8,0.02,4.1),0.85,0.92],[Vector3(8.0,0.02,4.0),2.10,0.84],
-			[Vector3(8.2,0.02,-2.9),0.30,0.94],[Vector3(13.5,0.02,-3.0),1.45,0.80],
-			[Vector3(16.0,0.02,4.8),2.45,0.90],[Vector3(18.9,0.02,9.7),0.95,0.82],
-			[Vector3(21.4,0.02,-6.2),2.95,0.98],[Vector3(17.5,0.02,-10.7),1.80,0.76],
-			[Vector3(-18.5,0.02,-2.3),0.50,0.90],[Vector3(-21.0,0.02,9.6),2.10,0.84],
-			[Vector3(2.7,0.02,-11.4),1.25,0.94],[Vector3(-4.8,0.02,-12.6),2.65,0.80],
-		]
-		for data in tuft_data:
-			var tuft := _import_prop(tuft_path, data[0], Vector3.ONE * data[2], data[1])
-			_override_mesh_material(tuft, mats.leaf)
-	# Study zones are separated across terrace, shade and quiet garden edge.
-	var cafe_index := 0
-	for data in [[Vector3(-17.0,0,-12.5),mats.teal],[Vector3(-10.0,0,-12.5),mats.gold],[Vector3(-10.0,0,4.0),mats.coral],[Vector3(18.0,0,13.0),mats.green]]:
-		_build_cafe_table(data[0], data[1])
-		_place_local_prop("coffee_mug", "", data[0] + Vector3(0.6,1.18,0.1), Vector3.ONE)
-		_place_local_prop("iced_tea", "", data[0] + Vector3(-0.55,1.18,-0.05), Vector3.ONE)
-		var treat_ids := ["bowl_of_minestrone_soup", "chocolate_donut", "cup_of_tea", "can_of_juice"]
-		_place_local_prop(treat_ids[cafe_index], "", data[0] + Vector3(0.05,1.18,0.48), Vector3.ONE)
-		cafe_index += 1
-	# A small bench grove gives the east garden a social destination.
-	for data in [[Vector3(19.0,0,-5.0),-PI / 2.0],[Vector3(19.0,0,-8.0),-PI / 2.0],[Vector3(15.8,0,-6.5),PI / 2.0]]:
-		_build_chair(data[0], data[1])
-	_place_local_prop("natural_basket", "", Vector3(17.4,0,-6.5), Vector3.ONE)
-	for data in [[Vector3(19.0,0.05,-8.0),1,"Lumi","20m"],[Vector3(-10.0,0.05,4.72),2,"Ben","37m"],[Vector3(-10.0,0.05,-11.78),0,"Sora","48m"],[Vector3(18.0,0.05,13.72),1,"Poppy","31m"],[Vector3(19.0,0.05,-5.0),2,"Ash","16m"]]:
-		_create_npc(data[0],0,data[1],data[2],data[3],true)
-	_focus_camera(Vector3(22, 12, 18), Vector3(0, 1, 0), "Garden wide")
-	_focus_camera(Vector3(-4, 3.2, 10), Vector3(-9, 1, 8), "Among the flowers")
-	_focus_camera(Vector3(-12, 2.8, -7), Vector3(-17, 1, -12.5), "Café terrace")
-	_focus_camera(Vector3(17, 3.8, 7), Vector3(12, 1.1, 1.5), "Pond fountain")
-	_focus_camera(Vector3(22, 4.0, 17), Vector3(18, 1.0, 13), "Quiet edge table")
+	_add_environment(Color("#72b9cd"), Color("#fff1c8"), 0.88)
+	_box(world_root, Vector3(52, 0.35, 38), Vector3(0, -0.22, 0), mats.garden_grass)
+
+	_build_garden_cafe_zone()
+	_build_garden_tree_study_zone()
+	_build_garden_fountain(Vector3(0.0, 0.0, -0.6))
+	_build_garden_pool_zone()
+	_build_garden_campfire_zone()
+	_build_garden_path_network()
+	_build_garden_hedges_and_weeds()
+	_build_garden_rocks_and_grass()
+
+	for data in [
+		[Vector3(-23.0, 0.0, -5.0), "potted_spring_flowers", 0.10],
+		[Vector3(-7.5, 0.0, -15.2), "potted_autumn_flowers", -0.12],
+		[Vector3(22.0, 0.0, -5.5), "potted_summer_flowers", 0.18],
+		[Vector3(-22.0, 0.0, 15.2), "potted_winter_flowers", -0.10],
+		[Vector3(22.0, 0.0, 15.0), "potted_spring_flowers", 0.12],
+	]:
+		_place_local_prop(str(data[1]), "", data[0], Vector3.ONE * 0.92, float(data[2]))
+
+	for data in [
+		[Vector3(-15.7, 0.05, -9.1), 1, "Lumi", "20m"],
+		[Vector3(12.4, 0.05, -8.4), 2, "Ben", "37m"],
+		[Vector3(17.3, 0.05, 10.1), 0, "Sora", "48m"],
+		[Vector3(-13.7, 0.05, -9.0), 1, "Poppy", "31m"],
+	]:
+		_create_npc(data[0], 0.0, int(data[1]), str(data[2]), str(data[3]), true)
+
+	_create_garden_barista()
+
+	_focus_camera(Vector3(24.0, 13.8, 20.0), Vector3(0, 1.1, 0), "Garden wide")
+	_focus_camera(Vector3(-7.8, 5.0, -4.0), Vector3(-17.1, 1.5, -13.2), "Open-air café")
+	_focus_camera(Vector3(8.5, 5.2, -3.6), Vector3(0.0, 1.2, -0.6), "Central fountain")
+	_focus_camera(Vector3(23.5, 7.2, -2.8), Vector3(15.4, 2.4, -10.5), "Tree rug study")
+	_focus_camera(Vector3(-4.5, 5.8, 17.2), Vector3(-15.2, 0.8, 10.7), "Poolside")
+	_focus_camera(Vector3(22.5, 4.8, 16.5), Vector3(16.2, 0.9, 10.7), "Campfire circle")
 	_add_world_boundaries(current_room_config.bounds)
+
+func _build_garden_cafe_zone() -> void:
+	var rug_path := GENERATED_ASSET_DIR + "garden_cafe_rug.glb"
+	if ResourceLoader.exists(rug_path):
+		_import_prop(rug_path, Vector3(-16.7, 0.0, -11.5), Vector3.ONE)
+	else:
+		_box(world_root, Vector3(14.4, 0.055, 8.5), Vector3(-16.7, 0.03, -11.5), mats.cream)
+		_box(world_root, Vector3(13.7, 0.022, 7.82), Vector3(-16.7, 0.070, -11.5), mats.cocoa)
+
+	var back_wall_path := GENERATED_ASSET_DIR + "garden_cafe_back_wall.glb"
+	var cafe_back_z := -15.72
+	if ResourceLoader.exists(back_wall_path):
+		_import_prop(back_wall_path, Vector3(-17.4, 0.0, cafe_back_z), Vector3.ONE)
+	else:
+		_box(world_root, Vector3(12.4, 4.5, 0.30), Vector3(-17.4, 2.25, cafe_back_z), mats.cream)
+	_add_blocker(Vector3(-17.4, 2.25, cafe_back_z), Vector3(12.6, 4.5, 0.48), 0.0)
+
+	var counter_path := GENERATED_ASSET_DIR + "garden_cafe_counter.glb"
+	var counter_position := Vector3(-17.4, 0.0, -14.55)
+	var counter_scale := Vector3(0.88, 0.78, 0.74)
+	if ResourceLoader.exists(counter_path):
+		_import_prop(counter_path, counter_position, counter_scale)
+	else:
+		_box(world_root, Vector3(6.50, 0.92, 1.18), Vector3(-17.4, 0.46, -14.55), mats.cocoa)
+		_box(world_root, Vector3(6.82, 0.16, 1.38), Vector3(-17.4, 0.98, -14.55), mats.honey)
+	_add_blocker(Vector3(-17.4, 0.55, -14.55), Vector3(6.90, 1.10, 1.38), 0.0)
+
+	# The bookcases form the LEFT café wall. The rear edge of the first case
+	# meets the counter's back wall, and the two cases meet edge-to-edge. Their
+	# authored fronts face inward at PI/2, while _import_prop grounds them at y=0.
+	_build_bookshelf(Vector3(-23.25, 1.78, -14.04), PI / 2.0, 3.35, 3.55, 0.54, 612)
+	_build_bookshelf(Vector3(-23.25, 1.78, -10.67), PI / 2.0, 3.35, 3.55, 0.54, 663)
+
+	for table_data in [
+		[Vector3(-18.7, 0.0, -10.7), 0.10],
+		[Vector3(-13.9, 0.0, -9.9), -0.12],
+	]:
+		_build_garden_open_cafe_table(table_data[0], float(table_data[1]))
+
+	# Prefer the locally converted archive café props when they exist. They are
+	# owner-local and gitignored, so public builds still fall back to StudyTown's
+	# generated/placeholder props.
+	var archive_cafe_props := [
+		["garden_cafe_coffee_mill.glb", Vector3(-19.25, 1.04, -14.50), Vector3.ONE, 0.0],
+		["garden_cafe_coffee_cup.glb", Vector3(-17.55, 1.04, -14.45), Vector3.ONE, 0.10],
+		["garden_cafe_milk_pitcher.glb", Vector3(-16.20, 1.04, -14.47), Vector3.ONE, -0.12],
+		["garden_cafe_siphon.glb", Vector3(-15.05, 1.04, -14.50), Vector3.ONE, 0.06],
+		["garden_cafe_saucer.glb", Vector3(-20.15, 2.20, -15.33), Vector3.ONE, 0.0],
+		["garden_cafe_coffee_cup.glb", Vector3(-19.62, 2.20, -15.33), Vector3.ONE, 0.18],
+		["garden_cafe_water_cup.glb", Vector3(-18.95, 2.20, -15.33), Vector3.ONE, -0.08],
+		["garden_cafe_saucer.glb", Vector3(-16.10, 3.10, -15.33), Vector3.ONE, 0.0],
+		["garden_cafe_coffee_cup.glb", Vector3(-15.55, 3.10, -15.33), Vector3.ONE, -0.12],
+	]
+	var archive_prop_found := false
+	for data in archive_cafe_props:
+		var archive_path: String = GENERATED_ASSET_DIR + str(data[0])
+		if ResourceLoader.exists(archive_path):
+			_import_prop(archive_path, data[1], data[2], float(data[3]))
+			archive_prop_found = true
+
+	if not archive_prop_found:
+		_place_local_prop("coffee_grinder", "", Vector3(-19.25, 1.04, -14.50), Vector3.ONE * 0.88)
+		_place_local_prop("cup_of_coffee", "", Vector3(-17.35, 1.04, -14.45), Vector3.ONE)
+		_place_local_prop("can_of_juice", "", Vector3(-15.55, 1.04, -14.47), Vector3.ONE)
+
+func _build_garden_open_cafe_table(pos: Vector3, yaw: float) -> void:
+	var table_path := GENERATED_ASSET_DIR + "garden_cafe_table.glb"
+	if ResourceLoader.exists(table_path):
+		_import_prop(table_path, pos, Vector3.ONE, yaw)
+	else:
+		_cylinder(world_root, 1.05, 0.18, pos + Vector3(0, 1.00, 0), mats.wood, 36)
+		_capsule_mesh(world_root, 0.15, 0.94, pos + Vector3(0, 0.49, 0), mats.cocoa)
+		_cylinder(world_root, 0.52, 0.12, pos + Vector3(0, 0.06, 0), mats.cocoa, 28)
+	_add_blocker(pos + Vector3(0, 0.56, 0), Vector3(1.55, 1.12, 1.55), yaw)
+
+	var forward: Vector3 = Basis(Vector3.UP, yaw) * Vector3.FORWARD
+	var chair_a: Vector3 = pos + forward * 1.58
+	var chair_b: Vector3 = pos - forward * 1.58
+	# The generated café chair's visual forward axis is opposite the generic
+	# furniture convention. Flip both chairs so their seats/backs face inward
+	# toward the table instead of away from it.
+	_build_chair(chair_a, yaw, "Laptop", "cafe_chair")
+	_build_chair(chair_b, yaw + PI, "Book", "cafe_chair")
+	var archive_cup_path := GENERATED_ASSET_DIR + "garden_cafe_coffee_cup.glb"
+	var archive_saucer_path := GENERATED_ASSET_DIR + "garden_cafe_saucer.glb"
+	if ResourceLoader.exists(archive_saucer_path):
+		_import_prop(archive_saucer_path, pos + Vector3(0.38, 1.14, 0.18), Vector3.ONE, yaw)
+	if ResourceLoader.exists(archive_cup_path):
+		_import_prop(archive_cup_path, pos + Vector3(0.38, 1.18, 0.18), Vector3.ONE, yaw + 0.18)
+	else:
+		_place_local_prop("coffee_mug", "", pos + Vector3(0.38, 1.14, 0.18), Vector3.ONE)
+	_place_local_prop("iced_tea", "", pos + Vector3(-0.38, 1.14, -0.12), Vector3.ONE)
+
+
+func _build_garden_tree_study_zone() -> void:
+	var tree_pos := Vector3(15.4, 0.0, -10.8)
+	var tree_path := GENERATED_ASSET_DIR + "garden_big_tree.glb"
+	if ResourceLoader.exists(tree_path):
+		_import_prop(tree_path, tree_pos, Vector3.ONE * 1.12)
+	elif ResourceLoader.exists("res://assets/dev_local/props/big_tree_museum.glb"):
+		_import_prop("res://assets/dev_local/props/big_tree_museum.glb", tree_pos, Vector3.ONE * 1.38)
+	else:
+		_build_tree(tree_pos, 2.30)
+
+	_add_blocker(tree_pos + Vector3(0, 3.1, 0), Vector3(3.0, 6.2, 3.0), 0.0)
+
+	var rug_path := GENERATED_ASSET_DIR + "garden_tree_rug.glb"
+	var rug_positions := [
+		Vector3(11.6, 0.0, -8.35),
+		Vector3(19.2, 0.0, -8.35),
+	]
+	for rug_pos in rug_positions:
+		if ResourceLoader.exists(rug_path):
+			_import_prop(rug_path, rug_pos, Vector3.ONE)
+		else:
+			_box(world_root, Vector3(4.45, 0.07, 2.85), rug_pos + Vector3.UP * 0.035, mats.cocoa)
+			_box(world_root, Vector3(4.05, 0.025, 2.45), rug_pos + Vector3.UP * 0.082, mats.teal)
+
+		var direction: Vector3 = tree_pos - rug_pos
+		direction.y = 0.0
+		var yaw: float = atan2(-direction.x, -direction.z)
+		var sitting: Vector3 = rug_pos + Vector3.UP * 0.09
+		var forward: Vector3 = Basis(Vector3.UP, yaw) * Vector3.FORWARD
+		_add_study_spot(
+			rug_pos - forward * 1.60,
+			sitting,
+			yaw,
+			"Book",
+			rug_pos + forward * 4.1 + Vector3(2.5, 2.5, 0.0),
+			sitting + Vector3.UP * 1.10,
+			"floor_cushion",
+			SEAT_VISUAL_OFFSETS.floor_cushion,
+			0.09
+		)
+
+func _build_garden_fountain(pos: Vector3) -> void:
+	var fountain_path := GENERATED_ASSET_DIR + "garden_fountain.glb"
+	if ResourceLoader.exists(fountain_path):
+		_import_prop(fountain_path, pos, Vector3.ONE)
+	else:
+		_cylinder(world_root, 3.65, 0.20, pos + Vector3(0, 0.10, 0), mats.stone, 48)
+		_cylinder(world_root, 3.45, 0.42, pos + Vector3(0, 0.30, 0), mats.stone, 48)
+		_cylinder(world_root, 0.48, 1.20, pos + Vector3(0, 1.05, 0), mats.stone, 30)
+		_cylinder(world_root, 1.42, 0.20, pos + Vector3(0, 1.52, 0), mats.stone, 42)
+
+	# Animated water surface plus a central plume and several arcing side jets.
+	_cylinder(world_root, 2.96, 0.055, pos + Vector3(0, 0.56, 0), mats.water, 52)
+	_add_blocker(pos + Vector3(0, 0.70, 0), Vector3(6.45, 1.40, 6.45), 0.0)
+	_build_garden_water_jet(pos)
+	_build_garden_fountain_planting(pos)
+
+
+func _build_garden_fountain_planting(pos: Vector3) -> void:
+	var shrub_path := GENERATED_ASSET_DIR + "garden_shrub.glb"
+	var flower_path := GENERATED_ASSET_DIR + "garden_flower_patch.glb"
+	for index in 8:
+		var angle: float = float(index) * TAU / 8.0 + PI / 8.0
+		var radius: float = 4.35
+		var plant_pos := pos + Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
+		var path: String = shrub_path if index % 2 == 0 else flower_path
+		if ResourceLoader.exists(path):
+			_import_prop(path, plant_pos, Vector3.ONE * (0.92 + (index % 3) * 0.08), angle)
+		else:
+			_sphere(world_root, Vector3(0.65, 0.55, 0.60), plant_pos + Vector3.UP * 0.55, mats.leaf, 18, 10)
+
+
+func _build_garden_water_jet(fountain_pos: Vector3) -> void:
+	# Reference-style fountain:
+	# - one strong central vertical plume
+	# - a soft splash crown at the top
+	# - eight thicker side jets coming from the basin nozzles and arcing inward
+	# - animated foam/highlights handled by garden_stream.gdshader
+
+	# Main central jet.
+	var central_stream := _build_vertical_water_plume(
+		fountain_pos + Vector3(0.0, 2.72, 0.0),
+		1.48,
+		0.062,
+		14,
+		8,
+		0.0
+	)
+	central_stream.name = "FountainCentralPlume"
+
+	# Small umbrella/splash at the top of the central jet.
+	var crown_count := 7
+	for crown_index in range(crown_count):
+		var crown_angle: float = float(crown_index) * TAU / float(crown_count)
+		var crown_start := fountain_pos + Vector3(
+			cos(crown_angle) * 0.035,
+			4.14,
+			sin(crown_angle) * 0.035
+		)
+		var crown_finish := fountain_pos + Vector3(
+			cos(crown_angle) * 0.34,
+			3.72,
+			sin(crown_angle) * 0.34
+		)
+		_build_water_arc_tube(
+			crown_start,
+			crown_finish,
+			0.11,
+			0.027,
+			8,
+			7,
+			2.0 + float(crown_index) * 0.53,
+			0.72
+		)
+
+	# Eight side jets around the fountain, matching the reference more closely.
+	# They originate near the visible basin nozzles and arc inward toward the
+	# pedestal instead of all radiating outward from the centre.
+	var side_jet_count := 8
+	for jet_index in range(side_jet_count):
+		var angle: float = float(jet_index) * TAU / float(side_jet_count)
+
+		var start := fountain_pos + Vector3(
+			cos(angle) * 2.48,
+			0.80,
+			sin(angle) * 2.48
+		)
+		var finish := fountain_pos + Vector3(
+			cos(angle) * 1.06,
+			1.23,
+			sin(angle) * 1.06
+		)
+
+		var height_variation: float = sin(float(jet_index) * 1.73) * 0.045
+		var width_variation: float = 0.039 + float(jet_index % 2) * 0.004
+
+		_build_water_arc_tube(
+			start,
+			finish,
+			0.68 + height_variation,
+			width_variation,
+			12,
+			8,
+			float(jet_index) * 0.61,
+			0.64
+		)
+
+		# A very small impact patch where each side jet lands. This gives the
+		# stream somewhere visually believable to "hit" instead of vanishing.
+		_build_fountain_impact_splash(
+			finish + Vector3(0.0, -0.02, 0.0),
+			angle,
+			float(jet_index) * 0.47
+		)
+
+
+func _build_vertical_water_plume(
+	start: Vector3,
+	height: float,
+	radius: float,
+	path_segments: int,
+	radial_segments: int,
+	phase_offset: float
+) -> MeshInstance3D:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	surface.set_material(mats.fountain_stream)
+
+	var points: Array[Vector3] = []
+	for index in range(path_segments + 1):
+		var t: float = float(index) / float(path_segments)
+
+		# Tiny baked-in asymmetry so it isn't a perfectly straight plastic rod.
+		var sway_strength: float = sin(t * PI) * 0.018
+		var point := start + Vector3(
+			sin(t * 10.5 + phase_offset) * sway_strength,
+			height * t,
+			cos(t * 8.7 + phase_offset) * sway_strength
+		)
+		points.append(point)
+
+	var stream := _build_water_tube_from_points(
+		points,
+		radius,
+		radial_segments,
+		phase_offset,
+		0.78,
+		0.88
+	)
+	return stream
+
+
+func _build_water_arc_tube(
+	start: Vector3,
+	finish: Vector3,
+	arc_height: float,
+	radius: float,
+	path_segments: int,
+	radial_segments: int,
+	phase_offset: float = 0.0,
+	end_taper: float = 0.70
+) -> MeshInstance3D:
+	var points: Array[Vector3] = []
+
+	for index in range(path_segments + 1):
+		var t: float = float(index) / float(path_segments)
+		var point: Vector3 = start.lerp(finish, t)
+		point.y += sin(t * PI) * arc_height
+
+		# Tiny irregularity like a pressurised water stream, not enough to make
+		# the trajectory visibly crooked.
+		var wobble: float = sin(t * PI) * 0.010
+		point.x += sin(t * 11.0 + phase_offset) * wobble
+		point.z += cos(t * 9.0 + phase_offset) * wobble
+		points.append(point)
+
+	return _build_water_tube_from_points(
+		points,
+		radius,
+		radial_segments,
+		phase_offset,
+		1.0,
+		end_taper
+	)
+
+
+func _build_water_tube_from_points(
+	points: Array[Vector3],
+	radius: float,
+	radial_segments: int,
+	phase_offset: float,
+	start_taper: float,
+	end_taper: float
+) -> MeshInstance3D:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	surface.set_material(mats.fountain_stream)
+
+	var path_segments: int = points.size() - 1
+
+	for path_index in range(path_segments):
+		var point_a: Vector3 = points[path_index]
+		var point_b: Vector3 = points[path_index + 1]
+
+		var tangent_a: Vector3
+		var tangent_b: Vector3
+
+		if path_index == 0:
+			tangent_a = (points[1] - points[0]).normalized()
+		else:
+			tangent_a = (
+				points[path_index + 1] - points[path_index - 1]
+			).normalized()
+
+		if path_index + 1 == path_segments:
+			tangent_b = (
+				points[path_segments] - points[path_segments - 1]
+			).normalized()
+		else:
+			tangent_b = (
+				points[path_index + 2] - points[path_index]
+			).normalized()
+
+		var side_a: Vector3 = tangent_a.cross(Vector3.UP)
+		if side_a.length_squared() < 0.0001:
+			side_a = Vector3.RIGHT
+		else:
+			side_a = side_a.normalized()
+		var up_a: Vector3 = side_a.cross(tangent_a).normalized()
+
+		var side_b: Vector3 = tangent_b.cross(Vector3.UP)
+		if side_b.length_squared() < 0.0001:
+			side_b = Vector3.RIGHT
+		else:
+			side_b = side_b.normalized()
+		var up_b: Vector3 = side_b.cross(tangent_b).normalized()
+
+		var v0: float = float(path_index) / float(path_segments)
+		var v1: float = float(path_index + 1) / float(path_segments)
+
+		var taper_a: float = lerpf(start_taper, end_taper, v0)
+		var taper_b: float = lerpf(start_taper, end_taper, v1)
+
+		var pulse_a: float = 0.95 + sin(v0 * TAU * 2.4 + phase_offset) * 0.045
+		var pulse_b: float = 0.95 + sin(v1 * TAU * 2.4 + phase_offset) * 0.045
+
+		var radius_a: float = radius * taper_a * pulse_a
+		var radius_b: float = radius * taper_b * pulse_b
+
+		for radial_index in range(radial_segments):
+			var radial_next: int = (radial_index + 1) % radial_segments
+			var a0: float = float(radial_index) * TAU / float(radial_segments)
+			var a1: float = float(radial_next) * TAU / float(radial_segments)
+
+			var normal_a0: Vector3 = (
+				side_a * cos(a0) + up_a * sin(a0)
+			).normalized()
+			var normal_a1: Vector3 = (
+				side_a * cos(a1) + up_a * sin(a1)
+			).normalized()
+			var normal_b0: Vector3 = (
+				side_b * cos(a0) + up_b * sin(a0)
+			).normalized()
+			var normal_b1: Vector3 = (
+				side_b * cos(a1) + up_b * sin(a1)
+			).normalized()
+
+			var vertex_a0: Vector3 = point_a + normal_a0 * radius_a
+			var vertex_a1: Vector3 = point_a + normal_a1 * radius_a
+			var vertex_b0: Vector3 = point_b + normal_b0 * radius_b
+			var vertex_b1: Vector3 = point_b + normal_b1 * radius_b
+
+			var u0: float = float(radial_index) / float(radial_segments)
+			var u1: float = float(radial_index + 1) / float(radial_segments)
+
+			surface.set_normal(normal_a0)
+			surface.set_uv(Vector2(u0, v0))
+			surface.add_vertex(vertex_a0)
+
+			surface.set_normal(normal_b0)
+			surface.set_uv(Vector2(u0, v1))
+			surface.add_vertex(vertex_b0)
+
+			surface.set_normal(normal_b1)
+			surface.set_uv(Vector2(u1, v1))
+			surface.add_vertex(vertex_b1)
+
+			surface.set_normal(normal_a0)
+			surface.set_uv(Vector2(u0, v0))
+			surface.add_vertex(vertex_a0)
+
+			surface.set_normal(normal_b1)
+			surface.set_uv(Vector2(u1, v1))
+			surface.add_vertex(vertex_b1)
+
+			surface.set_normal(normal_a1)
+			surface.set_uv(Vector2(u1, v0))
+			surface.add_vertex(vertex_a1)
+
+	var stream := MeshInstance3D.new()
+	stream.name = "FountainWaterStream"
+	stream.mesh = surface.commit()
+	stream.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	world_root.add_child(stream)
+	return stream
+
+
+func _build_fountain_impact_splash(
+	position_value: Vector3,
+	angle: float,
+	phase: float
+) -> void:
+	# Small flat foam patch at each landing point. It uses the same animated
+	# water-stream material and is intentionally subtle.
+	var splash := MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.28, 0.12)
+	quad.material = mats.fountain_stream
+
+	splash.mesh = quad
+	splash.position = position_value + Vector3.UP * 0.025
+	splash.rotation = Vector3(-PI / 2.0, angle, 0.0)
+	splash.scale = Vector3(1.0 + sin(phase) * 0.08, 1.0, 1.0)
+	splash.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	world_root.add_child(splash)
+
+func _build_garden_pool_zone() -> void:
+	var pool_pos := Vector3(-15.2, 0.0, 10.7)
+	var pool_path := GENERATED_ASSET_DIR + "garden_pool.glb"
+	if ResourceLoader.exists(pool_path):
+		_import_prop(pool_path, pool_pos, Vector3.ONE)
+	else:
+		# Pale tile courtyard border around a rectangular water opening.
+		_box(world_root, Vector3(10.4, 0.18, 0.85), pool_pos + Vector3(0, 0.09, -2.88), mats.cream)
+		_box(world_root, Vector3(10.4, 0.18, 0.85), pool_pos + Vector3(0, 0.09, 2.88), mats.cream)
+		_box(world_root, Vector3(0.85, 0.18, 4.9), pool_pos + Vector3(-4.78, 0.09, 0), mats.cream)
+		_box(world_root, Vector3(0.85, 0.18, 4.9), pool_pos + Vector3(4.78, 0.09, 0), mats.cream)
+
+	_box(world_root, Vector3(8.65, 0.055, 4.82), pool_pos + Vector3(0, 0.26, 0), mats.water)
+	_add_blocker(pool_pos + Vector3(0, 0.58, 0), Vector3(8.75, 1.16, 4.92), 0.0)
+
+	# Two loungers sit just beyond the upper coping, matching the reference's
+	# small resort-pool feeling without crowding the circulation path.
+	var tanning_path := GENERATED_ASSET_DIR + "garden_tanning_bed.glb"
+	for data in [
+		[Vector3(-17.0, 0.0, 14.55), 0.06],
+		[Vector3(-13.7, 0.0, 14.55), -0.04],
+	]:
+		if ResourceLoader.exists(tanning_path):
+			_import_prop(tanning_path, data[0], Vector3.ONE, float(data[1]))
+		else:
+			_box(world_root, Vector3(2.45, 0.16, 0.92), data[0] + Vector3(0, 0.34, 0), mats.wood).rotation.y = float(data[1])
+
+
+func _build_garden_campfire_zone() -> void:
+	var fire_pos := Vector3(16.2, 0.0, 10.7)
+	var campfire_path := GENERATED_ASSET_DIR + "garden_campfire.glb"
+	if ResourceLoader.exists(campfire_path):
+		_import_prop(campfire_path, fire_pos, Vector3.ONE)
+	else:
+		for index in 10:
+			var angle: float = float(index) * TAU / 10.0
+			_sphere(world_root, Vector3(0.38, 0.22, 0.32), fire_pos + Vector3(cos(angle) * 1.10, 0.20, sin(angle) * 1.10), mats.stone, 14, 8)
+		for log_angle in [-0.55, 0.55]:
+			var log := _capsule_mesh(world_root, 0.16, 1.65, fire_pos + Vector3(0, 0.34, 0), mats.wood)
+			log.rotation = Vector3(0, float(log_angle), PI / 2.0)
+	_add_blocker(fire_pos + Vector3(0, 0.48, 0), Vector3(2.15, 0.96, 2.15), 0.0)
+	_build_garden_fire_effect(fire_pos + Vector3(0, 0.48, 0))
+
+	var firewood_path := GENERATED_ASSET_DIR + "garden_firewood.glb"
+	if ResourceLoader.exists(firewood_path):
+		_import_prop(firewood_path, fire_pos + Vector3(-2.05, 0.0, 1.55), Vector3.ONE * 0.82, -0.35)
+
+	var log_path := GENERATED_ASSET_DIR + "garden_log_seat.glb"
+	var log_positions := [
+		Vector3(12.9, 0.0, 10.7),
+		Vector3(19.5, 0.0, 10.7),
+		Vector3(16.2, 0.0, 14.0),
+	]
+	for log_pos in log_positions:
+		var direction: Vector3 = fire_pos - log_pos
+		direction.y = 0.0
+		var face_yaw: float = atan2(-direction.x, -direction.z)
+		var log_yaw: float = face_yaw + PI / 2.0
+		if ResourceLoader.exists(log_path):
+			_import_prop(log_path, log_pos, Vector3.ONE, log_yaw)
+		else:
+			var log := _capsule_mesh(world_root, 0.34, 2.15, log_pos + Vector3.UP * 0.38, mats.wood)
+			log.rotation = Vector3(0, log_yaw, PI / 2.0)
+		_register_garden_log_seat(log_pos, face_yaw)
+
+
+func _register_garden_log_seat(log_pos: Vector3, face_yaw: float) -> void:
+	var forward: Vector3 = Basis(Vector3.UP, face_yaw) * Vector3.FORWARD
+	var sitting: Vector3 = log_pos + Vector3.UP * 0.52
+	var standing: Vector3 = log_pos - forward * 1.55
+	_add_study_spot(
+		standing,
+		sitting,
+		face_yaw,
+		"Book",
+		sitting + forward * 4.0 + Vector3(2.5, 2.2, 0),
+		sitting + Vector3.UP * 1.10,
+		"garden_log",
+		Vector3(0.0, 0.02, 0.03),
+		0.52
+	)
+
+
+func _build_garden_fire_effect(origin: Vector3) -> void:
+	# Pointed flame tongues replace the old stack of orange/yellow spheres.
+	var flame_data := [
+		[Vector3(-0.26, 0.34, 0.04), 0.20, 0.88, mats.flame_outer, -0.16],
+		[Vector3(0.25, 0.30, -0.08), 0.18, 0.78, mats.flame_outer, 0.18],
+		[Vector3(-0.05, 0.43, -0.18), 0.22, 1.08, mats.flame_outer, 0.05],
+		[Vector3(0.08, 0.38, 0.18), 0.17, 0.82, mats.flame_inner, -0.08],
+		[Vector3(-0.12, 0.34, 0.12), 0.15, 0.72, mats.flame_inner, 0.12],
+	]
+	for index in range(flame_data.size()):
+		var data: Array = flame_data[index]
+		var flame := _cone(
+			world_root,
+			float(data[1]),
+			float(data[2]),
+			origin + data[0],
+			data[3],
+			14
+		)
+		flame.rotation.z = float(data[4])
+		flame.set_meta("fire_origin", flame.position)
+		flame.set_meta("fire_phase", float(index) * 1.11)
+		flame.set_meta("fire_base_scale", flame.scale)
+		garden_fire_nodes.append(flame)
+
+	var light := OmniLight3D.new()
+	world_root.add_child(light)
+	light.position = origin + Vector3.UP * 0.85
+	light.light_color = Color("#ff9b4f")
+	light.light_energy = 3.6
+	light.omni_range = 5.4
+
+
+func _build_garden_path_network() -> void:
+	# One CSG union for the entire paved network. Intersections are boolean-
+	# merged into a single final surface, so there are no overlapping tile
+	# planes, white slab seams, or z-fighting at crossroads.
+	var path_root := CSGCombiner3D.new()
+	path_root.name = "GardenContinuousStonePaths"
+	path_root.use_collision = false
+	world_root.add_child(path_root)
+
+	var routes := [
+		[
+			Vector3(0.0, 0.0, 17.2),
+			Vector3(-0.5, 0.0, 12.2),
+			Vector3(-2.9, 0.0, 7.0),
+			Vector3(-4.5, 0.0, 3.1),
+		],
+		[
+			Vector3(-4.5, 0.0, 3.1),
+			Vector3(-8.6, 0.0, -0.8),
+			Vector3(-12.0, 0.0, -5.3),
+			Vector3(-15.6, 0.0, -8.3),
+		],
+		[
+			Vector3(4.6, 0.0, 3.0),
+			Vector3(7.5, 0.0, -2.4),
+			Vector3(10.9, 0.0, -6.0),
+			Vector3(14.0, 0.0, -8.1),
+		],
+		[
+			Vector3(-4.2, 0.0, 4.0),
+			Vector3(-8.4, 0.0, 6.7),
+			Vector3(-11.7, 0.0, 8.4),
+			Vector3(-13.4, 0.0, 9.5),
+		],
+		[
+			Vector3(-4.5, 0.0, 3.1),
+			Vector3(0.0, 0.0, 4.5),
+			Vector3(4.6, 0.0, 3.0),
+		],
+		# New paved branch to the campfire/fireplace circle.
+		[
+			Vector3(4.6, 0.0, 3.0),
+			Vector3(8.2, 0.0, 5.8),
+			Vector3(11.8, 0.0, 8.4),
+			Vector3(13.65, 0.0, 10.35),
+		],
+	]
+
+	for route in routes:
+		_add_garden_csg_path(path_root, route)
+
+
+func _add_garden_csg_path(path_root: CSGCombiner3D, points: Array) -> void:
+	var path_width := 2.48
+	var path_height := 0.055
+
+	for segment_index in range(points.size() - 1):
+		var start: Vector3 = points[segment_index]
+		var finish: Vector3 = points[segment_index + 1]
+		var direction: Vector3 = finish - start
+		direction.y = 0.0
+		var distance: float = direction.length()
+		if distance <= 0.001:
+			continue
+
+		var segment := CSGBox3D.new()
+		segment.size = Vector3(path_width, path_height, distance + 0.18)
+		segment.position = (start + finish) * 0.5 + Vector3.UP * (path_height * 0.5 + 0.008)
+		segment.rotation.y = atan2(direction.x, direction.z)
+		segment.material = mats.garden_path
+		segment.operation = CSGShape3D.OPERATION_UNION
+		segment.use_collision = false
+		path_root.add_child(segment)
+
+	# Round union pads make bends and junctions read as one laid stone path.
+	for point in points:
+		var joint := CSGCylinder3D.new()
+		joint.radius = path_width * 0.50
+		joint.height = path_height
+		joint.sides = 20
+		joint.position = point + Vector3.UP * (path_height * 0.5 + 0.008)
+		joint.material = mats.garden_path
+		joint.operation = CSGShape3D.OPERATION_UNION
+		joint.use_collision = false
+		path_root.add_child(joint)
+
+
+
+func _build_garden_hedges_and_weeds() -> void:
+	var hedge_path := GENERATED_ASSET_DIR + "garden_hedge.glb"
+	if ResourceLoader.exists(hedge_path):
+		var hedge_data := [
+			[Vector3(6.5, 0.0, -16.6), 0.0, 1.0],
+			[Vector3(9.5, 0.0, -16.6), 0.0, 1.0],
+			[Vector3(12.5, 0.0, -16.6), 0.0, 1.0],
+			[Vector3(18.5, 0.0, -16.6), 0.0, 1.0],
+			[Vector3(21.5, 0.0, -16.6), 0.0, 1.0],
+			[Vector3(24.0, 0.0, -8.0), PI / 2.0, 1.0],
+			[Vector3(24.0, 0.0, -5.0), PI / 2.0, 1.0],
+			[Vector3(24.0, 0.0, 2.5), PI / 2.0, 1.0],
+			[Vector3(24.0, 0.0, 5.5), PI / 2.0, 1.0],
+			[Vector3(-24.0, 0.0, 5.0), PI / 2.0, 1.0],
+			[Vector3(-24.0, 0.0, 8.0), PI / 2.0, 1.0],
+		]
+		for data in hedge_data:
+			_import_prop(hedge_path, data[0], Vector3.ONE * float(data[2]), float(data[1]))
+
+	var weed_path := GENERATED_ASSET_DIR + "garden_weed_clump.glb"
+	if not ResourceLoader.exists(weed_path):
+		return
+
+	var weeds := [
+		Vector3(-21.1,0,-6.4),Vector3(-19.2,0,-4.9),Vector3(-8.6,0,-13.1),Vector3(-7.4,0,-7.4),
+		Vector3(-6.4,0,-3.5),Vector3(-8.2,0,1.3),Vector3(-10.5,0,5.6),Vector3(-19.4,0,7.0),
+		Vector3(-19.8,0,12.7),Vector3(-8.8,0,14.4),Vector3(-3.7,0,13.2),Vector3(4.8,0,14.2),
+		Vector3(7.5,0,12.2),Vector3(9.7,0,8.0),Vector3(6.5,0,4.8),Vector3(5.7,0,1.0),
+		Vector3(7.4,0,-2.5),Vector3(9.4,0,-5.0),Vector3(11.0,0,-10.0),Vector3(12.0,0,-13.8),
+		Vector3(19.3,0,-13.7),Vector3(21.3,0,-9.0),Vector3(21.5,0,-2.0),Vector3(20.8,0,5.0),
+		Vector3(20.7,0,12.9),Vector3(17.8,0,15.0),Vector3(11.8,0,14.2),Vector3(-4.8,0,7.1),
+	]
+	for index in range(weeds.size()):
+		var scale_value: float = 0.76 + fmod(float(index * 7), 6.0) * 0.055
+		_import_prop(weed_path, weeds[index], Vector3.ONE * scale_value, float(index) * 0.71)
+
+
+func _build_garden_rocks_and_grass() -> void:
+	var rock_data := [
+		[Vector3(7.8,0,2.9),"garden_rock_a.glb",0.82,0.10],
+		[Vector3(11.0,0,4.8),"garden_rock_b.glb",1.05,-0.25],
+		[Vector3(14.2,0,3.8),"garden_rock_c.glb",0.88,0.35],
+		[Vector3(8.8,0,11.8),"garden_rock_b.glb",0.72,-0.10],
+		[Vector3(-7.8,0,13.8),"garden_rock_a.glb",0.68,0.20],
+	]
+	for data in rock_data:
+		var path: String = GENERATED_ASSET_DIR + str(data[1])
+		if ResourceLoader.exists(path):
+			_import_prop(path, data[0], Vector3.ONE * float(data[2]), float(data[3]))
+		else:
+			_sphere(world_root, Vector3(0.95, 0.65, 0.82) * float(data[2]), data[0] + Vector3.UP * 0.52 * float(data[2]), mats.stone, 14, 9).rotation.y = float(data[3])
+
+	var shrub_path := GENERATED_ASSET_DIR + "garden_shrub.glb"
+	var flower_path := GENERATED_ASSET_DIR + "garden_flower_patch.glb"
+	var planting_data := [
+		[Vector3(-21.8,0,-13.9),shrub_path,1.15,0.2], [Vector3(-10.1,0,-14.6),flower_path,1.0,-0.2],
+		[Vector3(9.8,0,-13.7),shrub_path,1.10,0.1], [Vector3(21.4,0,-12.7),flower_path,1.05,-0.3],
+		[Vector3(-20.8,0,8.1),shrub_path,1.05,0.4], [Vector3(-20.6,0,13.2),flower_path,1.05,-0.2],
+		[Vector3(-9.5,0,14.9),shrub_path,0.95,0.1], [Vector3(7.4,0,14.3),flower_path,1.0,0.4],
+		[Vector3(20.9,0,5.0),shrub_path,1.15,-0.4], [Vector3(21.2,0,13.7),flower_path,1.0,0.2],
+		[Vector3(10.0,0,-7.6),flower_path,0.85,0.1], [Vector3(20.6,0,-7.7),shrub_path,0.95,-0.2],
+		[Vector3(7.0,0,-14.2),shrub_path,0.92,0.2], [Vector3(17.6,0,-14.1),shrub_path,0.96,-0.1],
+	]
+	for data in planting_data:
+		var path: String = str(data[1])
+		if ResourceLoader.exists(path):
+			# Shrub/flower GLBs are now closed during Blender conversion:
+			# front shell + a rear shell rotated around the actual mesh centre.
+			_import_prop(
+				path,
+				data[0],
+				Vector3.ONE * float(data[2]),
+				float(data[3])
+			)
+
+	var tuft_path := GENERATED_ASSET_DIR + "grass_tuft.glb"
+	if not ResourceLoader.exists(tuft_path):
+		return
+	var tufts := [
+		Vector3(-20.8,0.02,-4.5),Vector3(-7.5,0.02,-8.0),Vector3(-8.8,0.02,4.8),
+		Vector3(-20.8,0.02,12.8),Vector3(-4.0,0.02,13.6),Vector3(8.0,0.02,12.6),
+		Vector3(7.0,0.02,5.0),Vector3(7.0,0.02,-2.0),Vector3(19.2,0.02,-14.0),
+		Vector3(22.0,0.02,-2.0),Vector3(18.8,0.02,15.2),Vector3(-3.0,0.02,-5.5),
+	]
+	for index in range(tufts.size()):
+		var tuft := _import_prop(tuft_path, tufts[index], Vector3.ONE * (0.72 + fmod(float(index * 5), 5.0) * 0.045), float(index) * 0.73)
+		_override_mesh_material(tuft, mats.leaf)
+
+func _create_garden_barista() -> void:
+	var root := NPCControllerScript.new()
+	world_root.add_child(root)
+	root.name = "NPC_GardenBarista"
+	root.position = Vector3(-20.5, 0.05, -15.15)
+	var visual := _create_character(root, 0, false)
+	root.setup(visual, character_loader, false, "Book", null, "GardenBarista")
+	root.next_action_at = INF
+	var label := Label3D.new()
+	root.add_child(label)
+	label.text = "Mira  ·  Barista"
+	var profile = character_loader.get_profile(0)
+	label.position = Vector3(0, profile.label_height, 0)
+	label.font_size = 22
+	label.outline_size = 7
+	label.modulate = CREAM
+	label.outline_modulate = Color(0.08,0.05,0.04,0.85)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	call_deferred("_start_garden_barista_leg", root, 1)
+
+
+func _start_garden_barista_leg(root, target_index: int) -> void:
+	if not is_instance_valid(root) or current_room_config.get("id", "") != "garden":
+		return
+	# The barista patrol stays in the service corridor between counter and
+	# shelving wall and therefore never intersects café customers.
+	var points := [Vector3(-20.5, 0.05, -15.15), Vector3(-14.5, 0.05, -15.15)]
+	var duration := 3.8
+	root.walk_to(points[target_index], duration)
+	await get_tree().create_timer(duration + 0.45).timeout
+	if not is_instance_valid(root) or current_room_config.get("id", "") != "garden":
+		return
+	await get_tree().create_timer(0.55).timeout
+	if is_instance_valid(root):
+		_start_garden_barista_leg(root, 1 - target_index)
+
+
+func _animate_garden_effects(_delta: float) -> void:
+	var time := Time.get_ticks_msec() * 0.001
+
+	for flame in garden_fire_nodes:
+		if not is_instance_valid(flame):
+			continue
+		var base: Vector3 = flame.get_meta("fire_origin", flame.position)
+		var flame_phase := float(flame.get_meta("fire_phase", 0.0))
+		flame.position = base + Vector3(sin(time * 5.2 + flame_phase) * 0.055, sin(time * 7.4 + flame_phase) * 0.08, cos(time * 4.6 + flame_phase) * 0.035)
+		var pulse := 1.0 + sin(time * 8.0 + flame_phase) * 0.11
+		var base_scale: Vector3 = flame.get_meta("fire_base_scale", Vector3.ONE)
+		flame.scale = Vector3(
+			base_scale.x * (2.0 - pulse),
+			base_scale.y * pulse,
+			base_scale.z * (2.0 - pulse)
+		)
+		flame.rotation.z += sin(time * 4.2 + flame_phase) * 0.0015
+
 
 func _build_train() -> void:
 	_add_environment(Color("#416b91"), Color("#f8e6ba"), 0.78)
@@ -2188,13 +3044,13 @@ func _place_local_prop(
 	holder.rotation.y = yaw
 	holder.scale = scale_value
 
-	# Floor-level props should have their lowest rendered point touching the
-	# requested Y instead of trusting inconsistent FBX/DAE pivots.
-	#
-	# Do not auto-ground tabletop/wall items because their Y is intentionally
-	# authored as a placement height.
-	if pos.y <= 0.08:
-		_ground_floor_prop(holder, pos.y)
+	# Treat the authored Y as the supporting surface for ordinary floor and
+	# tabletop props. This fixes inconsistent source pivots without flattening
+	# intentional wall placement. Near the structural floor, snap the support
+	# target to exactly Y=0 so tiny 2-5 cm authoring offsets cannot read as
+	# floating from the gameplay camera.
+	if not _skip_visual_grounding(asset_id):
+		_ground_prop_to_surface(holder, _grounding_target_y(pos.y))
 
 	# Large visible props need to participate in camera obstruction even when
 	# they intentionally have no gameplay collider.
@@ -2204,7 +3060,23 @@ func _place_local_prop(
 	return holder
 
 
-func _ground_floor_prop(holder: Node3D, target_y: float) -> void:
+func _grounding_target_y(authored_y: float) -> float:
+	return 0.0 if absf(authored_y) <= 0.08 else authored_y
+
+
+func _skip_visual_grounding(tag: String) -> bool:
+	var token := tag.to_lower()
+	# These are intentionally positioned by their centre/attachment point or
+	# need an explicitly authored vertical level rather than a support surface.
+	return (
+		token.contains("corkboard")
+		or token.contains("pendulum_clock")
+		or token.contains("wall_lamp")
+		or token.contains("water_surface")
+	)
+
+
+func _ground_prop_to_surface(holder: Node3D, target_y: float) -> void:
 	var bounds_result := _combined_world_aabb(holder)
 
 	if not bool(bounds_result.get("valid", false)):
@@ -2517,6 +3389,21 @@ func _cylinder(parent: Node, radius: float, height: float, pos: Vector3, materia
 func _capsule_mesh(parent: Node, radius: float, height: float, pos: Vector3, material: Material) -> MeshInstance3D:
 	var node:=MeshInstance3D.new();parent.add_child(node);var mesh:=CapsuleMesh.new();mesh.radius=radius;mesh.height=maxf(height,radius*2.05);mesh.radial_segments=20;mesh.rings=8;mesh.material=material;node.mesh=mesh;node.position=pos;return node
 
+func _cone(parent: Node, radius: float, height: float, pos: Vector3, material: Material, radial: int=16) -> MeshInstance3D:
+	var node := MeshInstance3D.new()
+	parent.add_child(node)
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = 0.02
+	mesh.bottom_radius = radius
+	mesh.height = height
+	mesh.radial_segments = radial
+	mesh.rings = 2
+	mesh.material = material
+	node.mesh = mesh
+	node.position = pos
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return node
+
 func _import_prop(
 	path: String,
 	pos: Vector3,
@@ -2540,16 +3427,20 @@ func _import_prop(
 			var instance: Node = packed_scene.instantiate()
 			holder.add_child(instance)
 
-	# Most generated furniture already has explicit authored blockers.
-	# The generated fountain does not, so create one from its visible bounds.
 	if holder.get_child_count() > 0:
 		var prop_tag := path.get_file().get_basename()
 
+		# Generated furniture, rugs and ordinary external props should use their
+		# actual rendered bounds rather than trusting arbitrary model pivots.
+		# Authored Y is interpreted as the support surface. Wall-mounted assets
+		# and animated water surfaces intentionally keep their explicit height.
+		if not _skip_visual_grounding(prop_tag):
+			_ground_prop_to_surface(holder, _grounding_target_y(pos.y))
+
+		# Most generated furniture already has explicit authored blockers. The
+		# generated fountain does not, so create one from its visible bounds.
 		if prop_tag.to_lower().contains("fountain"):
-			_add_gameplay_blocker_from_visual(
-				holder,
-				prop_tag
-			)
+			_add_gameplay_blocker_from_visual(holder, prop_tag)
 
 	return holder
 
