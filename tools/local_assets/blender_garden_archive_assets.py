@@ -1509,6 +1509,74 @@ def convert_asset(
 
     root = normalize_asset(spec, meshes)
 
+    # The archive oak is visually open from some viewpoints. Close the canopy
+    # by duplicating ONLY the foliage meshes, never the trunk/root mesh. The
+    # rear foliage shell is rotated 180 degrees around the canopy centre and
+    # scaled inward slightly. Because it sits inside the original canopy, the
+    # two leaf surfaces are not coplanar and therefore do not z-fight.
+    if spec.name == "oak_tree":
+        def is_oak_foliage(obj: bpy.types.Object) -> bool:
+            object_name = obj.name.lower()
+            if "leaf" in object_name:
+                return True
+
+            for slot in obj.material_slots:
+                material = slot.material
+                if material is None:
+                    continue
+                material_name = material.name.lower()
+                if "treeoakleaf" in material_name or "oakleaf" in material_name:
+                    return True
+
+            return False
+
+        foliage_meshes = [obj for obj in meshes if is_oak_foliage(obj)]
+
+        if not foliage_meshes:
+            print("STUDYTOWN_OAK_FOLIAGE_WARNING no foliage meshes found")
+        else:
+            foliage_min, foliage_max = world_bounds(foliage_meshes)
+            foliage_centre = (foliage_min + foliage_max) * 0.5
+            foliage_extent = foliage_max - foliage_min
+
+            # 3.5% inward scaling is enough to separate the card surfaces but
+            # small enough that the rear shell still fills the visible holes.
+            rear_scale = 1
+
+            rear_shift = Vector((
+                0.0,    # X
+                0.60,   # Y - almost centred
+                -0.04,  # Z - lower it into the main canopy
+            ))
+
+            rear_transform = (
+                Matrix.Translation(foliage_centre + rear_shift)
+                @ Matrix.Rotation(math.radians(160.0), 4, "Z")
+                @ Matrix.Scale(rear_scale, 4)
+                @ Matrix.Translation(-foliage_centre)
+            )
+
+            rear_foliage_meshes: list[bpy.types.Object] = []
+            for original in foliage_meshes:
+                duplicate = original.copy()
+                duplicate.data = original.data.copy()
+                bpy.context.collection.objects.link(duplicate)
+                duplicate.name = f"{original.name}_RearFoliage"
+
+                duplicate.parent = root
+                duplicate.matrix_world = rear_transform @ original.matrix_world
+                rear_foliage_meshes.append(duplicate)
+
+            meshes.extend(rear_foliage_meshes)
+            bpy.context.view_layer.update()
+
+            print(
+                "STUDYTOWN_OAK_FOLIAGE_DUPLICATED "
+                f"original={len(foliage_meshes)} "
+                f"rear={len(rear_foliage_meshes)} "
+                f"scale={rear_scale:.3f}"
+            )
+
     # The round archive bushes are open foliage shells. A second exact copy
     # caused alpha-sorting/z-fighting because many leaf cards became coplanar.
     # Build a rear shell that is rotated 180 degrees, slightly inset, and

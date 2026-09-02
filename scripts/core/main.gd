@@ -43,6 +43,12 @@ const TANNING_BED_LYING_HEIGHT := 0.58
 const TANNING_BED_STAND_DISTANCE := 1.42
 const TANNING_BED_LYING_YAW_OFFSET := PI / 2.0
 
+# Market-stall placement. This sits in the open grass area directly in front
+# (south) of the fountain while remaining clear of the current paved routes.
+# Position and yaw are isolated here for easy visual tuning later.
+const GARDEN_MARKET_STALL_POSITION := Vector3(2.0, 0.0, 7)
+const GARDEN_MARKET_STALL_YAW := 0.0
+
 const CREAM := Color("#fff4d6")
 const INK := Color("#2d211c")
 const COCOA := Color("#533528")
@@ -169,6 +175,7 @@ func _ready() -> void:
 		"garden_tree": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 3)
 		"garden_pool": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 4)
 		"garden_campfire": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 5)
+		"garden_stall": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 6)
 		"train_scenery": current_room_name = GameState.ROOMS[2]; build_room(2); call_deferred("_activate_review_camera", 5)
 		"character_front": _build_character_review(0.0, false)
 		"character_three_quarter": _build_character_review(0.62, false)
@@ -222,24 +229,27 @@ func _build_materials() -> void:
 		mats.grass.texture_repeat = true
 		mats.grass.uv1_scale = Vector3(16.0, 16.0, 16.0)
 
-	# Garden-specific lawn. blender_garden.py converts the supplied grass image
-	# into an 8x8 atlas of small randomly rotated copies. Repeating that atlas
-	# twice over the room makes the large source-image colour spots much smaller.
+	# Garden lawn uses the exact user-supplied source image copied into the
+	# project. No generated atlas, colour processing or procedural replacement.
 	var garden_grass := StandardMaterial3D.new()
 	garden_grass.albedo_color = Color.WHITE
 	garden_grass.roughness = 0.92
 	garden_grass.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
-	garden_grass.texture_repeat = true
-	garden_grass.uv1_scale = Vector3(2.0, 2.0, 2.0)
+	garden_grass.texture_repeat = false
 
-	var garden_grass_texture_path := GENERATED_ASSET_DIR + "garden_grass_tile.png"
+	var garden_grass_texture_path := "res://assets/dev_local/environment/garden_grass.jpeg"
 	if ResourceLoader.exists(garden_grass_texture_path):
 		garden_grass.albedo_texture = load(garden_grass_texture_path)
 	else:
-		var custom_garden_grass_path := "res://assets/dev_local/environment/garden_grass.jpeg"
-		if ResourceLoader.exists(custom_garden_grass_path):
-			garden_grass.albedo_texture = load(custom_garden_grass_path)
+		garden_grass.albedo_color = Color("#298f68")
 	mats.garden_grass = garden_grass
+
+	# A solid underlay sits beneath the image tiles. It is only visible through
+	# sub-pixel seams at extreme camera angles and prevents bright cracks.
+	var garden_grass_underlay := StandardMaterial3D.new()
+	garden_grass_underlay.albedo_color = Color("#278e68")
+	garden_grass_underlay.roughness = 0.94
+	mats.garden_grass_underlay = garden_grass_underlay
 
 	# Seamless continuous stone path material. The supplied tile.png is mapped
 	# in world space so adjacent CSG path segments share one texture scale rather
@@ -1011,11 +1021,22 @@ func _build_globe(pos: Vector3) -> void:
 
 func _build_garden() -> void:
 	_add_environment(Color("#72b9cd"), Color("#fff1c8"), 0.88)
-	_box(world_root, Vector3(52, 0.35, 38), Vector3(0, -0.22, 0), mats.garden_grass)
+
+	# Structural grass underlay + many exact-image surface tiles. The individual
+	# tiles use rotated UVs, not a generated/modified texture.
+	_box(
+		world_root,
+		Vector3(52, 0.35, 38),
+		Vector3(0, -0.22, 0),
+		mats.garden_grass_underlay
+	)
+	_build_garden_grass_mosaic()
 
 	_build_garden_cafe_zone()
 	_build_garden_tree_study_zone()
+	_build_garden_small_oak_trees()
 	_build_garden_fountain(Vector3(0.0, 0.0, -0.6))
+	_build_garden_market_stall()
 	_build_garden_pool_zone()
 	_build_garden_campfire_zone()
 	_build_garden_path_network()
@@ -1047,7 +1068,105 @@ func _build_garden() -> void:
 	_focus_camera(Vector3(23.5, 7.2, -2.8), Vector3(15.4, 2.4, -10.5), "Tree rug study")
 	_focus_camera(Vector3(-4.5, 5.8, 17.2), Vector3(-15.2, 0.8, 10.7), "Poolside")
 	_focus_camera(Vector3(22.5, 4.8, 16.5), Vector3(16.2, 0.9, 10.7), "Campfire circle")
+	_focus_camera(Vector3(10.8, 5.1, 14.8), GARDEN_MARKET_STALL_POSITION + Vector3(0, 1.5, 0), "Market stall")
 	_add_world_boundaries(current_room_config.bounds)
+
+
+func _build_garden_grass_mosaic() -> void:
+	# 8 x 6 = 48 independent uses of the exact same garden_grass.jpeg.
+	# Each tile chooses one of four UV orientations. Geometry itself never
+	# overlaps, so there is no z-fighting between grass tiles.
+	var columns := 8
+	var rows := 6
+	var room_width := 52.0
+	var room_depth := 38.0
+	var tile_width: float = room_width / float(columns)
+	var tile_depth: float = room_depth / float(rows)
+
+	for row in range(rows):
+		for column in range(columns):
+			# Deterministic non-repeating-looking quarter-turn sequence.
+			var quarter_turn: int = (
+				column * 3
+				+ row * 5
+				+ column * row
+				+ (row % 2) * 2
+			) % 4
+
+			var tile_position := Vector3(
+				-room_width * 0.5 + tile_width * (float(column) + 0.5),
+				0.004,
+				-room_depth * 0.5 + tile_depth * (float(row) + 0.5)
+			)
+
+			_build_garden_grass_tile(
+				tile_position,
+				Vector2(tile_width, tile_depth),
+				quarter_turn
+			)
+
+
+func _build_garden_grass_tile(
+	position_value: Vector3,
+	size_value: Vector2,
+	quarter_turn: int
+) -> void:
+	# Build UVs explicitly so the source image can rotate without rotating the
+	# rectangular ground geometry. That keeps all 48 tiles perfectly aligned.
+	var half_x := size_value.x * 0.5
+	var half_z := size_value.y * 0.5
+
+	var vertices := [
+		Vector3(-half_x, 0.0, -half_z),
+		Vector3(half_x, 0.0, -half_z),
+		Vector3(half_x, 0.0, half_z),
+		Vector3(-half_x, 0.0, half_z),
+	]
+
+	var uv_sets := [
+		[
+			Vector2(0.0, 0.0),
+			Vector2(1.0, 0.0),
+			Vector2(1.0, 1.0),
+			Vector2(0.0, 1.0),
+		],
+		[
+			Vector2(1.0, 0.0),
+			Vector2(1.0, 1.0),
+			Vector2(0.0, 1.0),
+			Vector2(0.0, 0.0),
+		],
+		[
+			Vector2(1.0, 1.0),
+			Vector2(0.0, 1.0),
+			Vector2(0.0, 0.0),
+			Vector2(1.0, 0.0),
+		],
+		[
+			Vector2(0.0, 1.0),
+			Vector2(0.0, 0.0),
+			Vector2(1.0, 0.0),
+			Vector2(1.0, 1.0),
+		],
+	]
+	var uvs: Array = uv_sets[quarter_turn % 4]
+
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	surface.set_material(mats.garden_grass)
+
+	for index in [0, 1, 2, 0, 2, 3]:
+		surface.set_normal(Vector3.UP)
+		surface.set_uv(uvs[index])
+		surface.add_vertex(vertices[index])
+
+	var tile := MeshInstance3D.new()
+	tile.name = "GardenGrassTile"
+	tile.mesh = surface.commit()
+	tile.position = position_value
+	tile.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	world_root.add_child(tile)
+
 
 func _build_garden_cafe_zone() -> void:
 	var rug_path := GENERATED_ASSET_DIR + "garden_cafe_rug.glb"
@@ -1066,7 +1185,7 @@ func _build_garden_cafe_zone() -> void:
 	_add_blocker(Vector3(-17.4, 2.25, cafe_back_z), Vector3(12.6, 4.5, 0.48), 0.0)
 
 	var counter_path := GENERATED_ASSET_DIR + "garden_cafe_counter.glb"
-	var counter_position := Vector3(-17.4, 0.0, -14.55)
+	var counter_position := Vector3(-17.4, 0.0, -14.3)
 	var counter_scale := Vector3(0.88, 0.78, 0.74)
 	if ResourceLoader.exists(counter_path):
 		_import_prop(counter_path, counter_position, counter_scale)
@@ -1134,12 +1253,135 @@ func _build_garden_open_cafe_table(pos: Vector3, yaw: float) -> void:
 	var archive_cup_path := GENERATED_ASSET_DIR + "garden_cafe_coffee_cup.glb"
 	var archive_saucer_path := GENERATED_ASSET_DIR + "garden_cafe_saucer.glb"
 	if ResourceLoader.exists(archive_saucer_path):
-		_import_prop(archive_saucer_path, pos + Vector3(0.38, 1.14, 0.18), Vector3.ONE, yaw)
+		_import_prop(archive_saucer_path, pos + Vector3(0.38, 0.86, 0.18), Vector3.ONE, yaw)
 	if ResourceLoader.exists(archive_cup_path):
-		_import_prop(archive_cup_path, pos + Vector3(0.38, 1.18, 0.18), Vector3.ONE, yaw + 0.18)
+		_import_prop(archive_cup_path, pos + Vector3(0.38, 0.90, 0.18), Vector3.ONE, yaw + 0.18)
 	else:
-		_place_local_prop("coffee_mug", "", pos + Vector3(0.38, 1.14, 0.18), Vector3.ONE)
-	_place_local_prop("iced_tea", "", pos + Vector3(-0.38, 1.14, -0.12), Vector3.ONE)
+		_place_local_prop("coffee_mug", "", pos + Vector3(0.38, 0.90, 0.18), Vector3.ONE)
+	_place_local_prop("iced_tea", "", pos + Vector3(-0.38, 0.90, -0.12), Vector3.ONE)
+
+
+func _build_garden_market_stall() -> void:
+	# Purpose-built compact stall. The previous v20 version combined several
+	# IdrMarket01 donor meshes whose original scale/proportions made the result
+	# look like a giant indoor checkout desk with a distorted roof texture.
+	#
+	# v21 uses ONE Blender-built stall GLB with controlled dimensions. Existing
+	# archive coffee props are still used on the counter as decoration.
+	var stall_pos := GARDEN_MARKET_STALL_POSITION
+	var stall_yaw := GARDEN_MARKET_STALL_YAW
+	var stall_basis := Basis(Vector3.UP, stall_yaw)
+
+	var stall_path := GENERATED_ASSET_DIR + "garden_market_stall.glb"
+	if ResourceLoader.exists(stall_path):
+		_import_prop(
+			stall_path,
+			stall_pos,
+			Vector3.ONE * 0.70,
+			stall_yaw
+		)
+	else:
+		# Very close fallback to the generated asset's silhouette.
+		_box(
+			world_root,
+			Vector3(4.90, 0.10, 2.65),
+			stall_pos + Vector3.UP * 0.05,
+			mats.honey
+		)
+		for local_x in [-2.20, 2.20]:
+			for local_z in [-1.04, 1.04]:
+				var local_post := Vector3(
+					float(local_x),
+					1.48,
+					float(local_z)
+				)
+				_box(
+					world_root,
+					Vector3(0.16, 2.96, 0.16),
+					stall_pos + stall_basis * local_post,
+					mats.wood
+				)
+
+		var fallback_counter_pos := (
+			stall_pos
+			+ stall_basis * Vector3(0.0, 0.50, 0.77)
+		)
+		_box(
+			world_root,
+			Vector3(4.42, 1.00, 0.72),
+			fallback_counter_pos,
+			mats.wood
+		)
+		_box(
+			world_root,
+			Vector3(4.68, 0.13, 0.92),
+			fallback_counter_pos + Vector3.UP * 0.56,
+			mats.honey
+		)
+		_box(
+			world_root,
+			Vector3(5.15, 0.17, 2.90),
+			stall_pos + Vector3.UP * 3.01,
+			mats.cream
+		)
+
+	# Put small, correctly scaled café props on the counter. These are the
+	# archive assets that already looked good elsewhere in the Garden.
+	var counter_surface := (
+		stall_pos
+		+ stall_basis * Vector3(0.0, 1.09, 0.76)
+	)
+
+	var cup_path := (
+		GENERATED_ASSET_DIR
+		+ "garden_cafe_coffee_cup.glb"
+	)
+	if ResourceLoader.exists(cup_path):
+		_import_prop(
+			cup_path,
+			counter_surface
+				+ stall_basis * Vector3(0.75, 0.0, 0.0),
+			Vector3.ONE,
+			stall_yaw + 0.12
+		)
+
+	var mill_path := (
+		GENERATED_ASSET_DIR
+		+ "garden_cafe_coffee_mill.glb"
+	)
+	if ResourceLoader.exists(mill_path):
+		_import_prop(
+			mill_path,
+			counter_surface
+				+ stall_basis * Vector3(-0.70, 0.0, 0.0),
+			Vector3.ONE * 0.82,
+			stall_yaw
+		)
+
+	var pitcher_path := (
+		GENERATED_ASSET_DIR
+		+ "garden_cafe_milk_pitcher.glb"
+	)
+	if ResourceLoader.exists(pitcher_path):
+		_import_prop(
+			pitcher_path,
+			counter_surface
+				+ stall_basis * Vector3(0.10, 0.0, 0.0),
+			Vector3.ONE * 0.90,
+			stall_yaw - 0.08
+		)
+
+	# Only the serving counter needs a broad collision blocker. The four thin
+	# posts remain visually present without creating an awkward invisible box.
+	var counter_blocker_pos := (
+		stall_pos
+		+ stall_basis * Vector3(0.0, 0.54, 0.77)
+	)
+	_add_blocker(
+		counter_blocker_pos,
+		Vector3(4.55, 1.08, 0.90),
+		stall_yaw
+	)
 
 
 func _build_garden_tree_study_zone() -> void:
@@ -1182,6 +1424,53 @@ func _build_garden_tree_study_zone() -> void:
 			SEAT_VISUAL_OFFSETS.floor_cushion,
 			0.09
 		)
+
+
+func _garden_small_oak_tree_data() -> Array:
+	# Two trees occupy the grass corridor between café and pool.
+	# One frames the campfire area from the outer-right side.
+	# These anchor positions are intentionally kept exactly as tuned.
+	return [
+		[Vector3(-20.35, 0.0, -0.15), 0.82, 0.34],
+		[Vector3(-12.0, 0.0, 4.85), 0.76, -0.58],
+		[Vector3(23.00, 0.0, 15.00), 0.80, 1.06],
+	]
+
+
+func _build_garden_small_oak_trees() -> void:
+	var oak_path := GENERATED_ASSET_DIR + "garden_oak_tree.glb"
+
+	for data in _garden_small_oak_tree_data():
+		var tree_position: Vector3 = data[0]
+		var tree_scale: float = float(data[1])
+		var tree_yaw: float = float(data[2])
+
+		if ResourceLoader.exists(oak_path):
+			# garden_oak_tree.glb is converted with one trunk/root system and a
+			# second foliage-only shell rotated 180 degrees inside the GLB. Do
+			# not duplicate the complete tree here or the roots/trunk double up.
+			_import_prop(
+				oak_path,
+				tree_position,
+				Vector3.ONE * tree_scale,
+				tree_yaw
+			)
+		else:
+			# Public fallback remains clearly smaller than the large study tree.
+			_build_tree(tree_position, 1.20 * tree_scale)
+
+		# One trunk blocker per tree. The foliage-only rear shell has no
+		# separate collision.
+		_add_blocker(
+			tree_position + Vector3.UP * (1.55 * tree_scale),
+			Vector3(
+				0.92 * tree_scale,
+				3.10 * tree_scale,
+				0.92 * tree_scale
+			),
+			tree_yaw
+		)
+
 
 func _build_garden_fountain(pos: Vector3) -> void:
 	var fountain_path := GENERATED_ASSET_DIR + "garden_fountain.glb"
@@ -1902,7 +2191,7 @@ func _build_garden_hedges_and_weeds() -> void:
 	# Spawn weeds procedurally on grass only. The RNG seed keeps the layout
 	# stable between launches, while the rejection test guarantees weeds do not
 	# appear on roads or inside the Garden's functional/building zones.
-	var weeds: Array[Vector3] = _generate_safe_garden_weed_positions(28)
+	var weeds: Array[Vector3] = _generate_safe_garden_weed_positions(35)
 	for index in range(weeds.size()):
 		var scale_value: float = 0.76 + fmod(float(index * 7), 6.0) * 0.055
 		_import_prop(
@@ -1987,6 +2276,17 @@ func _garden_is_safe_weed_position(point: Vector3) -> bool:
 
 	# BIG TREE + the two study rugs.
 	if _garden_point_in_rect_xz(point, 9.2, 21.6, -14.4, -5.6):
+		return false
+
+	# Three additional oak trees.
+	for tree_data in _garden_small_oak_tree_data():
+		var tree_position: Vector3 = tree_data[0]
+		var tree_scale: float = float(tree_data[1])
+		if _garden_distance_xz(point, tree_position) < 1.75 * tree_scale:
+			return false
+
+	# Market stall in the open lawn in front of the fountain.
+	if _garden_point_in_rect_xz(point, 1.45, 7.75, 7.00, 11.45):
 		return false
 
 	# Keep the immediate spawn/entrance area clear.
