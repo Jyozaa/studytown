@@ -28,8 +28,8 @@ const FOCUS_OCCLUSION_MASK := 1 | CAMERA_OCCLUDER_LAYER
 # armchair is ~0.79m.
 const SEAT_VISUAL_OFFSETS := {
 	"desk_chair": Vector3(0.0, 0.15, 0.12),
-	"armchair": Vector3(0.0, 0.04, 0.16),
-	"cafe_chair": Vector3(0.0, 0.02, 0.12),
+	"armchair": Vector3(0.0, 0.40, 0.12),
+	"cafe_chair": Vector3(0.0, 0.20, 0.12),
 	"train_booth": Vector3(0.0, 0.50, 0.02),
 	"floor_cushion": Vector3(0.0, -0.18, 0.02),
 }
@@ -131,7 +131,7 @@ func _ready() -> void:
 		"train": current_room_name = GameState.ROOMS[2]; build_room(2)
 		"japanese": current_room_name = GameState.ROOMS[3]; build_room(3)
 		"grounded": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_walk")
-		"player_walk_readable": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_walk_side")
+		"player_walk_readable": GameState.selected_character = 2; current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_walk_side")
 		"npc_walk_readable": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_npc_walk_review")
 		"library_hall": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_review_camera", 0)
 		"library_fireplace": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_review_camera", 3)
@@ -142,6 +142,8 @@ func _ready() -> void:
 		"train_npc_seating": current_room_name = GameState.ROOMS[2]; build_room(2); call_deferred("_activate_npc_review")
 		"japanese_npc_seating": current_room_name = GameState.ROOMS[3]; build_room(3); call_deferred("_activate_npc_review")
 		"library_sitting": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_seating_review", "desk_chair")
+		"armchair_sitting": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_seating_review", "armchair")
+		"cafe_chair_sitting": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_begin_seating_review", "cafe_chair")
 		"train_sitting": current_room_name = GameState.ROOMS[2]; build_room(2); call_deferred("_begin_seating_review", "train_booth")
 		"japanese_sitting": current_room_name = GameState.ROOMS[3]; build_room(3); call_deferred("_begin_seating_review", "floor_cushion")
 		"wall_bookshelves": current_room_name = GameState.ROOMS[3]; build_room(3); call_deferred("_activate_wall_shelf_review")
@@ -160,6 +162,7 @@ func _ready() -> void:
 		"cat_walk": _build_character_review(0.0, false, "Walk")
 		"cat_idle_three_quarter": _build_character_review(0.58, false, "Idle")
 		"cat_walk_three_quarter": _build_character_review(0.58, false, "Walk")
+		"cat_walk_side": _build_character_review(PI / 2.0, false, "Walk")
 		"cat_sit": _build_character_review(0.32, true, "Sit")
 		"cat_seated_idle": _build_character_review(0.32, true, "SeatedIdle")
 		"cat_study_laptop": _build_character_review(0.32, true, "StudyLaptop")
@@ -849,9 +852,9 @@ func _register_furniture_seat(pos: Vector3, furniture_yaw: float, study_type: St
 		"desk_chair":
 			tuned_forward_offset = 0.35
 		"armchair":
-			tuned_forward_offset = 0.06
+			tuned_forward_offset = 0.65
 		"cafe_chair":
-			tuned_forward_offset = 0.10
+			tuned_forward_offset = 0.35
 		"train_booth":
 			tuned_forward_offset = 0.40
 		"floor_cushion":
@@ -1214,6 +1217,19 @@ func _create_npc(pos: Vector3, yaw: float, variant: int, display_name: String, t
 	label.font_size=24;label.outline_size=7;label.modulate=CREAM;label.outline_modulate=Color(0.08,0.05,0.04,0.85)
 	label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
 	root.setup(visual, character_loader, seated, assigned_spot.study_type if assigned_spot != null else ("Laptop" if variant % 2 == 0 else "Book"), assigned_spot, display_name)
+
+	# Armchairs use a dedicated strict 90-degree seated leg pose. NPCController
+	# does not know about the armchair-specific clips, so select the correct
+	# imported action here and keep this NPC in that study pose.
+	if assigned_spot != null and str(assigned_spot.seat_type) == "armchair":
+		var armchair_animation := (
+			"ArmchairStudyLaptop"
+			if str(assigned_spot.study_type) == "Laptop"
+			else "ArmchairStudyBook"
+		)
+		_play_seated_character_animation(visual, armchair_animation, 0.0)
+		root.next_action_at = INF
+
 	npcs.append(root)
 
 func _find_available_spot_near(position_hint: Vector3, maximum_distance := 4.0):
@@ -1342,16 +1358,44 @@ func _study_animation_for_spot(spot) -> String:
 	if spot == null or not is_instance_valid(spot):
 		return "StudyBook"
 
-	if str(spot.seat_type) == "floor_cushion":
+	var seat_type := str(spot.seat_type)
+	var study_type := str(spot.study_type)
+
+	if seat_type == "floor_cushion":
 		return "FloorStudy"
 
-	if str(spot.seat_type) == "train_booth":
+	if seat_type == "train_booth":
 		return "TrainStudy"
 
-	if str(spot.study_type) == "Laptop":
+	if seat_type == "armchair":
+		return "ArmchairStudyLaptop" if study_type == "Laptop" else "ArmchairStudyBook"
+
+	if study_type == "Laptop":
 		return "StudyLaptop"
 
 	return "StudyBook"
+
+func _prepare_custom_loop_animation(character: Node, state: String) -> void:
+	if not is_instance_valid(character):
+		return
+	if not state.begins_with("Armchair"):
+		return
+	if not character.has_meta("animation_controller"):
+		return
+
+	var controller = character.get_meta("animation_controller")
+	if not is_instance_valid(controller):
+		return
+	if not is_instance_valid(controller.animation_player):
+		return
+
+	var clip := StringName(str(controller.animation_map.get(state, state)))
+	if controller.animation_player.has_animation(clip):
+		controller.animation_player.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
+
+func _play_seated_character_animation(character: Node, state: String, blend := 0.18) -> void:
+	_prepare_custom_loop_animation(character, state)
+	character_loader.play_animation(character, state, blend)
 
 func _begin_focus(spot_index: int) -> void:
 	var task:=task_input.text if is_instance_valid(task_input) else "Quiet focus"
@@ -1368,7 +1412,7 @@ func _begin_focus(spot_index: int) -> void:
 	player.velocity=Vector3.ZERO
 	if bool(player_visual.get_meta("is_imported_character", false)):
 		character_loader.set_seated(player_visual, true, spot.seated_visual_offset)
-		character_loader.play_animation(
+		_play_seated_character_animation(
 			player_visual,
 			_study_animation_for_spot(spot)
 		)
@@ -1494,7 +1538,7 @@ func _begin_review_focus() -> void:
 	player.rotation.y = spot.facing_yaw
 	player.velocity = Vector3.ZERO
 	character_loader.set_seated(player_visual, true, spot.seated_visual_offset)
-	character_loader.play_animation(
+	_play_seated_character_animation(
 		player_visual,
 		_study_animation_for_spot(spot),
 		0.0
@@ -1528,7 +1572,7 @@ func _begin_review_focus_at(spot_index: int) -> void:
 	player.rotation.y = chosen.facing_yaw
 	player.velocity = Vector3.ZERO
 	character_loader.set_seated(player_visual, true, chosen.seated_visual_offset)
-	character_loader.play_animation(
+	_play_seated_character_animation(
 		player_visual,
 		_study_animation_for_spot(chosen),
 		0.0
@@ -1582,8 +1626,10 @@ func _begin_seating_review(seat_type: String) -> void:
 		review_animation = "FloorStudy"
 	elif seat_type == "train_booth":
 		review_animation = "TrainStudy"
+	elif seat_type == "armchair":
+		review_animation = "ArmchairSeatedIdle"
 
-	character_loader.play_animation(
+	_play_seated_character_animation(
 		player_visual,
 		review_animation,
 		0.0
