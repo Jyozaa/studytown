@@ -11,8 +11,6 @@ enum CalmState {
 	WAVE,
 }
 
-# These exported fields are only persistence metadata for locally baked room
-# scenes. Procedural/public rooms continue to use setup() exactly as before.
 @export_category("Editable Room Binding")
 @export var editor_display_name := ""
 @export var editor_occupant_id := ""
@@ -21,6 +19,7 @@ enum CalmState {
 @export var editor_study_kind := "Laptop"
 @export var editor_spot_id := ""
 @export var editor_patrol_kind := ""
+@export var editor_character_id := ""
 
 var visual: Node3D
 var phase := 0.0
@@ -57,22 +56,36 @@ func setup(
 	editor_study_kind = kind
 	editor_spot_id = (
 		str(spot.seat_id)
-		if spot != null and is_instance_valid(spot)
+		if spot != null
+		and is_instance_valid(spot)
 		else ""
+	)
+	editor_character_id = (
+		_character_id_from_visual(
+			character
+		)
 	)
 
 	phase = randf() * TAU
 	base_visual_y = character.position.y
-	base_visual_rotation_y = character.rotation.y
+	base_visual_rotation_y = (
+		character.rotation.y
+	)
+
 	state = (
 		CalmState.STUDY_LAPTOP
 		if kind == "Laptop"
 		else CalmState.STUDY_BOOK
 	)
+
 	next_action_at = (
 		Time.get_unix_time_from_system()
-		+ randf_range(35.0, 70.0)
+		+ randf_range(
+			35.0,
+			70.0
+		)
 	)
+
 	_play_study()
 	_validate_anchor()
 
@@ -88,24 +101,52 @@ func capture_for_editable_scene() -> void:
 	editor_spot_id = (
 		str(assigned_spot.seat_id)
 		if assigned_spot != null
-			and is_instance_valid(assigned_spot)
+		and is_instance_valid(assigned_spot)
 		else ""
 	)
 
-	for child in get_children():
+	if is_instance_valid(visual):
+		editor_character_id = (
+			_character_id_from_visual(
+				visual
+			)
+		)
+
+	for child: Node in get_children():
 		if child is Label3D:
-			var text := str((child as Label3D).text)
-			if "·" in text:
-				var parts := text.split("·", false, 1)
-				editor_display_name = parts[0].strip_edges()
+			var label_text: String = str(
+				(child as Label3D).text
+			)
+
+			if "·" in label_text:
+				var parts: PackedStringArray = (
+					label_text.split(
+						"·",
+						false,
+						1
+					)
+				)
+
+				editor_display_name = (
+					parts[0].strip_edges()
+				)
+
 				if parts.size() > 1:
-					editor_timer_text = parts[1].strip_edges()
-			elif not text.is_empty():
-				editor_display_name = text
+					editor_timer_text = (
+						parts[1].strip_edges()
+					)
+
+			elif not label_text.is_empty():
+				editor_display_name = (
+					label_text
+				)
+
 			break
 
 	if name == "NPC_GardenBarista":
-		editor_patrol_kind = "garden_barista"
+		editor_patrol_kind = (
+			"garden_barista"
+		)
 
 
 func rebind_runtime(
@@ -113,32 +154,108 @@ func rebind_runtime(
 	spots_by_id: Dictionary
 ) -> void:
 	character_loader = loader
-	visual = _find_character_visual(self)
+
+	var baked_visual: Node3D = (
+		_find_character_visual(self)
+	)
 
 	seated = editor_seated
 	study_kind = editor_study_kind
+
 	occupant_id = (
 		editor_occupant_id
 		if not editor_occupant_id.is_empty()
 		else editor_display_name
 	)
 
-	assigned_spot = spots_by_id.get(editor_spot_id, null)
+	assigned_spot = (
+		spots_by_id.get(
+			editor_spot_id,
+			null
+		)
+	)
 
 	if (
 		assigned_spot != null
-		and is_instance_valid(assigned_spot)
+		and is_instance_valid(
+			assigned_spot
+		)
 	):
 		assigned_spot.reserve(
 			occupant_id,
 			StudySpot.OccupantType.NPC
 		)
-		global_position = assigned_spot.sitting_position
-		rotation.y = assigned_spot.facing_yaw
+
+		global_position = (
+			assigned_spot.sitting_position
+		)
+		rotation.y = (
+			assigned_spot.facing_yaw
+		)
+
+	# Older baked scenes have no editor_character_id, so infer it from the
+	# existing VisualRoot_bob / VisualRoot_rosie / VisualRoot_raymond node.
+	var character_id: String = (
+		editor_character_id
+	)
+
+	if (
+		character_id.is_empty()
+		and is_instance_valid(
+			baked_visual
+		)
+	):
+		character_id = (
+			_character_id_from_visual(
+				baked_visual
+			)
+		)
+
+	editor_character_id = character_id
+
+	# The important v2 change: do not keep a cat visual that was serialized from
+	# the live procedural room. Recreate it from the original GLB so every room
+	# gets a fresh Skeleton, AnimationPlayer and animation controller.
+	var fresh_visual: Node3D = null
+
+	if (
+		not character_id.is_empty()
+		and character_loader.has_method(
+			"recreate_character_by_id"
+		)
+	):
+		fresh_visual = (
+			character_loader.recreate_character_by_id(
+				self,
+				character_id,
+				seated
+			)
+		)
+
+	if fresh_visual != null:
+		if is_instance_valid(baked_visual):
+			remove_child(baked_visual)
+			baked_visual.free()
+
+		visual = fresh_visual
+
+	else:
+		visual = baked_visual
+
+		if (
+			is_instance_valid(visual)
+			and character_loader.has_method(
+				"rebind_character_runtime"
+			)
+		):
+			character_loader.rebind_character_runtime(
+				visual,
+				character_id
+			)
 
 	if not is_instance_valid(visual):
 		push_warning(
-			"Editable NPC %s has no character visual"
+			"Editable NPC %s has no usable character visual"
 			% name
 		)
 		return
@@ -150,7 +267,9 @@ func rebind_runtime(
 			(
 				assigned_spot.seated_visual_offset
 				if assigned_spot != null
-				and is_instance_valid(assigned_spot)
+				and is_instance_valid(
+					assigned_spot
+				)
 				else Vector3.ZERO
 			)
 		)
@@ -162,28 +281,49 @@ func rebind_runtime(
 
 	phase = randf() * TAU
 	base_visual_y = visual.position.y
-	base_visual_rotation_y = visual.rotation.y
+	base_visual_rotation_y = (
+		visual.rotation.y
+	)
+
 	state = (
 		CalmState.STUDY_LAPTOP
 		if study_kind == "Laptop"
 		else CalmState.STUDY_BOOK
 	)
+
 	next_action_at = (
 		Time.get_unix_time_from_system()
-		+ randf_range(35.0, 70.0)
+		+ randf_range(
+			35.0,
+			70.0
+		)
 	)
 
-	if editor_patrol_kind == "garden_barista":
+	process_mode = Node.PROCESS_MODE_INHERIT
+	set_process(true)
+
+	if (
+		editor_patrol_kind
+		== "garden_barista"
+		or name == "NPC_GardenBarista"
+	):
+		editor_patrol_kind = (
+			"garden_barista"
+		)
 		next_action_at = INF
+
 		character_loader.play_animation(
 			visual,
 			"Idle",
 			0.0
 		)
+
 	elif seated:
 		_play_study()
+
 	else:
 		state = CalmState.IDLE_STANDING
+
 		character_loader.play_animation(
 			visual,
 			"Idle",
@@ -193,41 +333,120 @@ func rebind_runtime(
 	_validate_anchor()
 
 
-func _find_character_visual(node: Node) -> Node3D:
-	for child in node.get_children():
+func _find_character_visual(
+	node: Node
+) -> Node3D:
+	for child: Node in node.get_children():
 		if child is Node3D:
-			var node_3d := child as Node3D
-			if (
-				node_3d.has_meta("is_imported_character")
-				or node_3d.has_meta("character_profile")
-				or node_3d.has_meta("parts")
+			var node_3d := (
+				child as Node3D
+			)
+
+			if str(node_3d.name).begins_with(
+				"VisualRoot_"
 			):
 				return node_3d
 
-			var nested := _find_character_visual(node_3d)
+	for child: Node in node.get_children():
+		if child is Node3D:
+			var node_3d := (
+				child as Node3D
+			)
+
+			if (
+				node_3d.has_meta(
+					"is_imported_character"
+				)
+				or node_3d.has_meta(
+					"character_profile"
+				)
+				or node_3d.has_meta(
+					"parts"
+				)
+			):
+				return node_3d
+
+	for child: Node in node.get_children():
+		if child is Node3D:
+			var nested: Node3D = (
+				_find_character_visual(
+					child
+				)
+			)
+
 			if nested != null:
 				return nested
 
 	return null
 
 
+func _character_id_from_visual(
+	character: Node3D
+) -> String:
+	if not is_instance_valid(character):
+		return ""
+
+	var visual_name: String = str(
+		character.name
+	)
+
+	if visual_name.begins_with(
+		"VisualRoot_"
+	):
+		return visual_name.trim_prefix(
+			"VisualRoot_"
+		)
+
+	var profile_meta: Variant = (
+		character.get_meta(
+			"character_profile",
+			null
+		)
+	)
+
+	if profile_meta is CharacterProfile:
+		return (
+			(
+				profile_meta
+				as CharacterProfile
+			).character_id
+		)
+
+	return ""
+
+
 func _process(_delta: float) -> void:
 	if not is_instance_valid(visual):
 		return
 
-	var t := Time.get_ticks_msec() * 0.001
-	visual.position.y = base_visual_y
-	visual.rotation.y = (
-		base_visual_rotation_y
-		+ sin(t * 0.37 + phase) * 0.018
+	var t: float = (
+		Time.get_ticks_msec()
+		* 0.001
 	)
 
-	if Time.get_unix_time_from_system() >= next_action_at:
+	visual.position.y = (
+		base_visual_y
+	)
+
+	visual.rotation.y = (
+		base_visual_rotation_y
+		+ sin(
+			t * 0.37
+			+ phase
+		) * 0.018
+	)
+
+	if (
+		Time.get_unix_time_from_system()
+		>= next_action_at
+	):
 		_play_ambient_action()
 
 
 func _play_study() -> void:
-	if not is_instance_valid(character_loader):
+	if not is_instance_valid(
+		character_loader
+	):
 		return
 
 	state = (
@@ -236,17 +455,35 @@ func _play_study() -> void:
 		else CalmState.STUDY_BOOK
 	)
 
-	var animation_name := (
+	var animation_name: String = (
 		"StudyLaptop"
 		if study_kind == "Laptop"
 		else "StudyBook"
 	)
 
-	if assigned_spot != null and is_instance_valid(assigned_spot):
-		if str(assigned_spot.seat_type) == "floor_cushion":
-			animation_name = "FloorStudy"
-		elif str(assigned_spot.seat_type) == "train_booth":
-			animation_name = "TrainStudy"
+	if (
+		assigned_spot != null
+		and is_instance_valid(
+			assigned_spot
+		)
+	):
+		if (
+			str(
+				assigned_spot.seat_type
+			) == "floor_cushion"
+		):
+			animation_name = (
+				"FloorStudy"
+			)
+
+		elif (
+			str(
+				assigned_spot.seat_type
+			) == "train_booth"
+		):
+			animation_name = (
+				"TrainStudy"
+			)
 
 	character_loader.play_animation(
 		visual,
@@ -256,17 +493,28 @@ func _play_study() -> void:
 
 
 func _play_ambient_action() -> void:
-	if not is_instance_valid(character_loader):
+	if not is_instance_valid(
+		character_loader
+	):
 		return
 
-	# Floor-seated characters should remain in their dedicated compact pose.
-	if assigned_spot != null and is_instance_valid(assigned_spot):
-		if str(assigned_spot.seat_type) == "floor_cushion":
-			next_action_at = (
-				Time.get_unix_time_from_system()
-				+ randf_range(45.0, 85.0)
+	if (
+		assigned_spot != null
+		and is_instance_valid(
+			assigned_spot
+		)
+		and str(
+			assigned_spot.seat_type
+		) == "floor_cushion"
+	):
+		next_action_at = (
+			Time.get_unix_time_from_system()
+			+ randf_range(
+				45.0,
+				85.0
 			)
-			return
+		)
+		return
 
 	state = (
 		CalmState.STRETCH
@@ -276,17 +524,26 @@ func _play_ambient_action() -> void:
 
 	character_loader.play_animation(
 		visual,
-		"Stretch" if state == CalmState.STRETCH else "Wave",
+		(
+			"Stretch"
+			if state == CalmState.STRETCH
+			else "Wave"
+		),
 		0.25
 	)
 
 	get_tree().create_timer(
 		1.8
-	).timeout.connect(_resume_study)
+	).timeout.connect(
+		_resume_study
+	)
 
 	next_action_at = (
 		Time.get_unix_time_from_system()
-		+ randf_range(45.0, 85.0)
+		+ randf_range(
+			45.0,
+			85.0
+		)
 	)
 
 
@@ -301,15 +558,21 @@ func walk_to(
 ) -> void:
 	if (
 		not is_instance_valid(visual)
-		or not is_instance_valid(character_loader)
+		or not is_instance_valid(
+			character_loader
+		)
 	):
 		return
 
 	if (
 		assigned_spot != null
-		and is_instance_valid(assigned_spot)
+		and is_instance_valid(
+			assigned_spot
+		)
 	):
-		assigned_spot.release(occupant_id)
+		assigned_spot.release(
+			occupant_id
+		)
 
 	assigned_spot = null
 	seated = false
@@ -321,7 +584,9 @@ func walk_to(
 	)
 
 	base_visual_y = visual.position.y
-	base_visual_rotation_y = visual.rotation.y
+	base_visual_rotation_y = (
+		visual.rotation.y
+	)
 
 	character_loader.play_animation(
 		visual,
@@ -329,29 +594,43 @@ func walk_to(
 		0.12
 	)
 
-	var flat_direction := destination - global_position
+	var flat_direction: Vector3 = (
+		destination
+		- global_position
+	)
 	flat_direction.y = 0.0
 
-	if flat_direction.length_squared() > 0.001:
+	if (
+		flat_direction.length_squared()
+		> 0.001
+	):
 		rotation.y = atan2(
 			-flat_direction.x,
 			-flat_direction.z
 		)
 
-	if is_instance_valid(walking_tween):
+	if is_instance_valid(
+		walking_tween
+	):
 		walking_tween.kill()
 
 	walking_tween = (
 		create_tween()
-		.set_trans(Tween.TRANS_SINE)
-		.set_ease(Tween.EASE_IN_OUT)
+		.set_trans(
+			Tween.TRANS_SINE
+		)
+		.set_ease(
+			Tween.EASE_IN_OUT
+		)
 	)
+
 	walking_tween.tween_property(
 		self,
 		"global_position",
 		destination,
 		duration
 	)
+
 	walking_tween.finished.connect(
 		_finish_walk
 	)
@@ -366,15 +645,22 @@ func _finish_walk() -> void:
 			"Idle",
 			0.18
 		)
-		base_visual_y = visual.position.y
-		base_visual_rotation_y = visual.rotation.y
+
+		base_visual_y = (
+			visual.position.y
+		)
+		base_visual_rotation_y = (
+			visual.rotation.y
+		)
 
 
 func _validate_anchor() -> void:
 	if (
 		not seated
 		or assigned_spot == null
-		or not is_instance_valid(assigned_spot)
+		or not is_instance_valid(
+			assigned_spot
+		)
 	):
 		return
 
@@ -412,6 +698,10 @@ func _validate_anchor() -> void:
 func _exit_tree() -> void:
 	if (
 		assigned_spot != null
-		and is_instance_valid(assigned_spot)
+		and is_instance_valid(
+			assigned_spot
+		)
 	):
-		assigned_spot.release(occupant_id)
+		assigned_spot.release(
+			occupant_id
+		)
