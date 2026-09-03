@@ -893,34 +893,153 @@ def shrub() -> None:
 def hedge() -> None:
     reset()
     rng = random.Random(517)
-    # Long clipped hedge core with layered leaves, matching the bright low
-    # hedges seen in the supplied garden reference.
-    box("HedgeCore", (0, 0, 0.62), (3.0, 1.05, 1.22), "leaf_dark", 0.28)
-    # Top row
-    for row, z in enumerate((0.88, 1.18)):
-        for col in range(9):
-            x = -1.30 + col * 0.325
-            y = -0.52 if row == 0 else 0.18
-            scale = 0.30 + (col % 3) * 0.025
+
+    # Hidden structural core. Keep it comfortably inside the foliage so the
+    # rectangular support can never protrude from the hedge silhouette.
+    box(
+        "HedgeCore",
+        (0, 0, 0.53),
+        (2.58, 0.66, 0.78),
+        "leaf_dark",
+        0.18,
+    )
+
+    # ------------------------------------------------------------------
+    # TOP
+    # ------------------------------------------------------------------
+    for row, y in enumerate((-0.30, 0.30)):
+        for col in range(10):
+            x = -1.34 + col * 0.298
+            scale = 0.32 + (col % 3) * 0.018
+
             leaf_card(
                 "HedgeLeaf",
-                (x, y, z + rng.uniform(-0.04, 0.04)),
-                (scale, scale * 0.78, 1.0),
-                "leaf_bright" if (row + col) % 3 == 0 else "leaf_light",
-                rotation=(rng.uniform(-0.08, 0.08), rng.uniform(-0.08, 0.08), rng.uniform(-0.18, 0.18)),
+                (
+                    x,
+                    y,
+                    0.92 + rng.uniform(-0.035, 0.035),
+                ),
+                (
+                    scale,
+                    scale * 0.82,
+                    1.0,
+                ),
+                (
+                    "leaf_bright"
+                    if (row + col) % 3 == 0
+                    else "leaf_light"
+                ),
+                rotation=(
+                    rng.uniform(-0.09, 0.09),
+                    rng.uniform(-0.09, 0.09),
+                    rng.uniform(-0.18, 0.18),
+                ),
                 thickness=0.024,
             )
-    # Front face rows
-    for row in range(3):
-        z = 0.38 + row * 0.30
+
+    # ------------------------------------------------------------------
+    # FRONT + BACK
+    # ------------------------------------------------------------------
+    for side_index, y in enumerate((-0.47, 0.47)):
+        tilt = math.radians(
+            78 if side_index == 0 else -78
+        )
+
+        for row in range(3):
+            z = 0.28 + row * 0.29
+
+            for col in range(10):
+                x = -1.34 + col * 0.298
+
+                leaf_card(
+                    "HedgeLeaf",
+                    (
+                        x,
+                        y,
+                        z + rng.uniform(-0.025, 0.025),
+                    ),
+                    (
+                        0.31,
+                        0.245,
+                        1.0,
+                    ),
+                    (
+                        "leaf_light"
+                        if (row + col + side_index) % 2
+                        else "leaf_bright"
+                    ),
+                    rotation=(
+                        tilt,
+                        0,
+                        rng.uniform(-0.16, 0.16),
+                    ),
+                    thickness=0.024,
+                )
+
+    # ------------------------------------------------------------------
+    # END CAPS
+    # Covers the rectangular left/right ends that were visible previously.
+    # ------------------------------------------------------------------
+    for side_index, x in enumerate((-1.39, 1.39)):
+        tilt = math.radians(
+            -78 if side_index == 0 else 78
+        )
+
+        for row in range(3):
+            z = 0.30 + row * 0.29
+
+            for col, y in enumerate((-0.26, 0.22)):
+                leaf_card(
+                    "HedgeLeaf",
+                    (
+                        x,
+                        y,
+                        z + rng.uniform(-0.025, 0.025),
+                    ),
+                    (
+                        0.30,
+                        0.24,
+                        1.0,
+                    ),
+                    (
+                        "leaf_bright"
+                        if (row + col + side_index) % 2 == 0
+                        else "leaf_light"
+                    ),
+                    rotation=(
+                        0,
+                        tilt,
+                        rng.uniform(-0.14, 0.14),
+                    ),
+                    thickness=0.024,
+                )
+
+    # A few lower leaves hide any remaining glimpse of the core close to the
+    # ground while retaining the clipped-hedge silhouette.
+    for side_index, y in enumerate((-0.43, 0.43)):
         for col in range(9):
-            x = -1.30 + col * 0.325
+            x = -1.28 + col * 0.32
+
             leaf_card(
                 "HedgeLeaf",
-                (x, -0.56, z),
-                (0.29, 0.23, 1.0),
-                "leaf_light" if (row + col) % 2 else "leaf_bright",
-                rotation=(math.radians(78), 0, rng.uniform(-0.16, 0.16)),
+                (
+                    x,
+                    y,
+                    0.20 + rng.uniform(-0.02, 0.02),
+                ),
+                (
+                    0.28,
+                    0.22,
+                    1.0,
+                ),
+                "leaf",
+                rotation=(
+                    math.radians(
+                        80 if side_index == 0 else -80
+                    ),
+                    0,
+                    rng.uniform(-0.15, 0.15),
+                ),
                 thickness=0.024,
             )
 
