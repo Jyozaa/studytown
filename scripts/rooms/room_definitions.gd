@@ -7,10 +7,16 @@ const ROOMS := {
 		"size": Vector2(44.0, 32.0),
 		"spawn": Vector3(0.0, 0.65, 10.0),
 		"bounds": Vector2(21.2, 15.2),
-		"camera_offset": Vector3(3.6, 7.6, 10.3),
+
+		# Grand Library exploration camera.
+		#
+		# Slightly farther/higher than the previous framing so the two communal
+		# tables, west-side stacks, fireplace destination, and east-window study
+		# side can read together without making the player feel tiny.
+		"camera_offset": Vector3(2.8, 8.5, 11.8),
 		"camera_look_height": 1.55,
-		"camera_fov": 38.0,
-		"camera_damping": 7.5,
+		"camera_fov": 41.0,
+		"camera_damping": 7.2,
 	},
 	1: {
 		"id": "garden",
