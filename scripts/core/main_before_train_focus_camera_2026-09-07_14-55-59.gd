@@ -3673,13 +3673,7 @@ func _prepare_focus_camera_pool(
 	]
 
 	if room_id == "train":
-		# Train window-facing seats also need interior rear / over-shoulder angles.
-		#
-		# Positive Z offsets are the existing player-facing candidates. Negative Z
-		# offsets put the camera behind the player's facing direction, keeping it
-		# inside the carriage when a seat intentionally faces a window.
 		offsets = [
-			# Front / three-quarter views for inward-facing Train seats.
 			Vector3(2.35, 2.65, 2.45),
 			Vector3(-2.35, 2.60, 2.45),
 
@@ -3691,20 +3685,8 @@ func _prepare_focus_camera_pool(
 
 			Vector3(0.45, 3.35, 3.60),
 			Vector3(-0.45, 3.25, 3.55),
-
-			# Interior rear / over-shoulder views for window-facing Train seats.
-			Vector3(1.90, 2.70, -2.75),
-			Vector3(-1.90, 2.65, -2.75),
-
-			Vector3(1.05, 2.60, -3.55),
-			Vector3(-1.05, 2.55, -3.55),
-
-			Vector3(2.45, 3.00, -2.50),
-			Vector3(-2.45, 2.95, -2.50),
-
-			Vector3(0.55, 3.30, -3.15),
-			Vector3(-0.55, 3.25, -3.15),
 		]
+
 	var basis := Basis(
 		Vector3.UP,
 		spot.facing_yaw

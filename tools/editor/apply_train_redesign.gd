@@ -1,6 +1,6 @@
 extends SceneTree
 
-# StudyTown Train redesign v7 — inspected wooden tables + decorative table pass.
+# StudyTown Train redesign v9 — inward compartment seats + larger tables + deeper sunset.
 #
 # Rebuilds only:
 #   res://assets/dev_local/room_layouts/train.tscn
@@ -98,6 +98,26 @@ const ASSETS := {
 	"garden_big_tree":
 		"res://assets/dev_local/blender_generated/runtime/garden_big_tree.glb",
 
+	# Exact current Garden mountain / forest-village runtime assets.
+	"mountain_a":
+		"res://assets/dev_local/blender_generated/runtime/natural_rock_mountain_a.glb",
+	"mountain_b":
+		"res://assets/dev_local/blender_generated/runtime/natural_rock_mountain_b.glb",
+	"mountain_c":
+		"res://assets/dev_local/blender_generated/runtime/natural_rock_mountain_c.glb",
+	"garden_forest_lamp":
+		"res://assets/dev_local/blender_generated/runtime/garden_forest_lamp.glb",
+	"garden_streetlamp":
+		"res://assets/dev_local/blender_generated/runtime/garden_forest_streetlamp.glb",
+	"garden_lantern":
+		"res://assets/dev_local/blender_generated/runtime/garden_forest_lantern.glb",
+	"garden_firepit":
+		"res://assets/dev_local/blender_generated/runtime/garden_forest_firepit.glb",
+	"garden_bench":
+		"res://assets/dev_local/blender_generated/runtime/garden_forest_bench.glb",
+	"garden_party_arch":
+		"res://assets/dev_local/blender_generated/runtime/garden_party_light_arch.glb",
+
 	# Already-converted Library assets reused to make the carriage feel lived-in.
 	"library_books":
 		"res://assets/dev_local/blender_generated/runtime/library_books.glb",
@@ -149,7 +169,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	print("")
-	print("# STUDYTOWN TRAIN REDESIGN V7")
+	print("# STUDYTOWN TRAIN REDESIGN V9")
 	print("")
 
 	if not FileAccess.file_exists(
@@ -229,13 +249,13 @@ func _run() -> void:
 	)
 	_scene_root.set_meta(
 		"train_redesign_version",
-		7
+		9
 	)
 
 	_build_materials()
 
 	_room_root = Node3D.new()
-	_room_root.name = "TrainOldWorldRedesignV7"
+	_room_root.name = "TrainOldWorldRedesignV9"
 	_scene_root.add_child(
 		_room_root
 	)
@@ -290,18 +310,18 @@ func _run() -> void:
 		return
 
 	print("Footprint:           11 x 42")
-	print("Study positions:     ", _seat_specs.size())
+	print("Study positions:     ", _seat_specs.size(), " (2 per long seat)")
 	print("Left zone:           4 back-to-back long-seat pairs")
 	print("Centre:              continuous longitudinal walkway carpet")
 	print("Right zone:          2 face-to-face long-seat compartments")
-	print("Main tables:         4 WoodenTableMini ReBody3, paired into 2 zones")
-	print("Decor tables:        Antique + Vintage + Elegant candidate tables")
+	print("Main tables:         4 extra-large WoodenTableMini ReBody3")
+	print("Decor density:       9 decorative tables + dense lamps/books/props")
 	print("Cross walkway:       clear between the 2 right-side compartments")
 	print("Interior style:      dark walnut / brass / burgundy / amber")
-	print("Character facing:    corrected 180 degrees without moving anchors")
+	print("Compartment facing:  both long-seat pairs face inward toward tables")
 	print("Exterior loop:       5 x 10 m seamless tiles, 50 m runtime wrap")
-	print("Mountains:           3-layer jagged seamless ridges")
-	print("Exterior density:    old-town cottages + Garden structures + dense trees")
+	print("Mountains:           Garden natural_rock_mountain A/B/C assets")
+	print("Exterior density:    cottages + trailers + tents + gazebo + campsite props")
 	print("Backup:              ", backup_path)
 	print("")
 	print("DONE")
@@ -554,7 +574,7 @@ func _build_materials() -> void:
 
 func _build_environment() -> void:
 	var world_environment := WorldEnvironment.new()
-	world_environment.name = "TrainOldWorldTwilightEnvironment"
+	world_environment.name = "TrainWarmSunsetEnvironment"
 
 	_room_root.add_child(
 		world_environment
@@ -565,18 +585,18 @@ func _build_environment() -> void:
 
 	var sky_material := ProceduralSkyMaterial.new()
 	sky_material.sky_top_color = Color(
-		"#111827"
+		"#334b70"
 	)
 	sky_material.sky_horizon_color = Color(
-		"#604451"
+		"#dc8166"
 	)
-	sky_material.sky_curve = 0.20
-	sky_material.sky_energy_multiplier = 0.44
+	sky_material.sky_curve = 0.22
+	sky_material.sky_energy_multiplier = 0.66
 	sky_material.ground_bottom_color = Color(
-		"#111619"
+		"#2c3438"
 	)
 	sky_material.ground_horizon_color = Color(
-		"#34383d"
+		"#a16f62"
 	)
 
 	var sky := Sky.new()
@@ -587,46 +607,45 @@ func _build_environment() -> void:
 	)
 	environment.sky = sky
 
-	# Keep the carriage itself dim. Warmth comes from sconces, hanging lanterns
-	# and table lamps instead of a bright modern fluorescent wash.
+	# Warm sunset, but deliberately one step darker than v8 for richer contrast.
 	environment.ambient_light_source = (
 		Environment.AMBIENT_SOURCE_COLOR
 	)
 	environment.ambient_light_color = Color(
-		"#596276"
+		"#c39a87"
 	)
-	environment.ambient_light_energy = 0.20
+	environment.ambient_light_energy = 0.34
 	environment.tonemap_mode = (
 		Environment.TONE_MAPPER_FILMIC
 	)
 
 	environment.fog_enabled = true
 	environment.fog_light_color = Color(
-		"#4b4e5d"
+		"#b17c72"
 	)
-	environment.fog_light_energy = 0.20
-	environment.fog_density = 0.0038
-	environment.fog_sky_affect = 0.62
+	environment.fog_light_energy = 0.28
+	environment.fog_density = 0.0018
+	environment.fog_sky_affect = 0.44
 
 	world_environment.environment = environment
 
-	var twilight_fill := DirectionalLight3D.new()
-	twilight_fill.name = "TrainTwilightFill"
-	twilight_fill.light_color = Color(
-		"#9ba7c0"
+	var sunset_fill := DirectionalLight3D.new()
+	sunset_fill.name = "TrainWarmSunsetFill"
+	sunset_fill.light_color = Color(
+		"#ffc28e"
 	)
-	twilight_fill.light_energy = 0.18
-	twilight_fill.shadow_enabled = true
-	twilight_fill.rotation_degrees = Vector3(
-		-42.0,
+	sunset_fill.light_energy = 0.42
+	sunset_fill.shadow_enabled = true
+	sunset_fill.rotation_degrees = Vector3(
+		-30.0,
 		58.0,
 		0.0
 	)
 
 	_room_root.add_child(
-		twilight_fill
+		sunset_fill
 	)
-	twilight_fill.owner = _scene_root
+	sunset_fill.owner = _scene_root
 
 func _build_carriage_shell() -> void:
 	_box(
@@ -989,12 +1008,13 @@ func _build_reference_seating() -> void:
 			"LeftOuterSeatBlocker"
 		)
 
-		_append_train_seat(
+		_append_long_train_seats(
 			"train-left-outer-%02d"
 			% row_index,
 			outer_position,
 			PI / 2.0,
-			"Book"
+			"Book",
+			"Laptop"
 		)
 
 		# Inner bench faces +X toward the carpeted walkway.
@@ -1101,7 +1121,7 @@ func _build_reference_seating() -> void:
 				0.95,
 				0.95
 			),
-			PI,
+			0.0,
 			"RightCompartmentNorthSeat_%02d"
 			% compartment_index
 		)
@@ -1114,7 +1134,7 @@ func _build_reference_seating() -> void:
 				0.95,
 				0.95
 			),
-			0.0,
+			PI,
 			"RightCompartmentSouthSeat_%02d"
 			% compartment_index
 		)
@@ -1145,20 +1165,25 @@ func _build_reference_seating() -> void:
 			"RightSouthBenchBlocker"
 		)
 
-		_append_train_seat(
+		# The imported seated character faces 180 degrees from the authored
+		# anchor yaw. Using 0 for the north bench and PI for the south bench
+		# therefore makes both players face INWARD toward the table zone.
+		_append_long_train_seats(
 			"train-right-%02d-north"
 			% compartment_index,
 			north_bench_position,
-			PI,
-			"Laptop"
+			0.0,
+			"Laptop",
+			"Book"
 		)
 
-		_append_train_seat(
+		_append_long_train_seats(
 			"train-right-%02d-south"
 			% compartment_index,
 			south_bench_position,
-			0.0,
-			"Book"
+			PI,
+			"Book",
+			"Laptop"
 		)
 
 		# Two actual small café tables form the rectangular table zone drawn in
@@ -1169,11 +1194,11 @@ func _build_reference_seating() -> void:
 			# Two WoodenTableMini pieces sit nearly flush and read as one
 			# rectangular compartment table with only a narrow seam.
 			var table_x: float = (
-				2.40
+				2.20
 				+ float(
 					table_index
 				)
-				* 0.90
+				* 1.30
 			)
 
 			_place_reference_table(
@@ -1192,19 +1217,15 @@ func _place_reference_table(
 	yaw: float,
 	index: int
 ) -> void:
-	# Final inspected choice:
-	#   FtrWoodenTableMini
-	#   ReBody3 = dark warm wood
-	#
-	# Two pieces sit almost flush beside one another in each face-to-face
-	# compartment, giving the rectangular table zone from the approved layout.
+	# FtrWoodenTableMini ReBody3 remains the main table, but v8 scales it up so
+	# each pair fills the compartment properly rather than reading as side tables.
 	var table := _instance_asset(
 		"table",
 		position_value,
 		Vector3(
-			1.0,
-			1.0,
-			0.96
+			1.55,
+			1.14,
+			1.34
 		),
 		yaw,
 		"TrainWoodenMiniTable_%02d"
@@ -1217,11 +1238,11 @@ func _place_reference_table(
 	_add_blocker(
 		position_value
 		+ Vector3.UP
-		* 0.36,
+		* 0.39,
 		Vector3(
+			1.34,
 			0.88,
-			0.76,
-			0.76
+			1.12
 		),
 		0.0,
 		"TrainWoodenMiniTableBlocker"
@@ -1232,14 +1253,14 @@ func _place_reference_table(
 			"open_book",
 			position_value
 			+ Vector3(
-				-0.08,
-				0.75,
-				0.03
+				-0.14,
+				0.87,
+				0.04
 			),
 			Vector3(
-				0.60,
-				0.60,
-				0.60
+				0.64,
+				0.64,
+				0.64
 			),
 			0.10,
 			"TrainTableOpenBook"
@@ -1249,14 +1270,14 @@ func _place_reference_table(
 			"books",
 			position_value
 			+ Vector3(
-				-0.08,
-				0.75,
-				0.03
+				-0.12,
+				0.87,
+				0.04
 			),
 			Vector3(
-				0.44,
-				0.44,
-				0.44
+				0.48,
+				0.48,
+				0.48
 			),
 			-0.08,
 			"TrainTableBooks"
@@ -1270,18 +1291,59 @@ func _place_reference_table(
 		),
 		position_value
 		+ Vector3(
-			0.22,
-			0.75,
-			-0.17
+			0.30,
+			0.87,
+			-0.20
 		),
 		Vector3(
-			0.68,
-			0.68,
-			0.68
+			0.72,
+			0.72,
+			0.72
 		),
 		0.0,
 		"TrainTableDrink"
 	)
+
+func _append_long_train_seats(
+	base_id: String,
+	bench_position: Vector3,
+	seat_yaw: float,
+	study_type_a: String,
+	study_type_b: String
+) -> void:
+	# Every FtrSeatLong mesh visually accommodates two characters. Position the
+	# gameplay anchors along the seat's local RIGHT axis so both characters sit
+	# side-by-side rather than sharing the same point.
+	var seat_basis := Basis(
+		Vector3.UP,
+		seat_yaw
+	)
+
+	var along_bench: Vector3 = (
+		seat_basis
+		* Vector3.RIGHT
+	)
+
+	var seat_offset: float = 0.54
+
+	_append_train_seat(
+		base_id + "-a",
+		bench_position
+		- along_bench
+		* seat_offset,
+		seat_yaw,
+		study_type_a
+	)
+
+	_append_train_seat(
+		base_id + "-b",
+		bench_position
+		+ along_bench
+		* seat_offset,
+		seat_yaw,
+		study_type_b
+	)
+
 
 func _append_train_seat(
 	seat_id: String,
@@ -1751,15 +1813,14 @@ func _build_seamless_scenery_tile(
 	)
 	tile.owner = _scene_root
 
-	# Every moving tile has identical edge geometry and a slight overlap.
-	# This keeps water and land continuous through the exact 50 m runtime wrap.
+	# Identical overlapping edge geometry keeps the 50 m loop seamless.
 	_box(
 		tile,
 		Vector3(
 			7.8,
 			0.07,
 			SCENERY_TILE_LENGTH
-			+ 0.30
+			+ 0.34
 		),
 		Vector3(
 			side * 9.25,
@@ -1773,13 +1834,13 @@ func _build_seamless_scenery_tile(
 	_box(
 		tile,
 		Vector3(
-			17.5,
+			18.0,
 			0.24,
 			SCENERY_TILE_LENGTH
-			+ 0.30
+			+ 0.34
 		),
 		Vector3(
-			side * 20.3,
+			side * 20.4,
 			-0.66,
 			0.0
 		),
@@ -1790,13 +1851,13 @@ func _build_seamless_scenery_tile(
 	_box(
 		tile,
 		Vector3(
-			2.4,
+			2.6,
 			0.11,
 			SCENERY_TILE_LENGTH
-			+ 0.30
+			+ 0.34
 		),
 		Vector3(
-			side * 12.9,
+			side * 13.0,
 			-0.72,
 			0.0
 		),
@@ -1804,45 +1865,78 @@ func _build_seamless_scenery_tile(
 		"LoopShoreline"
 	)
 
-	# Three continuous jagged ridge layers. Each profile deliberately starts and
-	# ends at the same height, so adjacent 10 m tiles meet without mountain cuts.
-	_build_mountain_ridge(
-		tile,
-		side * 28.5,
-		-0.48,
-		tile_index,
-		0,
-		_materials["mountain_far"],
-		1.00
-	)
+	# -----------------------------------------------------------------------
+	# REAL GARDEN MOUNTAINS
+	# -----------------------------------------------------------------------
+	# These are the exact natural_rock_mountain_a/b/c assets already used by
+	# the Garden. Keep each formation comfortably inside its 10 m tile so it
+	# wraps as a complete object rather than being cut at a tile boundary.
+	var mountain_keys: Array[String] = [
+		"mountain_a",
+		"mountain_b",
+		"mountain_c",
+	]
 
-	_build_mountain_ridge(
-		tile,
-		side * 24.0,
-		-0.52,
-		tile_index,
-		1,
-		_materials["mountain_mid"],
-		0.78
-	)
+	for mountain_index: int in range(
+		2
+	):
+		var mountain_key: String = mountain_keys[
+			(
+				tile_index
+				+ mountain_index
+			)
+			% mountain_keys.size()
+		]
 
-	_build_mountain_ridge(
-		tile,
-		side * 20.8,
-		-0.56,
-		tile_index,
-		2,
-		_materials["mountain_near"],
-		0.58
-	)
+		_instance_asset_under(
+			tile,
+			mountain_key,
+			Vector3(
+				side
+				* (
+					26.0
+					+ float(
+						mountain_index
+					)
+					* 4.0
+				),
+				-0.55,
+				(
+					-2.35
+						if mountain_index == 0
+						else 2.35
+				)
+			),
+			Vector3(
+				0.44,
+				0.40
+					+ float(
+						tile_index % 2
+					)
+					* 0.05,
+				0.44
+			),
+			(
+				0.18
+					* float(
+						tile_index
+							+ mountain_index
+					)
+			),
+			"PassingNaturalRockMountain"
+		)
 
-	# Dense tree belt between town and mountain layers.
+	# -----------------------------------------------------------------------
+	# DENSE FOREST BELT
+	# -----------------------------------------------------------------------
 	var tree_zs: Array[float] = [
-		-3.7,
-		-2.0,
+		-4.0,
+		-2.7,
+		-1.3,
 		0.0,
-		1.9,
-		3.6,
+		1.3,
+		2.7,
+		4.0,
 	]
 
 	for tree_index: int in range(
@@ -1851,22 +1945,22 @@ func _build_seamless_scenery_tile(
 		var tree_key: String = (
 			"garden_big_tree"
 				if (
-					tree_index == 2
+					tree_index == 3
 					and tile_index % 2 == 0
 				)
 				else "garden_oak"
 		)
 
 		var tree_scale_value: float = (
-			0.40
+			0.38
 			+ float(
 				(
 					tile_index
-					+ tree_index
+						+ tree_index
 				)
 				% 4
 			)
-			* 0.08
+			* 0.07
 		)
 
 		_instance_asset_under(
@@ -1879,7 +1973,7 @@ func _build_seamless_scenery_tile(
 					+ float(
 						tree_index % 3
 					)
-					* 1.25
+					* 1.10
 				),
 				-0.55,
 				tree_zs[
@@ -1888,16 +1982,18 @@ func _build_seamless_scenery_tile(
 			),
 			Vector3.ONE
 			* tree_scale_value,
-			0.13
+			0.11
 			* float(
 				tile_index
-				+ tree_index
+					+ tree_index
 			),
 			"PassingTree"
 		)
 
-	# Two compact timber-framed old-town houses per tile.
-	# Their centres stay inside ±3.2 m, leaving ~1.8 m clear at both tile edges.
+	# -----------------------------------------------------------------------
+	# OLD TOWN / CAMPSITE STRUCTURES
+	# -----------------------------------------------------------------------
+	# Two timber cottages remain on every tile.
 	for house_index: int in range(
 		2
 	):
@@ -1912,15 +2008,15 @@ func _build_seamless_scenery_tile(
 		var house_x: float = (
 			side
 			* (
-				15.8
+				16.1
 				+ float(
 					(
 						tile_index
-						+ house_index
+							+ house_index
 					)
 					% 2
 				)
-				* 1.55
+				* 1.45
 			)
 		)
 
@@ -1932,7 +2028,7 @@ func _build_seamless_scenery_tile(
 				house_z
 			),
 			side,
-			0.78
+			0.76
 			+ float(
 				(
 					tile_index
@@ -1943,67 +2039,54 @@ func _build_seamless_scenery_tile(
 			* 0.08
 		)
 
-	# Reuse actual Garden structure assets as hero landmarks between the cottage
-	# clusters. These are optional and disappear gracefully if not available.
-	if tile_index == 0:
-		_instance_asset_under(
-			tile,
-			"garden_gazebo",
-			Vector3(
-				side * 18.8,
-				-0.55,
-				0.4
-			),
-			Vector3.ONE
-			* 0.55,
-			0.12,
-			"PassingGardenGazebo"
-		)
+	# Then add a real Garden structure cluster to EVERY tile, not just three of
+	# the five tiles.
+	match tile_index:
+		0:
+			_add_train_scenery_cluster(
+				tile,
+				side,
+				"trailer"
+			)
 
-	elif tile_index == 2:
-		_instance_asset_under(
-			tile,
-			"garden_forest_trailer",
-			Vector3(
-				side * 18.5,
-				-0.55,
-				0.3
-			),
-			Vector3.ONE
-			* 0.52,
-			(
-				-0.18
-					if side > 0.0
-					else 0.18
-			),
-			"PassingGardenStructure"
-		)
+		1:
+			_add_train_scenery_cluster(
+				tile,
+				side,
+				"campsite"
+			)
 
-	elif tile_index == 4:
-		_instance_asset_under(
-			tile,
-			"garden_tent",
-			Vector3(
-				side * 18.4,
-				-0.55,
-				0.6
-			),
-			Vector3.ONE
-			* 0.48,
-			-0.18,
-			"PassingGardenTent"
-		)
+		2:
+			_add_train_scenery_cluster(
+				tile,
+				side,
+				"gazebo"
+			)
 
-	# More warm windows / village lights without adding dozens of real OmniLights.
+		3:
+			_add_train_scenery_cluster(
+				tile,
+				side,
+				"trailer_camp"
+			)
+
+		4:
+			_add_train_scenery_cluster(
+				tile,
+				side,
+				"lantern_camp"
+			)
+
+	# Additional warm window points make the entire shoreline feel inhabited.
 	for glow_index: int in range(
-		5
+		7
 	):
 		var glow_z: float = (
-			-3.7
+			-4.2
 			+ float(
 				glow_index
 			)
-			* 1.85
+			* 1.40
 		)
 
 		_box(
@@ -2015,13 +2098,13 @@ func _build_seamless_scenery_tile(
 			),
 			Vector3(
 				side
-					* (
-						14.35
-						+ float(
-							glow_index % 2
-						)
-						* 0.65
-					),
+				* (
+					14.2
+					+ float(
+						glow_index % 3
+					)
+					* 0.58
+				),
 				0.28
 					+ float(
 						glow_index % 3
@@ -2032,6 +2115,229 @@ func _build_seamless_scenery_tile(
 			_materials["town_glow"],
 			"PassingVillageLight"
 		)
+
+func _add_train_scenery_cluster(
+	parent: Node3D,
+	side: float,
+	cluster_type: String
+) -> void:
+	var structure_x: float = side * 18.2
+
+	match cluster_type:
+		"trailer":
+			_instance_asset_under(
+				parent,
+				"garden_trailer",
+				Vector3(
+					structure_x,
+					-0.55,
+					0.0
+				),
+				Vector3.ONE
+				* 0.50,
+				(
+					-0.20
+						if side > 0.0
+						else 0.20
+				),
+				"PassingForestTrailer"
+			)
+
+			_instance_asset_under(
+				parent,
+				"garden_bench",
+				Vector3(
+					side * 15.4,
+					-0.55,
+					2.6
+				),
+				Vector3.ONE
+				* 0.54,
+				0.35,
+				"PassingTrailerBench"
+			)
+
+			_instance_asset_under(
+				parent,
+				"garden_streetlamp",
+				Vector3(
+					side * 15.0,
+					-0.55,
+					-2.8
+				),
+				Vector3.ONE
+				* 0.54,
+				0.0,
+				"PassingTrailerStreetlamp"
+			)
+
+		"campsite":
+			_instance_asset_under(
+				parent,
+				"garden_tent",
+				Vector3(
+					structure_x,
+					-0.55,
+					-0.5
+				),
+				Vector3.ONE
+				* 0.48,
+				-0.22,
+				"PassingCampsiteTent"
+			)
+
+			_instance_asset_under(
+				parent,
+				"garden_firepit",
+				Vector3(
+					side * 15.2,
+					-0.55,
+					2.2
+				),
+				Vector3.ONE
+				* 0.48,
+				0.0,
+				"PassingFirepit"
+			)
+
+			_instance_asset_under(
+				parent,
+				"garden_party_arch",
+				Vector3(
+					side * 16.0,
+					-0.55,
+					-2.6
+				),
+				Vector3.ONE
+				* 0.42,
+				0.0,
+				"PassingPartyArch"
+			)
+
+		"gazebo":
+			_instance_asset_under(
+				parent,
+				"garden_gazebo",
+				Vector3(
+					structure_x,
+					-0.55,
+					0.0
+				),
+				Vector3.ONE
+				* 0.52,
+				0.15,
+				"PassingGazebo"
+			)
+
+			for lamp_z: float in [
+				-2.4,
+				2.4
+			]:
+				_instance_asset_under(
+					parent,
+					"garden_forest_lamp",
+					Vector3(
+						side * 15.4,
+						-0.55,
+						lamp_z
+					),
+					Vector3.ONE
+					* 0.58,
+					0.0,
+					"PassingGardenLamp"
+				)
+
+		"trailer_camp":
+			_instance_asset_under(
+				parent,
+				"garden_trailer",
+				Vector3(
+					side * 18.8,
+					-0.55,
+					-1.8
+				),
+				Vector3.ONE
+				* 0.42,
+				0.15,
+				"PassingSmallTrailer"
+			)
+
+			_instance_asset_under(
+				parent,
+				"garden_tent",
+				Vector3(
+					side * 17.0,
+					-0.55,
+					2.3
+				),
+				Vector3.ONE
+				* 0.38,
+				-0.18,
+				"PassingSmallTent"
+			)
+
+			_instance_asset_under(
+				parent,
+				"garden_lantern",
+				Vector3(
+					side * 14.8,
+					-0.55,
+					0.2
+				),
+				Vector3.ONE
+				* 0.62,
+				0.0,
+				"PassingLantern"
+			)
+
+		"lantern_camp":
+			_instance_asset_under(
+				parent,
+				"garden_tent",
+				Vector3(
+					side * 18.5,
+					-0.55,
+					0.8
+				),
+				Vector3.ONE
+				* 0.44,
+				0.18,
+				"PassingTent"
+			)
+
+			_instance_asset_under(
+				parent,
+				"garden_bench",
+				Vector3(
+					side * 15.5,
+					-0.55,
+					-2.4
+				),
+				Vector3.ONE
+				* 0.52,
+				0.1,
+				"PassingBench"
+			)
+
+			for lantern_z: float in [
+				-3.1,
+				0.0,
+				3.1
+			]:
+				_instance_asset_under(
+					parent,
+					"garden_lantern",
+					Vector3(
+						side * 15.0,
+						-0.55,
+						lantern_z
+					),
+					Vector3.ONE
+					* 0.62,
+					0.0,
+					"PassingLantern"
+				)
+
 
 func _build_mountain_peak_under(
 	parent: Node,
@@ -2179,6 +2485,30 @@ func _build_npcs(
 			"character": "rosie",
 			"seat_index": 9,
 		},
+		{
+			"name": "Theo",
+			"timer": "36m",
+			"character": "raymond",
+			"seat_index": 12,
+		},
+		{
+			"name": "Iris",
+			"timer": "22m",
+			"character": "rosie",
+			"seat_index": 15,
+		},
+		{
+			"name": "Noah",
+			"timer": "47m",
+			"character": "bob",
+			"seat_index": 19,
+		},
+		{
+			"name": "Mae",
+			"timer": "31m",
+			"character": "rosie",
+			"seat_index": 22,
+		},
 	]
 
 	for spec: Dictionary in npc_specs:
@@ -2263,7 +2593,6 @@ func _build_npcs(
 			label
 		)
 		label.owner = _scene_root
-
 
 func _build_review_cameras() -> void:
 	var cameras: Array[Dictionary] = [
@@ -2566,10 +2895,8 @@ func _restyle_imported_asset(
 
 func _build_cozy_carriage_decor() -> void:
 	# -----------------------------------------------------------------------
-	# WALL / WINDOW DENSITY
+	# WALNUT / BRASS TRIM
 	# -----------------------------------------------------------------------
-	# Brass picture rail and walnut trim make the carriage feel built-in rather
-	# than like furniture placed inside a white box.
 	for side: float in [
 		-1.0,
 		1.0
@@ -2606,73 +2933,56 @@ func _build_cozy_carriage_decor() -> void:
 			"CarriageWalnutTopRail"
 		)
 
-	# Velvet drapes on alternate windows. They remain narrow enough not to block
-	# the view, but break up the modern uninterrupted glass wall.
+	# More velvet drapes than v7.
 	for side: float in [
 		-1.0,
 		1.0
 	]:
 		for window_z: float in [
-			-13.7,
-			-4.5,
-			4.7,
-			13.9
+			-17.2,
+			-12.6,
+			-8.0,
+			-3.4,
+			1.2,
+			5.8,
+			10.4,
+			15.0
 		]:
 			_build_window_drape(
 				side,
 				window_z
 			)
 
-	# Candle-style wall sconces between selected window bays.
-	for sconce_data: Dictionary in [
-		{
-			"side": -1.0,
-			"z": -9.1,
-		},
-		{
-			"side": -1.0,
-			"z": 0.1,
-		},
-		{
-			"side": -1.0,
-			"z": 9.3,
-		},
-		{
-			"side": 1.0,
-			"z": -9.1,
-		},
-		{
-			"side": 1.0,
-			"z": 0.1,
-		},
-		{
-			"side": 1.0,
-			"z": 9.3,
-		},
+	# Dense candle-sconce rhythm between window bays.
+	for side: float in [
+		-1.0,
+		1.0
 	]:
-		var side_value: float = float(
-			sconce_data["side"]
-		)
-
-		_build_candle_sconce(
-			Vector3(
-				side_value * 5.02,
-				2.55,
-				float(
-					sconce_data["z"]
+		for sconce_z: float in [
+			-15.0,
+			-10.0,
+			-5.0,
+			0.0,
+			5.0,
+			10.0,
+			15.0
+		]:
+			_build_candle_sconce(
+				Vector3(
+					side * 5.02,
+					2.52,
+					sconce_z
+				),
+				(
+					PI / 2.0
+						if side < 0.0
+						else -PI / 2.0
 				)
-			),
-			(
-				PI / 2.0
-					if side_value < 0.0
-					else -PI / 2.0
 			)
-		)
 
 	# -----------------------------------------------------------------------
-	# RUGS / STUDY DETAILS
+	# RUGS
 	# -----------------------------------------------------------------------
-	# Small rugs underneath the four back-to-back seat rows.
 	for row_z: float in [
 		-15.0,
 		-5.0,
@@ -2711,7 +3021,6 @@ func _build_cozy_carriage_decor() -> void:
 			"LeftReadingRugBorder"
 		)
 
-	# Large compartment rugs on the face-to-face side.
 	for compartment_z: float in [
 		-10.4,
 		10.4
@@ -2748,26 +3057,28 @@ func _build_cozy_carriage_decor() -> void:
 			"CompartmentRugBorder"
 		)
 
-	# Warm oil lamps on the four tables.
+	# -----------------------------------------------------------------------
+	# MAIN TABLE LIGHTS
+	# -----------------------------------------------------------------------
 	for table_position: Vector3 in [
 		Vector3(
-			2.40,
-			0.76,
+			2.20,
+			0.90,
 			-10.4
 		),
 		Vector3(
-			3.30,
-			0.76,
+			3.50,
+			0.90,
 			-10.4
 		),
 		Vector3(
-			2.40,
-			0.76,
+			2.20,
+			0.90,
 			10.4
 		),
 		Vector3(
-			3.30,
-			0.76,
+			3.50,
+			0.90,
 			10.4
 		),
 	]:
@@ -2775,92 +3086,157 @@ func _build_cozy_carriage_decor() -> void:
 			table_position
 		)
 
-	# Decorative tables from the inspected candidate archive. They stay in the
-	# four end corners, outside the longitudinal and cross-carriage walkways.
-	_build_decorative_table(
-		"table_antique",
+	# -----------------------------------------------------------------------
+	# DECORATIVE TABLES — far denser than v7.
+	# -----------------------------------------------------------------------
+	var decorative_specs: Array[Dictionary] = [
+		{
+			"key": "table_antique",
+			"position": Vector3(-4.20, 0.0, -18.25),
+			"scale": Vector3(0.84, 0.84, 0.84),
+			"yaw": 0.0,
+			"style": "antique_lamp",
+		},
+		{
+			"key": "table_vintage",
+			"position": Vector3(4.05, 0.0, -18.10),
+			"scale": Vector3(0.58, 0.72, 0.58),
+			"yaw": PI,
+			"style": "books",
+		},
+		{
+			"key": "table_elegant",
+			"position": Vector3(-4.05, 0.0, 18.15),
+			"scale": Vector3(0.52, 0.72, 0.52),
+			"yaw": 0.0,
+			"style": "open_book",
+		},
+		{
+			"key": "table_antique",
+			"position": Vector3(4.20, 0.0, 18.20),
+			"scale": Vector3(0.76, 0.76, 0.76),
+			"yaw": PI,
+			"style": "tea",
+		},
+
+		# Side tables between the four left-side reading rows.
+		{
+			"key": "table_antique",
+			"position": Vector3(-4.72, 0.0, -10.0),
+			"scale": Vector3(0.62, 0.68, 0.62),
+			"yaw": PI / 2.0,
+			"style": "antique_lamp",
+		},
+		{
+			"key": "table_antique",
+			"position": Vector3(-4.72, 0.0, 0.0),
+			"scale": Vector3(0.60, 0.66, 0.60),
+			"yaw": PI / 2.0,
+			"style": "books",
+		},
+		{
+			"key": "table_antique",
+			"position": Vector3(-4.72, 0.0, 10.0),
+			"scale": Vector3(0.62, 0.68, 0.62),
+			"yaw": PI / 2.0,
+			"style": "tea",
+		},
+
+		# Two additional compact accent tables on the far-right wall, kept clear
+		# of the central cross-walkway.
+		{
+			"key": "table_elegant",
+			"position": Vector3(4.62, 0.0, -4.8),
+			"scale": Vector3(0.40, 0.58, 0.40),
+			"yaw": -PI / 2.0,
+			"style": "open_book",
+		},
+		{
+			"key": "table_elegant",
+			"position": Vector3(4.62, 0.0, 4.8),
+			"scale": Vector3(0.40, 0.58, 0.40),
+			"yaw": -PI / 2.0,
+			"style": "antique_lamp",
+		},
+	]
+
+	for spec: Dictionary in decorative_specs:
+		_build_decorative_table(
+			str(
+				spec["key"]
+			),
+			spec["position"],
+			spec["scale"],
+			float(
+				spec["yaw"]
+			),
+			str(
+				spec["style"]
+			)
+		)
+
+	# Extra Library props and book clusters around the carriage ends.
+	_instance_optional_asset(
+		"library_antique_clock",
 		Vector3(
-			-4.15,
 			0.0,
-			-18.25
+			0.0,
+			-19.65
 		),
-		Vector3(
-			0.84,
-			0.84,
-			0.84
-		),
+		Vector3.ONE
+		* 0.48,
 		0.0,
-		"antique_lamp"
+		"TrainAntiqueClock"
 	)
 
-	_build_decorative_table(
-		"table_vintage",
+	_instance_optional_asset(
+		"library_magazine_rack",
 		Vector3(
-			4.05,
+			-1.85,
 			0.0,
-			-18.10
+			18.65
 		),
-		Vector3(
-			0.58,
-			0.72,
-			0.58
-		),
+		Vector3.ONE
+		* 0.58,
 		PI,
-		"books"
+		"TrainMagazineRack"
 	)
 
-	_build_decorative_table(
-		"table_elegant",
+	_instance_optional_asset(
+		"library_bookstand",
 		Vector3(
-			-4.05,
+			1.75,
 			0.0,
-			18.15
+			18.65
 		),
-		Vector3(
-			0.52,
-			0.72,
-			0.52
-		),
-		0.0,
-		"open_book"
-	)
-
-	_build_decorative_table(
-		"table_antique",
-		Vector3(
-			4.20,
-			0.0,
-			18.20
-		),
-		Vector3(
-			0.76,
-			0.76,
-			0.76
-		),
+		Vector3.ONE
+		* 0.54,
 		PI,
-		"tea"
+		"TrainBookstand"
 	)
 
-	# Small book piles near the left-side study pairs.
 	for book_z: float in [
-		-15.6,
-		-4.4,
-		4.4,
-		15.6
+		-15.7,
+		-12.0,
+		-5.7,
+		-2.0,
+		4.3,
+		8.0,
+		14.3,
+		17.0
 	]:
 		_instance_optional_asset(
 			"library_books",
 			Vector3(
-				-4.95,
-				1.05,
+				-4.94,
+				1.04,
 				book_z
 			),
 			Vector3.ONE
-			* 0.40,
+			* 0.36,
 			0.12,
 			"TrainWindowBooks"
 		)
-
 
 func _build_decorative_table(
 	key: String,
@@ -3792,7 +4168,7 @@ func _backup_original() -> String:
 
 	var backup_path: String = (
 		BACKUP_DIR
-		+ "/train_before_old_world_v7_"
+		+ "/train_before_old_world_v9_"
 		+ timestamp
 		+ ".tscn"
 	)
