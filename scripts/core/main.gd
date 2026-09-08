@@ -5,9 +5,10 @@ enum Screen { MENU, ROOM, FOCUS }
 const PlayerControllerScript := preload("res://scripts/player/player_controller.gd")
 const CharacterLoaderScript := preload("res://scripts/assets/character_loader.gd")
 const CharacterSelectionScreenScript := preload(
-	"res://scripts/ui/character_selection_screen.gd"
+	"res://scripts/ui/character_selection_screen_scrapbook.gd"
 )
-const StationeryUIScript := preload("res://scripts/ui/stationery_ui.gd")
+const ScrapbookUIScript := preload("res://scripts/ui/scrapbook_ui.gd")
+const RoomPreviewScript := preload("res://scripts/ui/room_preview.gd")
 const AssetLoaderScript := preload("res://scripts/assets/asset_loader.gd")
 const FollowCameraScript := preload("res://scripts/camera/follow_camera.gd")
 const FocusCameraDirectorScript := preload("res://scripts/camera/focus_camera_director.gd")
@@ -16,6 +17,7 @@ const NPCControllerScript := preload("res://scripts/npc/npc_controller.gd")
 const RoomFloorScript := preload("res://scripts/world/room_floor.gd")
 const RoomDefinitionsScript := preload("res://scripts/rooms/room_definitions.gd")
 const GENERATED_ASSET_DIR := "res://assets/dev_local/blender_generated/runtime/"
+const UI_DESIGN_SIZE := Vector2(1280.0, 720.0)
 
 # Physics layer 5.
 # This layer is queried by cinematic/focus cameras but ignored by the player.
@@ -66,7 +68,8 @@ const CORAL := Color("#ed755f")
 
 var screen := Screen.MENU
 var world_root: Node3D
-var ui_root: CanvasLayer
+var ui_layer: CanvasLayer
+var ui_root: Control
 var player
 var player_visual: Node3D
 var explore_camera: Camera3D
@@ -120,6 +123,7 @@ var mats := {}
 
 func _ready() -> void:
 	seed(1207)
+	get_viewport().size_changed.connect(_update_ui_canvas_layout)
 	character_loader = CharacterLoaderScript.new()
 	character_loader.name = "CharacterLoader"
 	add_child(character_loader)
@@ -139,6 +143,7 @@ func _ready() -> void:
 		elif arg.begins_with("--review="): review = arg.trim_prefix("--review=")
 		elif arg in ["perf", "--perf"]: performance_review = true
 	match review:
+		"character_picker": show_main_menu(); call_deferred("_open_character_selection")
 		"library": current_room_name = GameState.ROOMS[0]; build_room(0)
 		"focus": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_focus")
 		"focus_laptop": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_begin_review_focus_at", 7)
@@ -338,8 +343,8 @@ func _clear_scene() -> void:
 	if is_instance_valid(world_root):
 		world_root.queue_free()
 
-	if is_instance_valid(ui_root):
-		ui_root.queue_free()
+	if is_instance_valid(ui_layer):
+		ui_layer.queue_free()
 
 	# IMPORTANT:
 	# References to children of the old World can otherwise remain pointing at
@@ -372,9 +377,34 @@ func _clear_scene() -> void:
 	world_root.name = "World"
 	add_child(world_root)
 
-	ui_root = CanvasLayer.new()
-	ui_root.name = "Interface"
-	add_child(ui_root)
+	ui_layer = CanvasLayer.new()
+	ui_layer.name = "Interface"
+	add_child(ui_layer)
+
+	ui_root = Control.new()
+	ui_root.name = "DesignCanvas"
+	ui_root.size = UI_DESIGN_SIZE
+	ui_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui_layer.add_child(ui_root)
+	_update_ui_canvas_layout()
+
+
+func _update_ui_canvas_layout() -> void:
+	if not is_instance_valid(ui_root):
+		return
+
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return
+
+	var canvas_scale := minf(
+		viewport_size.x / UI_DESIGN_SIZE.x,
+		viewport_size.y / UI_DESIGN_SIZE.y
+	)
+	ui_root.scale = Vector2.ONE * canvas_scale
+	ui_root.position = (
+		viewport_size - UI_DESIGN_SIZE * canvas_scale
+	) * 0.5
 
 
 func show_main_menu() -> void:
@@ -385,30 +415,99 @@ func show_main_menu() -> void:
 	_build_menu_ui()
 
 func _build_menu_world() -> void:
-	_add_environment(Color("#403029"), Color("#fff0cb"), 0.9)
-	var floor := _box(world_root, Vector3(8, 0.35, 8), Vector3(0, -0.3, 0), mats.wood)
-	floor.rotation.y = PI / 4.0
-	for i in 8:
-		var star := _sphere(world_root, Vector3(0.10, 0.10, 0.10), Vector3(cos(i) * 3.1, 0.25 + (i % 3) * 0.35, sin(i) * 3.1), mats.gold)
-		star.name = "WarmSparkle"
-	menu_character = _create_character(world_root, GameState.selected_character, false)
-	menu_character.position = Vector3(2.35, 0, 0)
-	menu_character.scale *= 1.10
-	var pedestal := _cylinder(world_root, 1.75, 0.35, Vector3(2.35, -0.08, 0), mats.cream, 48)
-	pedestal.position.y = -0.16
-	var cam := Camera3D.new()
-	world_root.add_child(cam)
-	cam.position = Vector3(5.8, 3.4, 7.8)
-	cam.fov = 34
-	cam.look_at_from_position(cam.position, Vector3(2.35, 1.65, 0))
-	cam.current = true
-	var light := OmniLight3D.new()
-	world_root.add_child(light)
-	light.position = Vector3(1, 5, 4)
-	light.light_color = Color("#ffd89b")
-	light.light_energy = 7.0
-	light.omni_range = 12.0
-	light.shadow_enabled = true
+	_add_environment(
+		Color("#7d6956"),
+		Color("#ffe5b4"),
+		0.88
+	)
+
+	_box(
+		world_root,
+		Vector3(11.0, 6.2, 0.30),
+		Vector3(0.0, 3.0, -2.3),
+		mats.paper
+	)
+
+	_box(
+		world_root,
+		Vector3(11.0, 0.34, 8.5),
+		Vector3(0.0, -0.28, 0.8),
+		mats.wood
+	)
+
+	_box(
+		world_root,
+		Vector3(2.8, 0.22, 1.2),
+		Vector3(3.15, 0.70, 1.4),
+		mats.wood
+	)
+
+	_box(
+		world_root,
+		Vector3(1.2, 1.4, 1.0),
+		Vector3(4.25, 0.7, 1.2),
+		mats.cocoa
+	)
+
+	for i: int in range(5):
+		var sparkle := _sphere(
+			world_root,
+			Vector3(0.055, 0.055, 0.055),
+			Vector3(
+				1.5 + float(i) * 0.72,
+				3.9 + sin(float(i)) * 0.34,
+				-2.05
+			),
+			mats.gold
+		)
+		sparkle.name = "MenuWallPin"
+
+	menu_character = _create_character(
+		world_root,
+		GameState.selected_character,
+		false
+	)
+	menu_character.position = Vector3(
+		3.75,
+		0.0,
+		0.0
+	)
+	menu_character.scale *= 1.18
+	character_loader.play_animation(
+		menu_character,
+		"Idle",
+		0.0
+	)
+
+	var camera := Camera3D.new()
+	world_root.add_child(camera)
+	camera.position = Vector3(
+		6.2,
+		3.25,
+		8.2
+	)
+	camera.fov = 32.0
+	camera.look_at_from_position(
+		camera.position,
+		Vector3(
+			0.65,
+			1.55,
+			0.0
+		)
+	)
+	camera.current = true
+
+	var key_light := OmniLight3D.new()
+	world_root.add_child(key_light)
+	key_light.position = Vector3(
+		2.6,
+		4.8,
+		4.6
+	)
+	key_light.light_color = Color("#ffd28e")
+	key_light.light_energy = 5.8
+	key_light.omni_range = 12.0
+	key_light.shadow_enabled = true
 
 func _build_character_review(yaw: float, seated: bool, animation_state := "") -> void:
 	screen = Screen.MENU
@@ -429,206 +528,314 @@ func _build_character_review(yaw: float, seated: bool, animation_state := "") ->
 	title.add_theme_stylebox_override("normal", _panel_style(Color(0.08,0.05,0.04,0.82), 18, 1, Color(1,0.85,0.6,0.2)))
 
 func _build_menu_ui() -> void:
-	var wash := ColorRect.new()
-	ui_root.add_child(wash)
-	wash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	wash.color = Color(0.04, 0.035, 0.03, 0.10)
-	wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var title := ScrapbookUIScript.label(
+		"STUDY TOWN",
+		43,
+		ScrapbookUIScript.INK,
+		true
+	)
+	ui_root.add_child(title)
+	title.position = Vector2(42, 28)
+	title.size = Vector2(440, 62)
+	title.rotation = deg_to_rad(-1.0)
 
-	var paper := PanelContainer.new()
-	ui_root.add_child(paper)
-	paper.position = Vector2(24, 22)
-	paper.size = Vector2(520, 676)
-	paper.add_theme_stylebox_override(
-		"panel",
-		StationeryUIScript.paper_style(
-			Color(0.976, 0.949, 0.882, 0.97),
-			22,
-			1,
-			StationeryUIScript.LINE,
-			0
-		)
+	var subtitle := ScrapbookUIScript.label(
+		"a small place\nfor brighter days",
+		17,
+		ScrapbookUIScript.INK_SOFT
+	)
+	ui_root.add_child(subtitle)
+	subtitle.position = Vector2(355, 64)
+	subtitle.size = Vector2(220, 70)
+	subtitle.rotation = deg_to_rad(-4.0)
+
+	ScrapbookUIScript.sticker(
+		ui_root,
+		"doodles/doodle_17.png",
+		Vector2(520, 20),
+		Vector2(52, 59),
+		-2.0
 	)
 
-	var margin := MarginContainer.new()
-	paper.add_child(margin)
-	margin.add_theme_constant_override("margin_left", 30)
-	margin.add_theme_constant_override("margin_right", 30)
-	margin.add_theme_constant_override("margin_top", 26)
-	margin.add_theme_constant_override("margin_bottom", 24)
+	ScrapbookUIScript.sticker(
+		ui_root,
+		"doodles/doodle_18.png",
+		Vector2(570, 17),
+		Vector2(51, 59),
+		2.0
+	)
 
-	var stack := VBoxContainer.new()
-	margin.add_child(stack)
-	stack.add_theme_constant_override("separation", 10)
+	var top_note := Control.new()
+	ui_root.add_child(top_note)
+	top_note.position = Vector2(930, 28)
+	top_note.size = Vector2(274, 150)
 
-	var brand := _label(
-		"S  T  U  D  Y  T  O  W  N",
-		12,
-		StationeryUIScript.MOSS
+	ScrapbookUIScript.paper(
+		top_note,
+		"paper/paper_8.png",
+		Vector2.ZERO,
+		Vector2(274, 150),
+		1.8
 	)
-	StationeryUIScript.apply_body(
-		brand,
-		12,
-		StationeryUIScript.MOSS
-	)
-	stack.add_child(brand)
 
-	var greeting := _label(
-		"A quieter place to be.",
-		13,
-		StationeryUIScript.MUTED
+	ScrapbookUIScript.sticker(
+		top_note,
+		"tape/tape_14.png",
+		Vector2(92, -14),
+		Vector2(90, 48),
+		-3.0
 	)
-	StationeryUIScript.apply_body(
-		greeting,
-		13,
-		StationeryUIScript.MUTED
-	)
-	stack.add_child(greeting)
 
-	var title := _label(
-		"Where are we\nstudying today?",
-		34,
-		StationeryUIScript.INK
+	var top_note_text := ScrapbookUIScript.label(
+		"pick somewhere nice\nand get to work!",
+		15,
+		ScrapbookUIScript.INK
 	)
-	StationeryUIScript.apply_heading(
-		title,
-		34,
-		StationeryUIScript.INK
-	)
-	stack.add_child(title)
+	top_note.add_child(top_note_text)
+	top_note_text.position = Vector2(37, 45)
+	top_note_text.size = Vector2(200, 62)
+	top_note_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
-	var room_intro := _label(
-		"Choose a place and settle in.",
-		14,
-		StationeryUIScript.MUTED
-	)
-	StationeryUIScript.apply_body(
-		room_intro,
-		14,
-		StationeryUIScript.MUTED
-	)
-	stack.add_child(room_intro)
-
-	var separator := HSeparator.new()
-	separator.modulate = StationeryUIScript.LINE
-	stack.add_child(separator)
+	var room_ids := [
+		"library",
+		"garden",
+		"train",
+		"japanese",
+	]
 
 	var room_names := [
-		"Grand Library",
-		"Garden Café",
-		"Scenic Train",
-		"Japanese Study Room",
+		"Library",
+		"Garden",
+		"Train",
+		"Japanese",
 	]
 
-	var descriptors := [
-		"Tall books, longer thoughts.",
-		"Fresh air, same focus.",
-		"Different views, same progress.",
-		"Quiet, slow, deliberate.",
+	var room_descriptions := [
+		"tall books,\nlonger thoughts.",
+		"fresh air,\nsame focus.",
+		"different views,\nsame progress.",
+		"quiet, slow,\ndeliberate.",
 	]
 
-	for i: int in range(room_names.size()):
-		var card := Button.new()
-		card.text = (
-			"%02d    %s\n        %s"
-			% [
-				i + 1,
-				room_names[i],
-				descriptors[i],
-			]
+	var room_doodles := [
+		"doodles/doodle_19.png",
+		"doodles/doodle_9.png",
+		"stamp/stamp_5.png",
+		"doodles/doodle_21.png",
+	]
+
+	for i: int in range(4):
+		var card := Control.new()
+		ui_root.add_child(card)
+		card.position = Vector2(
+			34.0 + float(i % 2) * 320.0,
+			132.0 + float(i / 2) * 196.0
 		)
-		card.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		card.custom_minimum_size = Vector2(0, 68)
-		card.focus_mode = Control.FOCUS_ALL
+		card.size = Vector2(
+			300,
+			180
+		)
+		card.rotation = deg_to_rad(
+			[-1.2, 0.8, 0.6, -0.7][i]
+		)
 
-		StationeryUIScript.apply_room_button(
+		ScrapbookUIScript.paper(
 			card,
-			i == GameState.selected_room
+			"paper/paper_1.png",
+			Vector2.ZERO,
+			card.size,
+			0.0
 		)
 
-		card.pressed.connect(
+		var preview_frame := Control.new()
+		preview_frame.position = Vector2(16, 20)
+		preview_frame.size = Vector2(126, 126)
+		preview_frame.clip_contents = true
+		card.add_child(preview_frame)
+
+		var preview := RoomPreviewScript.make_preview(
+			room_ids[i],
+			Vector2i(126, 126)
+		)
+		preview.set_anchors_and_offsets_preset(
+			Control.PRESET_FULL_RECT
+		)
+		preview_frame.add_child(preview)
+
+		var room_name := ScrapbookUIScript.label(
+			room_names[i],
+			21,
+			ScrapbookUIScript.INK,
+			true
+		)
+		room_name.position = Vector2(148, 30)
+		room_name.size = Vector2(134, 36)
+		room_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		card.add_child(room_name)
+
+		var description := ScrapbookUIScript.label(
+			room_descriptions[i],
+			14,
+			ScrapbookUIScript.INK_SOFT
+		)
+		description.position = Vector2(150, 72)
+		description.size = Vector2(130, 62)
+		description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		card.add_child(description)
+
+		ScrapbookUIScript.sticker(
+			card,
+			room_doodles[i],
+			Vector2(246, 126),
+			Vector2(38, 38),
+			-4.0
+		)
+
+		if i == 0:
+			ScrapbookUIScript.sticker(
+				card,
+				"pin/pin_7.png",
+				Vector2(18, -18),
+				Vector2(34, 53),
+				-7.0
+			)
+		else:
+			ScrapbookUIScript.sticker(
+				card,
+				"tape/tape_%d.png" % [1, 4, 8, 13][i],
+				Vector2(105, -15),
+				Vector2(90, 42),
+				2.0 - float(i) * 2.0
+			)
+
+		var click := ScrapbookUIScript.make_click_area(
+			Vector2.ZERO,
+			card.size
+		)
+		card.add_child(click)
+		click.pressed.connect(
 			_enter_room.bind(i)
 		)
-		stack.add_child(card)
 
-	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 2)
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	stack.add_child(spacer)
+	var mini_menu := Control.new()
+	ui_root.add_child(mini_menu)
+	mini_menu.position = Vector2(35, 532)
+	mini_menu.size = Vector2(190, 172)
+	mini_menu.rotation = deg_to_rad(-1.0)
 
-	var character_line := HSeparator.new()
-	character_line.modulate = StationeryUIScript.LINE
-	stack.add_child(character_line)
-
-	var selected_profile = character_loader.get_profile(
-		clampi(
-			GameState.selected_character,
-			0,
-			maxi(
-				character_loader.profiles.size() - 1,
-				0
-			)
-		)
+	ScrapbookUIScript.paper(
+		mini_menu,
+		"paper/paper_9.png",
+		Vector2.ZERO,
+		Vector2(190, 172),
+		0.0
 	)
 
-	var buddy_row := HBoxContainer.new()
-	buddy_row.add_theme_constant_override("separation", 12)
-	stack.add_child(buddy_row)
-
-	var buddy_copy := VBoxContainer.new()
-	buddy_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	buddy_copy.add_theme_constant_override("separation", 1)
-	buddy_row.add_child(buddy_copy)
-
-	var buddy_eyebrow := _label(
-		"STUDY BUDDY",
-		10,
-		StationeryUIScript.MOSS
+	ScrapbookUIScript.sticker(
+		mini_menu,
+		"tape/tape_6.png",
+		Vector2(54, -15),
+		Vector2(82, 42),
+		1.0
 	)
-	StationeryUIScript.apply_body(
-		buddy_eyebrow,
-		10,
-		StationeryUIScript.MOSS
-	)
-	buddy_copy.add_child(buddy_eyebrow)
 
-	var buddy_name := _label(
-		selected_profile.display_name,
-		17,
-		StationeryUIScript.INK
-	)
-	StationeryUIScript.apply_body(
-		buddy_name,
-		17,
-		StationeryUIScript.INK
-	)
-	buddy_copy.add_child(buddy_name)
+	var settings := Button.new()
+	settings.text = "⚙  Settings"
+	settings.position = Vector2(18, 36)
+	settings.size = Vector2(145, 38)
+	ScrapbookUIScript.apply_text_button(settings)
+	settings.pressed.connect(_open_scrapbook_settings)
+	mini_menu.add_child(settings)
 
-	var species_text := str(
-		selected_profile.species
-	).capitalize()
+	var credits := Button.new()
+	credits.text = "✿  Credits"
+	credits.position = Vector2(18, 78)
+	credits.size = Vector2(145, 38)
+	ScrapbookUIScript.apply_text_button(credits)
+	credits.pressed.connect(_open_scrapbook_credits)
+	mini_menu.add_child(credits)
 
-	if species_text.is_empty():
-		species_text = "Villager"
+	var quit := Button.new()
+	quit.text = "↪  Quit"
+	quit.position = Vector2(18, 120)
+	quit.size = Vector2(145, 38)
+	ScrapbookUIScript.apply_text_button(quit)
+	quit.pressed.connect(
+		func():
+			get_tree().quit()
+	)
+	mini_menu.add_child(quit)
 
-	var buddy_species := _label(
-		species_text,
-		12,
-		StationeryUIScript.MUTED
+	var profile: CharacterProfile = character_loader.get_profile(
+		GameState.selected_character
 	)
-	StationeryUIScript.apply_body(
-		buddy_species,
-		12,
-		StationeryUIScript.MUTED
+
+	var buddy_note := Control.new()
+	ui_root.add_child(buddy_note)
+	buddy_note.position = Vector2(950, 528)
+	buddy_note.size = Vector2(272, 149)
+	buddy_note.rotation = deg_to_rad(-2.0)
+
+	ScrapbookUIScript.paper(
+		buddy_note,
+		"paper/paper_7.png",
+		Vector2.ZERO,
+		Vector2(272, 149),
+		0.0
 	)
-	buddy_copy.add_child(buddy_species)
+
+	ScrapbookUIScript.sticker(
+		buddy_note,
+		"tape/tape_3.png",
+		Vector2(82, -18),
+		Vector2(78, 42),
+		2.0
+	)
+
+	var buddy_name := ScrapbookUIScript.label(
+		profile.display_name,
+		23,
+		ScrapbookUIScript.INK,
+		true
+	)
+	buddy_name.position = Vector2(28, 23)
+	buddy_name.size = Vector2(194, 34)
+	buddy_note.add_child(buddy_name)
+
+	var buddy_species := ScrapbookUIScript.label(
+		profile.species.capitalize(),
+		15,
+		ScrapbookUIScript.INK_SOFT
+	)
+	buddy_species.position = Vector2(30, 63)
+	buddy_species.size = Vector2(160, 28)
+	buddy_note.add_child(buddy_species)
+
+	ScrapbookUIScript.sticker(
+		buddy_note,
+		"doodles/doodle_13.png",
+		Vector2(188, 20),
+		Vector2(38, 38),
+		0.0
+	)
 
 	var change := Button.new()
 	change.text = "Change  →"
-	change.custom_minimum_size = Vector2(112, 46)
-	StationeryUIScript.apply_soft_button(change, false)
+	change.position = Vector2(26, 98)
+	change.size = Vector2(190, 34)
+	ScrapbookUIScript.apply_text_button(change)
 	change.pressed.connect(_open_character_selection)
-	buddy_row.add_child(change)
+	buddy_note.add_child(change)
+
+	var footer_note := ScrapbookUIScript.label(
+		"same place,\nbrighter days :)",
+		13,
+		Color("#7f6c57")
+	)
+	ui_root.add_child(footer_note)
+	footer_note.position = Vector2(270, 566)
+	footer_note.size = Vector2(180, 70)
+	footer_note.rotation = deg_to_rad(-5.0)
 
 func _open_character_selection() -> void:
 	if character_loader == null:
@@ -653,6 +860,96 @@ func _open_character_selection() -> void:
 		GameState.selected_character
 	)
 
+
+func _begin_scrapbook_break(
+	seconds: int,
+	spot_index: int
+) -> void:
+	resting_duration = seconds
+	_begin_resting(spot_index)
+
+
+func _open_scrapbook_settings() -> void:
+	_show_scrapbook_note(
+		"Settings",
+		"Keep things simple.\n\nUse Esc to leave a room.\nF3/F4/F5/F6 remain available for development tools."
+	)
+
+
+func _open_scrapbook_credits() -> void:
+	_show_scrapbook_note(
+		"Credits",
+		"StudyTown\n\nBuilt with Godot.\nCozy rooms, little study buddies,\nand a lot of paper scraps."
+	)
+
+
+func _show_scrapbook_note(
+	title_text: String,
+	body_text: String
+) -> void:
+	var overlay := ColorRect.new()
+	ui_root.add_child(overlay)
+	overlay.name = "ScrapbookInfoOverlay"
+	overlay.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+	overlay.color = Color(0.035, 0.024, 0.016, 0.40)
+
+	var note := Control.new()
+	overlay.add_child(note)
+	note.position = Vector2(430, 170)
+	note.size = Vector2(420, 360)
+
+	ScrapbookUIScript.paper(
+		note,
+		"paper/paper_2.png",
+		Vector2.ZERO,
+		Vector2(420, 360),
+		-0.5
+	)
+
+	ScrapbookUIScript.sticker(
+		note,
+		"tape/tape_14.png",
+		Vector2(155, -12),
+		Vector2(100, 46),
+		-1.0
+	)
+
+	var title := ScrapbookUIScript.label(
+		title_text,
+		30,
+		ScrapbookUIScript.INK,
+		true
+	)
+	title.position = Vector2(48, 54)
+	title.size = Vector2(320, 46)
+	note.add_child(title)
+
+	var body := ScrapbookUIScript.label(
+		body_text,
+		15,
+		ScrapbookUIScript.INK_SOFT
+	)
+	body.position = Vector2(52, 120)
+	body.size = Vector2(316, 140)
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.add_child(body)
+
+	var close := Button.new()
+	close.text = "Close"
+	close.position = Vector2(130, 278)
+	close.size = Vector2(160, 48)
+	ScrapbookUIScript.apply_paper_button(
+		close,
+		true,
+		true
+	)
+	close.pressed.connect(
+		func():
+			overlay.queue_free()
+	)
+	note.add_child(close)
 
 func _select_character(index: int) -> void:
 	GameState.selected_character = index
@@ -2911,23 +3208,52 @@ func _add_study_spot(standing: Vector3, sitting: Vector3, yaw: float, study_type
 	return spot
 
 func _update_nearest_spot() -> void:
-	if not is_instance_valid(player):return
-	var best:=-1;var best_distance:=INF
-	for i in study_spots.size():
-		if not study_spots[i].is_available(): continue
-		var d:float=player.global_position.distance_to(study_spots[i].standing_position)
-		if d <= study_spots[i].interaction_radius and d < best_distance:best=i;best_distance=d
-	nearest_spot=best
+	if not is_instance_valid(player):
+		return
+
+	var best := -1
+	var best_distance := INF
+
+	for i: int in range(study_spots.size()):
+		if not study_spots[i].is_available():
+			continue
+
+		var distance: float = player.global_position.distance_to(
+			study_spots[i].standing_position
+		)
+
+		if (
+			distance <= study_spots[i].interaction_radius
+			and distance < best_distance
+		):
+			best = i
+			best_distance = distance
+
+	nearest_spot = best
+
 	if debug_spots_visible:
-		for i in study_spots.size(): study_spots[i].update_debug(i == best)
+		for i: int in range(study_spots.size()):
+			study_spots[i].update_debug(
+				i == best
+			)
+
 	if is_instance_valid(prompt_label):
 		prompt_label.visible = best >= 0
+
+		var prompt_parent := prompt_label.get_parent()
+
+		if prompt_parent is Control:
+			(prompt_parent as Control).visible = best >= 0
+
 		if best >= 0:
 			var nearest = study_spots[best]
+
 			if str(nearest.seat_type) == "tanning_bed":
-				prompt_label.text = "E   Rest here"
+				prompt_label.text = "Press  E  to rest here"
 			else:
-				prompt_label.text = "E   Study here  ·  " + nearest.study_type
+				prompt_label.text = (
+					"Press  E  to study here"
+				)
 
 func _set_debug_spots(value: bool) -> void:
 	for i in study_spots.size():
@@ -2940,106 +3266,154 @@ func _set_collision_debug(value: bool) -> void:
 	_show_toast("Structural collision "+("visible" if value else "hidden"))
 
 func _build_room_ui() -> void:
-	var back := Button.new()
-	ui_root.add_child(back)
-	back.text = "←  Places"
-	back.position = Vector2(24, 22)
-	back.size = Vector2(108, 42)
-	StationeryUIScript.apply_dark_button(back)
-	back.pressed.connect(show_main_menu)
+	var room_id := str(
+		current_room_config.get(
+			"id",
+			"library"
+		)
+	)
 
-	var room_copy := VBoxContainer.new()
-	ui_root.add_child(room_copy)
-	room_copy.position = Vector2(24, 76)
-	room_copy.size = Vector2(380, 70)
-	room_copy.add_theme_constant_override("separation", 1)
+	var room_doodle: String = str(
+		{
+			"library": "doodles/doodle_19.png",
+			"garden": "doodles/doodle_9.png",
+			"train": "stamp/stamp_5.png",
+		}.get(
+			room_id,
+			"doodles/doodle_17.png"
+		)
+	)
 
-	var room_title := _label(
+	var room_note := Control.new()
+	ui_root.add_child(room_note)
+	room_note.position = Vector2(22, 20)
+	room_note.size = Vector2(247, 135)
+	room_note.rotation = deg_to_rad(-1.0)
+
+	ScrapbookUIScript.paper(
+		room_note,
+		"paper/paper_8.png",
+		Vector2.ZERO,
+		room_note.size,
+		0.0
+	)
+
+	ScrapbookUIScript.sticker(
+		room_note,
+		room_doodle,
+		Vector2(190, 18),
+		Vector2(38, 38),
+		0.0
+	)
+
+	var title := ScrapbookUIScript.label(
 		current_room_name,
-		22,
-		StationeryUIScript.LIGHT_TEXT
+		23,
+		ScrapbookUIScript.INK,
+		true
 	)
-	StationeryUIScript.apply_heading(
-		room_title,
-		22,
-		StationeryUIScript.LIGHT_TEXT
-	)
-	room_copy.add_child(room_title)
+	title.position = Vector2(22, 22)
+	title.size = Vector2(172, 34)
+	room_note.add_child(title)
 
-	var room_meta := _label(
-		"focus  ·  read  ·  create",
-		12,
-		StationeryUIScript.LIGHT_MUTED
-	)
-	StationeryUIScript.apply_body(
-		room_meta,
-		12,
-		StationeryUIScript.LIGHT_MUTED
-	)
-	room_copy.add_child(room_meta)
-
-	var coins := PanelContainer.new()
-	ui_root.add_child(coins)
-	coins.position = Vector2(1080, 22)
-	coins.size = Vector2(176, 42)
-	coins.add_theme_stylebox_override(
-		"panel",
-		StationeryUIScript.dark_glass_style(0.54, 18, 1)
-	)
-
-	coins_label = _label(
-		"%d focus" % GameState.focus_coins,
+	var meta := ScrapbookUIScript.label(
+		"focus · read · create",
 		13,
-		StationeryUIScript.LIGHT_TEXT
+		ScrapbookUIScript.INK_SOFT
 	)
-	StationeryUIScript.apply_body(
-		coins_label,
-		13,
-		StationeryUIScript.LIGHT_TEXT
+	meta.position = Vector2(23, 59)
+	meta.size = Vector2(184, 30)
+	room_note.add_child(meta)
+
+	var back := Button.new()
+	back.text = "←"
+	back.position = Vector2(24, 119)
+	back.size = Vector2(54, 38)
+	ScrapbookUIScript.apply_paper_button(back)
+	back.pressed.connect(show_main_menu)
+	ui_root.add_child(back)
+
+	var coin_note := Control.new()
+	ui_root.add_child(coin_note)
+	coin_note.position = Vector2(1114, 18)
+	coin_note.size = Vector2(140, 76)
+	coin_note.rotation = deg_to_rad(2.0)
+
+	ScrapbookUIScript.paper(
+		coin_note,
+		"paper/paper_8.png",
+		Vector2.ZERO,
+		coin_note.size,
+		0.0
 	)
+
+	ScrapbookUIScript.sticker(
+		coin_note,
+		"doodles/doodle_9.png",
+		Vector2(13, 18),
+		Vector2(34, 30),
+		0.0
+	)
+
+	coins_label = ScrapbookUIScript.label(
+		str(GameState.focus_coins),
+		18,
+		ScrapbookUIScript.INK,
+		true
+	)
+	coins_label.position = Vector2(52, 20)
+	coins_label.size = Vector2(70, 30)
 	coins_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	coins_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	coins.add_child(coins_label)
+	coin_note.add_child(coins_label)
 
-	prompt_label = _label(
-		"E   Study here",
-		14,
-		StationeryUIScript.LIGHT_TEXT
+	var prompt_note := Panel.new()
+	ui_root.add_child(prompt_note)
+	prompt_note.position = Vector2(490, 642)
+	prompt_note.size = Vector2(300, 56)
+	prompt_note.name = "StudyPromptPaper"
+	prompt_note.visible = false
+	prompt_note.add_theme_stylebox_override(
+		"panel",
+		ScrapbookUIScript.rough_style(
+			Color(0.98, 0.92, 0.79, 0.96),
+			12,
+			1,
+			Color("#aa9474")
+		)
 	)
-	ui_root.add_child(prompt_label)
-	prompt_label.position = Vector2(500, 638)
-	prompt_label.size = Vector2(280, 44)
+
+	prompt_label = ScrapbookUIScript.label(
+		"Press  E  to study here",
+		15,
+		ScrapbookUIScript.INK
+	)
+	prompt_label.position = Vector2(20, 12)
+	prompt_label.size = Vector2(260, 32)
 	prompt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	prompt_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	prompt_label.add_theme_stylebox_override(
-		"normal",
-		StationeryUIScript.dark_glass_style(0.72, 18, 1)
-	)
-	prompt_label.visible = false
-	StationeryUIScript.apply_body(
-		prompt_label,
-		14,
-		StationeryUIScript.LIGHT_TEXT
-	)
+	prompt_note.add_child(prompt_label)
 
-	var hint := _label(
+	var hint_note := ScrapbookUIScript.label(
 		"WASD move   ·   E interact   ·   F wave",
-		11,
-		StationeryUIScript.LIGHT_MUTED
+		12,
+		Color("#f4e4c8")
 	)
-	ui_root.add_child(hint)
-	hint.position = Vector2(24, 676)
-	hint.size = Vector2(360, 26)
-	StationeryUIScript.apply_body(
-		hint,
-		11,
-		StationeryUIScript.LIGHT_MUTED
+	ui_root.add_child(hint_note)
+	hint_note.position = Vector2(20, 676)
+	hint_note.size = Vector2(350, 32)
+	hint_note.add_theme_stylebox_override(
+		"normal",
+		ScrapbookUIScript.rough_style(
+			Color(0.10, 0.065, 0.045, 0.78),
+			9,
+			1,
+			Color(1.0, 0.92, 0.76, 0.20)
+		)
 	)
 
-	debug_label = _label(
+	debug_label = ScrapbookUIScript.label(
 		"DEV  F3 anchors  ·  F4 collision  ·  F5 short focus  ·  F6 performance\nFPS: --   Grounded: --",
 		12,
-		StationeryUIScript.LIGHT_TEXT
+		Color("#fff0d4")
 	)
 	ui_root.add_child(debug_label)
 	debug_label.position = Vector2(820, 610)
@@ -3050,10 +3424,19 @@ func _build_room_ui() -> void:
 func _open_resting_setup(spot_index: int) -> void:
 	if study_spots.is_empty():
 		return
-	spot_index = clampi(spot_index, 0, study_spots.size() - 1)
+
+	spot_index = clampi(
+		spot_index,
+		0,
+		study_spots.size() - 1
+	)
+
 	var spot = study_spots[spot_index]
 
-	if not spot.reserve("local_player", StudySpot.OccupantType.PLAYER):
+	if not spot.reserve(
+		"local_player",
+		StudySpot.OccupantType.PLAYER
+	):
 		_show_toast("That lounger is occupied")
 		return
 
@@ -3063,116 +3446,140 @@ func _open_resting_setup(spot_index: int) -> void:
 	var overlay := ColorRect.new()
 	ui_root.add_child(overlay)
 	overlay.name = "RestingSetupOverlay"
-	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.color = Color(0.06, 0.04, 0.03, 0.68)
+	overlay.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+	overlay.color = Color(0.04, 0.028, 0.018, 0.48)
 
-	var panel := PanelContainer.new()
-	overlay.add_child(panel)
-	panel.position = Vector2(355, 135)
-	panel.size = Vector2(570, 430)
-	panel.add_theme_stylebox_override(
-		"panel",
-		_panel_style(CREAM, 30, 5, HONEY)
+	var note := Control.new()
+	overlay.add_child(note)
+	note.position = Vector2(390, 112)
+	note.size = Vector2(500, 492)
+	note.rotation = deg_to_rad(0.7)
+
+	ScrapbookUIScript.paper(
+		note,
+		"paper/paper_2.png",
+		Vector2.ZERO,
+		Vector2(500, 492),
+		0.0
 	)
 
-	var margin := MarginContainer.new()
-	panel.add_child(margin)
-	for key in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + key, 28)
-
-	var stack := VBoxContainer.new()
-	margin.add_child(stack)
-	stack.add_theme_constant_override("separation", 16)
-
-	stack.add_child(_label("Take a rest", 30, INK))
-	stack.add_child(
-		_label(
-			"Choose how long you want to rest here.",
-			17,
-			COCOA
-		)
+	ScrapbookUIScript.sticker(
+		note,
+		"tape/tape_3.png",
+		Vector2(205, -20),
+		Vector2(90, 48),
+		-2.0
 	)
 
-	var presets := GridContainer.new()
-	presets.columns = 3
-	presets.add_theme_constant_override("h_separation", 10)
-	presets.add_theme_constant_override("v_separation", 10)
-	stack.add_child(presets)
+	ScrapbookUIScript.sticker(
+		note,
+		"doodles/doodle_8.png",
+		Vector2(410, 32),
+		Vector2(52, 60),
+		0.0
+	)
 
-	for data in [
-		["10 min", 600],
-		["20 min", 1200],
-		["30 min", 1800],
-		["60 min", 3600],
-		["120 min", 7200],
-		["10 sec · DEV", 10],
-	]:
-		var button := _button(
-			data[0],
-			int(data[1]) == resting_duration
+	ScrapbookUIScript.sticker(
+		note,
+		"doodles/doodle_13.png",
+		Vector2(370, 304),
+		Vector2(72, 72),
+		-5.0
+	)
+
+	var title := ScrapbookUIScript.label(
+		"Take a break?",
+		31,
+		ScrapbookUIScript.INK,
+		true
+	)
+	title.position = Vector2(50, 50)
+	title.size = Vector2(330, 46)
+	note.add_child(title)
+
+	var helper := ScrapbookUIScript.label(
+		"You've been focusing for a while.\nRest, stretch, and come back stronger!",
+		14,
+		ScrapbookUIScript.INK_SOFT
+	)
+	helper.position = Vector2(52, 104)
+	helper.size = Vector2(360, 60)
+	note.add_child(helper)
+
+	var durations := [
+		["5 minutes", 300],
+		["10 minutes", 600],
+		["15 minutes", 900],
+	]
+
+	for i: int in range(durations.size()):
+		var button := Button.new()
+		button.text = durations[i][0]
+		button.position = Vector2(
+			72,
+			184 + float(i) * 60.0
 		)
-		button.custom_minimum_size = Vector2(155, 48)
+		button.size = Vector2(250, 46)
+
+		ScrapbookUIScript.apply_paper_button(
+			button,
+			i == 0,
+			i == 0
+		)
+
+		var seconds := int(durations[i][1])
+
 		button.pressed.connect(
-			_choose_resting_duration.bind(
-				int(data[1]),
-				presets
+			_begin_scrapbook_break.bind(
+				seconds,
+				spot_index
 			)
 		)
-		button.set_meta("seconds", data[1])
-		presets.add_child(button)
 
-	var custom_row := HBoxContainer.new()
-	custom_row.add_theme_constant_override("separation", 12)
-	stack.add_child(custom_row)
-	custom_row.add_child(_label("Custom minutes", 16, COCOA))
+		note.add_child(button)
 
-	var custom_minutes := SpinBox.new()
-	custom_minutes.min_value = 1
-	custom_minutes.max_value = 480
-	custom_minutes.value = clampi(resting_duration / 60, 1, 480)
-	custom_minutes.custom_minimum_size = Vector2(150, 44)
-	custom_minutes.add_theme_font_size_override("font_size", 17)
-	custom_minutes.value_changed.connect(
-		func(value: float):
-			resting_duration = int(value) * 60
+	var back := Button.new()
+	back.text = "Back to work"
+	back.position = Vector2(72, 372)
+	back.size = Vector2(250, 48)
+	ScrapbookUIScript.apply_paper_button(back)
+	back.pressed.connect(_close_resting_setup)
+	note.add_child(back)
+
+	var reminder := ScrapbookUIScript.label(
+		"rest\nis part\nof progress :)",
+		13,
+		ScrapbookUIScript.INK_SOFT
 	)
-	custom_row.add_child(custom_minutes)
-
-	var actions := HBoxContainer.new()
-	actions.add_theme_constant_override("separation", 12)
-	stack.add_child(actions)
-
-	var cancel := _button("Not yet", false)
-	cancel.custom_minimum_size = Vector2(180, 58)
-	cancel.pressed.connect(_close_resting_setup)
-	actions.add_child(cancel)
-
-	var start := _button("Begin resting  →", true)
-	start.custom_minimum_size = Vector2(300, 58)
-	start.pressed.connect(_begin_resting.bind(spot_index))
-	actions.add_child(start)
-
+	reminder.position = Vector2(350, 376)
+	reminder.size = Vector2(110, 80)
+	reminder.rotation = deg_to_rad(-6.0)
+	note.add_child(reminder)
 
 func _choose_resting_duration(
 	seconds: int,
 	grid: GridContainer
 ) -> void:
 	resting_duration = seconds
-	for child in grid.get_children():
+
+	for child: Node in grid.get_children():
 		if child is Button:
 			var selected := (
-				int(child.get_meta("seconds")) == seconds
-			)
-			child.add_theme_stylebox_override(
-				"normal",
-				_panel_style(
-					HONEY if selected else Color("#f4e3bf"),
-					14,
-					2,
-					WOOD if selected else Color("#d8bd88")
-				)
+				int(
+					child.get_meta(
+						"seconds",
+						0
+					)
+				) == seconds
 			)
 
+			ScrapbookUIScript.apply_paper_button(
+				child as Button,
+				selected,
+				selected
+			)
 
 func _close_resting_setup() -> void:
 	var overlay := ui_root.get_node_or_null("RestingSetupOverlay")
@@ -3218,123 +3625,127 @@ func _open_focus_setup(spot_index: int) -> void:
 	overlay.set_anchors_and_offsets_preset(
 		Control.PRESET_FULL_RECT
 	)
-	overlay.color = Color(0.035, 0.03, 0.025, 0.46)
+	overlay.color = Color(0.04, 0.028, 0.018, 0.48)
 
-	var panel := PanelContainer.new()
-	overlay.add_child(panel)
-	panel.position = Vector2(390, 84)
-	panel.size = Vector2(500, 552)
-	panel.add_theme_stylebox_override(
-		"panel",
-		StationeryUIScript.paper_style(
-			StationeryUIScript.PAPER,
-			22,
-			1,
-			StationeryUIScript.LINE,
-			0
-		)
+	var note := Control.new()
+	overlay.add_child(note)
+	note.position = Vector2(365, 82)
+	note.size = Vector2(550, 548)
+	note.rotation = deg_to_rad(-0.5)
+
+	ScrapbookUIScript.paper(
+		note,
+		"paper/paper_10.png",
+		Vector2.ZERO,
+		Vector2(550, 548),
+		0.0
 	)
 
-	var margin := MarginContainer.new()
-	panel.add_child(margin)
-	margin.add_theme_constant_override("margin_left", 26)
-	margin.add_theme_constant_override("margin_right", 26)
-	margin.add_theme_constant_override("margin_top", 24)
-	margin.add_theme_constant_override("margin_bottom", 24)
-
-	var stack := VBoxContainer.new()
-	margin.add_child(stack)
-	stack.add_theme_constant_override("separation", 14)
-
-	var eyebrow := _label(
-		"FOCUS SESSION",
-		11,
-		StationeryUIScript.MOSS
+	ScrapbookUIScript.sticker(
+		note,
+		"pin/pin_1.png",
+		Vector2(245, -18),
+		Vector2(42, 66),
+		0.0
 	)
-	StationeryUIScript.apply_body(
-		eyebrow,
-		11,
-		StationeryUIScript.MOSS
-	)
-	stack.add_child(eyebrow)
 
-	var title := _label(
-		"Settle in.",
-		30,
-		StationeryUIScript.INK
+	ScrapbookUIScript.sticker(
+		note,
+		"doodles/doodle_9.png",
+		Vector2(35, 30),
+		Vector2(44, 40),
+		-5.0
 	)
-	StationeryUIScript.apply_heading(
-		title,
-		30,
-		StationeryUIScript.INK
-	)
-	stack.add_child(title)
 
-	var helper := _label(
-		"One task. One place. A little uninterrupted time.",
-		13,
-		StationeryUIScript.MUTED
+	ScrapbookUIScript.sticker(
+		note,
+		"doodles/doodle_18.png",
+		Vector2(452, 25),
+		Vector2(54, 56),
+		2.0
 	)
-	StationeryUIScript.apply_body(
-		helper,
-		13,
-		StationeryUIScript.MUTED
+
+	ScrapbookUIScript.sticker(
+		note,
+		"patch/patch_3.png",
+		Vector2(402, 228),
+		Vector2(124, 88),
+		5.0
 	)
-	stack.add_child(helper)
 
-	var divider := HSeparator.new()
-	divider.modulate = StationeryUIScript.LINE
-	stack.add_child(divider)
+	ScrapbookUIScript.sticker(
+		note,
+		"doodles/doodle_5.png",
+		Vector2(30, 448),
+		Vector2(54, 60),
+		-3.0
+	)
 
-	var task_label := _label(
+	var title := ScrapbookUIScript.label(
+		"Focus Session",
+		29,
+		ScrapbookUIScript.INK,
+		true
+	)
+	title.position = Vector2(90, 30)
+	title.size = Vector2(340, 42)
+	note.add_child(title)
+
+	var subtitle := ScrapbookUIScript.label(
+		"Set a task, pick a time, and\nlet's get to it!",
+		14,
+		ScrapbookUIScript.INK_SOFT
+	)
+	subtitle.position = Vector2(92, 72)
+	subtitle.size = Vector2(300, 54)
+	note.add_child(subtitle)
+
+	var task_label := ScrapbookUIScript.label(
 		"Task",
-		13,
-		StationeryUIScript.INK
+		15,
+		ScrapbookUIScript.INK,
+		true
 	)
-	StationeryUIScript.apply_body(
-		task_label,
-		13,
-		StationeryUIScript.INK
-	)
-	stack.add_child(task_label)
+	task_label.position = Vector2(78, 143)
+	task_label.size = Vector2(120, 30)
+	note.add_child(task_label)
 
 	task_input = LineEdit.new()
+	task_input.position = Vector2(76, 176)
+	task_input.size = Vector2(370, 48)
 	task_input.placeholder_text = "What are you working on?"
 	task_input.max_length = 64
-	task_input.custom_minimum_size = Vector2(0, 48)
-	StationeryUIScript.apply_line_edit(task_input)
-	stack.add_child(task_input)
+	ScrapbookUIScript.apply_line_edit(task_input)
+	note.add_child(task_input)
 
-	var duration_label := _label(
+	var duration_label := ScrapbookUIScript.label(
 		"Duration",
-		13,
-		StationeryUIScript.INK
+		15,
+		ScrapbookUIScript.INK,
+		true
 	)
-	StationeryUIScript.apply_body(
-		duration_label,
-		13,
-		StationeryUIScript.INK
-	)
-	stack.add_child(duration_label)
+	duration_label.position = Vector2(78, 245)
+	duration_label.size = Vector2(160, 30)
+	note.add_child(duration_label)
 
-	var presets := GridContainer.new()
-	presets.columns = 4
-	presets.add_theme_constant_override("h_separation", 8)
-	presets.add_theme_constant_override("v_separation", 8)
-	stack.add_child(presets)
+	var presets := HBoxContainer.new()
+	presets.position = Vector2(76, 282)
+	presets.size = Vector2(370, 48)
+	presets.add_theme_constant_override("separation", 8)
+	note.add_child(presets)
 
 	for data in [
 		["25 min", 1500],
 		["50 min", 3000],
 		["90 min", 5400],
-		["120 min", 7200],
 	]:
 		var button := Button.new()
 		button.text = data[0]
-		button.custom_minimum_size = Vector2(100, 46)
+		button.custom_minimum_size = Vector2(86, 44)
 		button.set_meta("seconds", data[1])
-		StationeryUIScript.apply_soft_button(
+		ScrapbookUIScript.apply_paper_button(
 			button,
+			int(data[1]) == selected_duration,
 			int(data[1]) == selected_duration
 		)
 		button.pressed.connect(
@@ -3345,79 +3756,68 @@ func _open_focus_setup(spot_index: int) -> void:
 		)
 		presets.add_child(button)
 
-	var custom_row := HBoxContainer.new()
-	custom_row.add_theme_constant_override("separation", 10)
-	stack.add_child(custom_row)
-
-	var custom_label := _label(
-		"Custom minutes",
-		13,
-		StationeryUIScript.MUTED
-	)
-	StationeryUIScript.apply_body(
-		custom_label,
-		13,
-		StationeryUIScript.MUTED
-	)
-	custom_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	custom_row.add_child(custom_label)
-
-	var custom_minutes := SpinBox.new()
-	custom_minutes.min_value = 1
-	custom_minutes.max_value = 180
-	custom_minutes.value = clampi(
+	var custom := SpinBox.new()
+	custom.min_value = 1
+	custom.max_value = 180
+	custom.value = clampi(
 		selected_duration / 60,
 		1,
 		180
 	)
-	custom_minutes.custom_minimum_size = Vector2(120, 42)
-	StationeryUIScript.apply_spinbox(custom_minutes)
-	custom_minutes.value_changed.connect(
+	custom.suffix = " min"
+	custom.custom_minimum_size = Vector2(94, 44)
+	ScrapbookUIScript.apply_spin_box(custom)
+	custom.value_changed.connect(
 		func(value: float):
 			selected_duration = int(value) * 60
 	)
-	custom_row.add_child(custom_minutes)
+	presets.add_child(custom)
 
-	var actions := HBoxContainer.new()
-	actions.add_theme_constant_override("separation", 10)
-	stack.add_child(actions)
-
-	var cancel := Button.new()
-	cancel.text = "Not yet"
-	cancel.custom_minimum_size = Vector2(150, 48)
-	cancel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	StationeryUIScript.apply_soft_button(cancel, false)
-	cancel.pressed.connect(_close_focus_setup)
-	actions.add_child(cancel)
+	var not_now := Button.new()
+	not_now.text = "Not now"
+	not_now.position = Vector2(94, 401)
+	not_now.size = Vector2(140, 50)
+	ScrapbookUIScript.apply_paper_button(not_now)
+	not_now.pressed.connect(_close_focus_setup)
+	note.add_child(not_now)
 
 	var start := Button.new()
-	start.text = "Start focus  →"
-	start.custom_minimum_size = Vector2(220, 48)
-	start.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	StationeryUIScript.apply_soft_button(start, true)
+	start.text = "Start Focus"
+	start.position = Vector2(252, 397)
+	start.size = Vector2(200, 56)
+	ScrapbookUIScript.apply_paper_button(
+		start,
+		true,
+		true
+	)
 	start.pressed.connect(
 		_begin_focus.bind(spot_index)
 	)
-	actions.add_child(start)
+	note.add_child(start)
 
 	task_input.grab_focus()
 
 func _choose_duration(
 	seconds: int,
-	grid: GridContainer
+	grid: Container
 ) -> void:
 	selected_duration = seconds
 
 	for child: Node in grid.get_children():
 		if child is Button:
-			StationeryUIScript.apply_soft_button(
-				child as Button,
+			var chosen := (
 				int(
 					child.get_meta(
 						"seconds",
 						0
 					)
 				) == seconds
+			)
+
+			ScrapbookUIScript.apply_paper_button(
+				child as Button,
+				chosen,
+				chosen
 			)
 
 func _close_focus_setup() -> void:
@@ -3896,175 +4296,328 @@ func _build_resting_hud() -> void:
 	for child: Node in ui_root.get_children():
 		child.queue_free()
 
-	var vignette := ColorRect.new()
-	ui_root.add_child(vignette)
-	vignette.set_anchors_and_offsets_preset(
-		Control.PRESET_FULL_RECT
+	var timer_note := Control.new()
+	ui_root.add_child(timer_note)
+	timer_note.position = Vector2(1010, 470)
+	timer_note.size = Vector2(240, 214)
+
+	ScrapbookUIScript.paper(
+		timer_note,
+		"paper/paper_7.png",
+		Vector2.ZERO,
+		Vector2(240, 214),
+		0.7
 	)
-	vignette.color = Color(0.02, 0.018, 0.015, 0.06)
-	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var hud := VBoxContainer.new()
-	ui_root.add_child(hud)
-	hud.position = Vector2(1032, 26)
-	hud.size = Vector2(220, 112)
+	ScrapbookUIScript.sticker(
+		timer_note,
+		"tape/tape_14.png",
+		Vector2(74, -14),
+		Vector2(90, 42),
+		-2.0
+	)
 
-	focus_time_label = _label(
-		"%02d:%02d"
-		% [
+	ScrapbookUIScript.sticker(
+		timer_note,
+		"doodles/doodle_8.png",
+		Vector2(184, 24),
+		Vector2(38, 44),
+		0.0
+	)
+
+	var label := ScrapbookUIScript.label(
+		"break time",
+		18,
+		ScrapbookUIScript.INK,
+		true
+	)
+	label.position = Vector2(22, 24)
+	label.size = Vector2(150, 30)
+	timer_note.add_child(label)
+
+	focus_time_label = ScrapbookUIScript.label(
+		"%02d:%02d" % [
 			resting_duration / 60,
 			resting_duration % 60,
 		],
-		42,
-		StationeryUIScript.LIGHT_TEXT
+		40,
+		ScrapbookUIScript.INK,
+		true
 	)
-	StationeryUIScript.apply_heading(
-		focus_time_label,
-		42,
-		StationeryUIScript.LIGHT_TEXT
-	)
-	focus_time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	hud.add_child(focus_time_label)
+	focus_time_label.position = Vector2(20, 62)
+	focus_time_label.size = Vector2(190, 50)
+	timer_note.add_child(focus_time_label)
 
-	focus_task_label = _label(
-		"Resting",
+	focus_task_label = ScrapbookUIScript.label(
+		"stretch · breathe · reset",
 		13,
-		StationeryUIScript.LIGHT_MUTED
+		ScrapbookUIScript.INK_SOFT
 	)
-	StationeryUIScript.apply_body(
-		focus_task_label,
-		13,
-		StationeryUIScript.LIGHT_MUTED
-	)
-	focus_task_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	hud.add_child(focus_task_label)
+	focus_task_label.position = Vector2(22, 114)
+	focus_task_label.size = Vector2(190, 28)
+	timer_note.add_child(focus_task_label)
 
-	focus_shot_label = _label("", 1, Color.TRANSPARENT)
+	focus_shot_label = ScrapbookUIScript.label(
+		"",
+		1,
+		Color.TRANSPARENT
+	)
 	focus_shot_label.visible = false
-	hud.add_child(focus_shot_label)
-
-	var controls := HBoxContainer.new()
-	ui_root.add_child(controls)
-	controls.position = Vector2(1038, 142)
-	controls.size = Vector2(214, 44)
-	controls.add_theme_constant_override("separation", 8)
+	timer_note.add_child(focus_shot_label)
 
 	var pause := Button.new()
-	pause.text = "Pause"
-	pause.custom_minimum_size = Vector2(98, 42)
-	StationeryUIScript.apply_dark_button(pause)
+	pause.text = "Ⅱ Pause"
+	pause.position = Vector2(18, 156)
+	pause.size = Vector2(104, 40)
+	ScrapbookUIScript.apply_paper_button(
+		pause,
+		true,
+		true
+	)
 	pause.pressed.connect(
 		func():
 			FocusManager.toggle_pause()
 			pause.text = (
-				"Resume"
+				"▶ Resume"
 				if FocusManager.paused
-				else "Pause"
+				else "Ⅱ Pause"
 			)
 	)
-	controls.add_child(pause)
+	timer_note.add_child(pause)
 
 	var end := Button.new()
-	end.text = "End"
-	end.custom_minimum_size = Vector2(98, 42)
-	StationeryUIScript.apply_dark_button(end)
+	end.text = "Back"
+	end.position = Vector2(132, 156)
+	end.size = Vector2(86, 40)
+	ScrapbookUIScript.apply_paper_button(end)
 	end.pressed.connect(FocusManager.cancel_session)
-	controls.add_child(end)
+	timer_note.add_child(end)
 
 func _build_focus_hud(task: String) -> void:
 	for child: Node in ui_root.get_children():
 		child.queue_free()
 
-	var vignette := ColorRect.new()
-	ui_root.add_child(vignette)
-	vignette.set_anchors_and_offsets_preset(
-		Control.PRESET_FULL_RECT
+	var room_id := str(
+		current_room_config.get(
+			"id",
+			"library"
+		)
 	)
-	vignette.color = Color(0.02, 0.018, 0.015, 0.08)
-	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var hud := VBoxContainer.new()
-	ui_root.add_child(hud)
-	hud.position = Vector2(1032, 26)
-	hud.size = Vector2(220, 112)
-	hud.add_theme_constant_override("separation", 0)
+	var room_doodle: String = str(
+		{
+			"library": "doodles/doodle_19.png",
+			"garden": "doodles/doodle_9.png",
+			"train": "stamp/stamp_5.png",
+		}.get(
+			room_id,
+			"doodles/doodle_17.png"
+		)
+	)
 
-	focus_time_label = _label(
-		"%02d:%02d"
-		% [
+	var room_note := Control.new()
+	ui_root.add_child(room_note)
+	room_note.position = Vector2(22, 20)
+	room_note.size = Vector2(228, 124)
+
+	ScrapbookUIScript.paper(
+		room_note,
+		"paper/paper_8.png",
+		Vector2.ZERO,
+		room_note.size,
+		-1.0
+	)
+
+	ScrapbookUIScript.sticker(
+		room_note,
+		room_doodle,
+		Vector2(168, 12),
+		Vector2(38, 38),
+		0.0
+	)
+
+	var room_name := ScrapbookUIScript.label(
+		current_room_name,
+		22,
+		ScrapbookUIScript.INK,
+		true
+	)
+	room_name.position = Vector2(20, 16)
+	room_name.size = Vector2(150, 30)
+	room_note.add_child(room_name)
+
+	var room_meta := ScrapbookUIScript.label(
+		"focus · read · create",
+		12,
+		ScrapbookUIScript.INK_SOFT
+	)
+	room_meta.position = Vector2(20, 50)
+	room_meta.size = Vector2(170, 26)
+	room_note.add_child(room_meta)
+
+	var coin_note := Control.new()
+	ui_root.add_child(coin_note)
+	coin_note.position = Vector2(1118, 18)
+	coin_note.size = Vector2(136, 74)
+
+	ScrapbookUIScript.paper(
+		coin_note,
+		"paper/paper_8.png",
+		Vector2.ZERO,
+		coin_note.size,
+		2.0
+	)
+
+	ScrapbookUIScript.sticker(
+		coin_note,
+		"doodles/doodle_9.png",
+		Vector2(8, 12),
+		Vector2(30, 28),
+		0.0
+	)
+
+	var coin_value := ScrapbookUIScript.label(
+		str(GameState.focus_coins),
+		17,
+		ScrapbookUIScript.INK,
+		true
+	)
+	coin_value.position = Vector2(44, 13)
+	coin_value.size = Vector2(65, 28)
+	coin_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	coin_note.add_child(coin_value)
+
+	var timer_note := Control.new()
+	ui_root.add_child(timer_note)
+	timer_note.position = Vector2(1004, 470)
+	timer_note.size = Vector2(246, 220)
+	timer_note.rotation = deg_to_rad(0.8)
+
+	ScrapbookUIScript.paper(
+		timer_note,
+		"paper/paper_7.png",
+		Vector2.ZERO,
+		Vector2(246, 220),
+		0.0
+	)
+
+	ScrapbookUIScript.sticker(
+		timer_note,
+		"tape/tape_14.png",
+		Vector2(78, -16),
+		Vector2(90, 44),
+		-1.0
+	)
+
+	ScrapbookUIScript.sticker(
+		timer_note,
+		"doodles/doodle_5.png",
+		Vector2(185, 24),
+		Vector2(38, 42),
+		3.0
+	)
+
+	var focus_label := ScrapbookUIScript.label(
+		"focus time",
+		18,
+		ScrapbookUIScript.INK,
+		true
+	)
+	focus_label.position = Vector2(24, 25)
+	focus_label.size = Vector2(150, 28)
+	timer_note.add_child(focus_label)
+
+	focus_time_label = ScrapbookUIScript.label(
+		"%02d:%02d" % [
 			selected_duration / 60,
 			selected_duration % 60,
 		],
-		42,
-		StationeryUIScript.LIGHT_TEXT
+		40,
+		ScrapbookUIScript.INK,
+		true
 	)
-	StationeryUIScript.apply_heading(
-		focus_time_label,
-		42,
-		StationeryUIScript.LIGHT_TEXT
-	)
-	focus_time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	hud.add_child(focus_time_label)
+	focus_time_label.position = Vector2(22, 58)
+	focus_time_label.size = Vector2(198, 52)
+	timer_note.add_child(focus_time_label)
 
-	focus_task_label = _label(
+	focus_task_label = ScrapbookUIScript.label(
 		task if not task.strip_edges().is_empty() else "Quiet focus",
-		13,
-		StationeryUIScript.LIGHT_MUTED
+		14,
+		ScrapbookUIScript.INK_SOFT
 	)
-	StationeryUIScript.apply_body(
-		focus_task_label,
-		13,
-		StationeryUIScript.LIGHT_MUTED
-	)
-	focus_task_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	focus_task_label.position = Vector2(24, 112)
+	focus_task_label.size = Vector2(195, 32)
 	focus_task_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	hud.add_child(focus_task_label)
+	timer_note.add_child(focus_task_label)
 
-	focus_shot_label = _label("", 1, Color.TRANSPARENT)
+	focus_shot_label = ScrapbookUIScript.label(
+		"",
+		1,
+		Color.TRANSPARENT
+	)
 	focus_shot_label.visible = false
-	hud.add_child(focus_shot_label)
-
-	var controls := HBoxContainer.new()
-	ui_root.add_child(controls)
-	controls.position = Vector2(1038, 142)
-	controls.size = Vector2(214, 44)
-	controls.add_theme_constant_override("separation", 8)
+	timer_note.add_child(focus_shot_label)
 
 	var pause := Button.new()
-	pause.text = "Pause"
-	pause.custom_minimum_size = Vector2(98, 42)
-	StationeryUIScript.apply_dark_button(pause)
+	pause.text = "Ⅱ  Pause"
+	pause.position = Vector2(20, 158)
+	pause.size = Vector2(102, 42)
+	ScrapbookUIScript.apply_paper_button(
+		pause,
+		true,
+		true
+	)
 	pause.pressed.connect(
 		func():
 			FocusManager.toggle_pause()
 			pause.text = (
-				"Resume"
+				"▶  Resume"
 				if FocusManager.paused
-				else "Pause"
+				else "Ⅱ  Pause"
 			)
 	)
-	controls.add_child(pause)
+	timer_note.add_child(pause)
 
 	var end := Button.new()
-	end.text = "End"
-	end.custom_minimum_size = Vector2(98, 42)
-	StationeryUIScript.apply_dark_button(end)
+	end.text = "■  End"
+	end.position = Vector2(132, 158)
+	end.size = Vector2(92, 42)
+	ScrapbookUIScript.apply_paper_button(end)
+	end.add_theme_stylebox_override(
+		"normal",
+		ScrapbookUIScript.rough_style(
+			Color("#e4b2a6"),
+			7,
+			1,
+			ScrapbookUIScript.RED
+		)
+	)
 	end.pressed.connect(FocusManager.cancel_session)
-	controls.add_child(end)
+	timer_note.add_child(end)
 
-	var escape_hint := _label(
-		"Esc  menu",
-		11,
-		StationeryUIScript.LIGHT_MUTED
+	var esc_note := Panel.new()
+	ui_root.add_child(esc_note)
+	esc_note.position = Vector2(24, 656)
+	esc_note.size = Vector2(196, 46)
+	esc_note.add_theme_stylebox_override(
+		"panel",
+		ScrapbookUIScript.rough_style(
+			Color(0.98, 0.92, 0.79, 0.94),
+			10,
+			1,
+			Color("#aa9474")
+		)
 	)
-	ui_root.add_child(escape_hint)
-	escape_hint.position = Vector2(24, 680)
-	escape_hint.size = Vector2(120, 24)
-	StationeryUIScript.apply_body(
-		escape_hint,
-		11,
-		StationeryUIScript.LIGHT_MUTED
+
+	var esc_text := ScrapbookUIScript.label(
+		"Press  Esc  for menu",
+		12,
+		ScrapbookUIScript.INK
 	)
+	esc_text.position = Vector2(18, 10)
+	esc_text.size = Vector2(160, 26)
+	esc_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	esc_note.add_child(esc_text)
 
 func _on_focus_tick(remaining: int) -> void:
 	if is_instance_valid(focus_time_label):focus_time_label.text="%02d:%02d"%[remaining/60,remaining%60]
@@ -4444,71 +4997,63 @@ func _show_resting_completion(
 	overlay.set_anchors_and_offsets_preset(
 		Control.PRESET_FULL_RECT
 	)
-	overlay.color = Color(0.02, 0.018, 0.015, 0.26)
+	overlay.color = Color(0.035, 0.024, 0.016, 0.42)
 
-	var panel := PanelContainer.new()
-	overlay.add_child(panel)
-	panel.position = Vector2(448, 238)
-	panel.size = Vector2(384, 244)
-	panel.add_theme_stylebox_override(
-		"panel",
-		StationeryUIScript.paper_style(
-			StationeryUIScript.PAPER,
-			22,
-			1,
-			StationeryUIScript.LINE,
-			0
-		)
+	var note := Control.new()
+	overlay.add_child(note)
+	note.position = Vector2(430, 170)
+	note.size = Vector2(420, 390)
+
+	ScrapbookUIScript.paper(
+		note,
+		"paper/paper_2.png",
+		Vector2.ZERO,
+		Vector2(420, 390),
+		-0.6
 	)
 
-	var margin := MarginContainer.new()
-	panel.add_child(margin)
-	margin.add_theme_constant_override("margin_left", 26)
-	margin.add_theme_constant_override("margin_right", 26)
-	margin.add_theme_constant_override("margin_top", 24)
-	margin.add_theme_constant_override("margin_bottom", 22)
+	ScrapbookUIScript.sticker(
+		note,
+		"stamp/stamp_4.png",
+		Vector2(296, 24),
+		Vector2(88, 88),
+		5.0
+	)
 
-	var stack := VBoxContainer.new()
-	margin.add_child(stack)
-	stack.add_theme_constant_override("separation", 10)
+	var title := ScrapbookUIScript.label(
+		"Break complete!",
+		30,
+		ScrapbookUIScript.INK,
+		true
+	)
+	title.position = Vector2(50, 60)
+	title.size = Vector2(300, 46)
+	note.add_child(title)
 
-	var done := _label(
-		"Rest complete.",
-		29,
-		StationeryUIScript.INK
+	var detail := ScrapbookUIScript.label(
+		"%d minutes resting\nready when you are." % minutes,
+		15,
+		ScrapbookUIScript.INK_SOFT
 	)
-	StationeryUIScript.apply_heading(
-		done,
-		29,
-		StationeryUIScript.INK
-	)
-	done.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stack.add_child(done)
-
-	var detail := _label(
-		"%d minutes resting" % minutes,
-		14,
-		StationeryUIScript.MUTED
-	)
-	StationeryUIScript.apply_body(
-		detail,
-		14,
-		StationeryUIScript.MUTED
-	)
-	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stack.add_child(detail)
+	detail.position = Vector2(55, 126)
+	detail.size = Vector2(300, 60)
+	note.add_child(detail)
 
 	var return_button := Button.new()
-	return_button.text = "Return"
-	return_button.custom_minimum_size = Vector2(0, 46)
-	StationeryUIScript.apply_soft_button(
+	return_button.text = "Back to work"
+	return_button.position = Vector2(92, 235)
+	return_button.size = Vector2(236, 52)
+	ScrapbookUIScript.apply_paper_button(
 		return_button,
+		true,
 		true
 	)
 	return_button.pressed.connect(
-		build_room.bind(GameState.selected_room)
+		build_room.bind(
+			GameState.selected_room
+		)
 	)
-	stack.add_child(return_button)
+	note.add_child(return_button)
 
 func _show_completion(
 	minutes: int,
@@ -4519,98 +5064,143 @@ func _show_completion(
 	overlay.set_anchors_and_offsets_preset(
 		Control.PRESET_FULL_RECT
 	)
-	overlay.color = Color(0.02, 0.018, 0.015, 0.28)
+	overlay.color = Color(0.035, 0.024, 0.016, 0.44)
 
-	var panel := PanelContainer.new()
-	overlay.add_child(panel)
-	panel.position = Vector2(438, 226)
-	panel.size = Vector2(404, 270)
-	panel.add_theme_stylebox_override(
-		"panel",
-		StationeryUIScript.paper_style(
-			StationeryUIScript.PAPER,
-			22,
-			1,
-			StationeryUIScript.LINE,
-			0
-		)
+	var note := Control.new()
+	overlay.add_child(note)
+	note.position = Vector2(405, 120)
+	note.size = Vector2(470, 500)
+	note.rotation = deg_to_rad(-0.4)
+
+	ScrapbookUIScript.paper(
+		note,
+		"paper/paper_2.png",
+		Vector2.ZERO,
+		Vector2(470, 500),
+		0.0
 	)
 
-	var margin := MarginContainer.new()
-	panel.add_child(margin)
-	margin.add_theme_constant_override("margin_left", 26)
-	margin.add_theme_constant_override("margin_right", 26)
-	margin.add_theme_constant_override("margin_top", 24)
-	margin.add_theme_constant_override("margin_bottom", 22)
-
-	var stack := VBoxContainer.new()
-	margin.add_child(stack)
-	stack.add_theme_constant_override("separation", 10)
-
-	var eyebrow := _label(
-		"SESSION COMPLETE",
-		10,
-		StationeryUIScript.MOSS
+	ScrapbookUIScript.sticker(
+		note,
+		"tape/tape_3.png",
+		Vector2(182, -18),
+		Vector2(92, 44),
+		-1.0
 	)
-	StationeryUIScript.apply_body(
-		eyebrow,
-		10,
-		StationeryUIScript.MOSS
-	)
-	eyebrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stack.add_child(eyebrow)
 
-	var done := _label(
-		"Good work.",
-		30,
-		StationeryUIScript.INK
+	ScrapbookUIScript.sticker(
+		note,
+		"doodles/doodle_14.png",
+		Vector2(32, 42),
+		Vector2(44, 44),
+		-5.0
 	)
-	StationeryUIScript.apply_heading(
-		done,
-		30,
-		StationeryUIScript.INK
-	)
-	done.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stack.add_child(done)
 
-	var detail := _label(
-		"%d minutes focused   ·   +%d focus"
+	ScrapbookUIScript.sticker(
+		note,
+		"stamp/stamp_1.png",
+		Vector2(340, 18),
+		Vector2(98, 98),
+		8.0
+	)
+
+	var title := ScrapbookUIScript.label(
+		"Nice work!",
+		31,
+		ScrapbookUIScript.INK,
+		true
+	)
+	title.position = Vector2(90, 50)
+	title.size = Vector2(240, 44)
+	note.add_child(title)
+
+	var subtitle := ScrapbookUIScript.label(
+		"You stayed focused.",
+		14,
+		ScrapbookUIScript.INK_SOFT
+	)
+	subtitle.position = Vector2(92, 94)
+	subtitle.size = Vector2(240, 30)
+	note.add_child(subtitle)
+
+	var reward_note := Control.new()
+	reward_note.position = Vector2(92, 142)
+	reward_note.size = Vector2(286, 76)
+	note.add_child(reward_note)
+
+	ScrapbookUIScript.paper(
+		reward_note,
+		"paper/paper_8.png",
+		Vector2.ZERO,
+		Vector2(286, 76),
+		0.0
+	)
+
+	ScrapbookUIScript.sticker(
+		reward_note,
+		"doodles/doodle_9.png",
+		Vector2(32, 18),
+		Vector2(38, 34),
+		0.0
+	)
+
+	var reward_text := ScrapbookUIScript.label(
+		"+%d focus" % reward,
+		24,
+		ScrapbookUIScript.INK,
+		true
+	)
+	reward_text.position = Vector2(88, 19)
+	reward_text.size = Vector2(160, 34)
+	reward_note.add_child(reward_text)
+
+	var task_text := ScrapbookUIScript.label(
+		"%s\n%d minutes"
 		% [
+			FocusManager.task,
 			minutes,
-			reward,
 		],
-		14,
-		StationeryUIScript.MUTED
+		15,
+		ScrapbookUIScript.INK_SOFT
 	)
-	StationeryUIScript.apply_body(
-		detail,
-		14,
-		StationeryUIScript.MUTED
-	)
-	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stack.add_child(detail)
-
-	var buttons := HBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 8)
-	stack.add_child(buttons)
+	task_text.position = Vector2(82, 246)
+	task_text.size = Vector2(306, 64)
+	task_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	note.add_child(task_text)
 
 	var again := Button.new()
 	again.text = "Study again"
-	again.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	again.custom_minimum_size = Vector2(0, 46)
-	StationeryUIScript.apply_soft_button(again, true)
-	again.pressed.connect(
-		build_room.bind(GameState.selected_room)
+	again.position = Vector2(72, 340)
+	again.size = Vector2(150, 48)
+	ScrapbookUIScript.apply_paper_button(
+		again,
+		true,
+		true
 	)
-	buttons.add_child(again)
+	again.pressed.connect(
+		build_room.bind(
+			GameState.selected_room
+		)
+	)
+	note.add_child(again)
 
 	var places := Button.new()
-	places.text = "Places"
-	places.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	places.custom_minimum_size = Vector2(0, 46)
-	StationeryUIScript.apply_soft_button(places, false)
+	places.text = "Back to places"
+	places.position = Vector2(242, 340)
+	places.size = Vector2(158, 48)
+	ScrapbookUIScript.apply_paper_button(places)
 	places.pressed.connect(show_main_menu)
-	buttons.add_child(places)
+	note.add_child(places)
+
+	var footer := ScrapbookUIScript.label(
+		"progress lives here :)",
+		13,
+		ScrapbookUIScript.INK_SOFT
+	)
+	footer.position = Vector2(190, 420)
+	footer.size = Vector2(210, 34)
+	footer.rotation = deg_to_rad(-4.0)
+	note.add_child(footer)
 
 func _add_environment(background: Color, ambient: Color, energy: float) -> void:
 	var environment:=WorldEnvironment.new();world_root.add_child(environment)
