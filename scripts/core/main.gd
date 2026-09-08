@@ -4,6 +4,10 @@ enum Screen { MENU, ROOM, FOCUS }
 
 const PlayerControllerScript := preload("res://scripts/player/player_controller.gd")
 const CharacterLoaderScript := preload("res://scripts/assets/character_loader.gd")
+const CharacterSelectionScreenScript := preload(
+	"res://scripts/ui/character_selection_screen.gd"
+)
+const StationeryUIScript := preload("res://scripts/ui/stationery_ui.gd")
 const AssetLoaderScript := preload("res://scripts/assets/asset_loader.gd")
 const FollowCameraScript := preload("res://scripts/camera/follow_camera.gd")
 const FocusCameraDirectorScript := preload("res://scripts/camera/focus_camera_director.gd")
@@ -388,15 +392,15 @@ func _build_menu_world() -> void:
 		var star := _sphere(world_root, Vector3(0.10, 0.10, 0.10), Vector3(cos(i) * 3.1, 0.25 + (i % 3) * 0.35, sin(i) * 3.1), mats.gold)
 		star.name = "WarmSparkle"
 	menu_character = _create_character(world_root, GameState.selected_character, false)
-	menu_character.position = Vector3(0.8, 0, 0)
+	menu_character.position = Vector3(2.35, 0, 0)
 	menu_character.scale *= 1.10
-	var pedestal := _cylinder(world_root, 1.75, 0.35, Vector3(0.8, -0.08, 0), mats.cream, 48)
+	var pedestal := _cylinder(world_root, 1.75, 0.35, Vector3(2.35, -0.08, 0), mats.cream, 48)
 	pedestal.position.y = -0.16
 	var cam := Camera3D.new()
 	world_root.add_child(cam)
 	cam.position = Vector3(5.8, 3.4, 7.8)
 	cam.fov = 34
-	cam.look_at_from_position(cam.position, Vector3(0.8, 1.65, 0))
+	cam.look_at_from_position(cam.position, Vector3(2.35, 1.65, 0))
 	cam.current = true
 	var light := OmniLight3D.new()
 	world_root.add_child(light)
@@ -428,61 +432,227 @@ func _build_menu_ui() -> void:
 	var wash := ColorRect.new()
 	ui_root.add_child(wash)
 	wash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	wash.color = Color(0.06, 0.045, 0.035, 0.18)
+	wash.color = Color(0.04, 0.035, 0.03, 0.10)
 	wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var left := PanelContainer.new()
-	ui_root.add_child(left)
-	left.position = Vector2(42, 38)
-	left.size = Vector2(410, 644)
-	left.add_theme_stylebox_override("panel", _panel_style(Color("#fff5dc"), 30, 8, Color("#e6b66b")))
+	var paper := PanelContainer.new()
+	ui_root.add_child(paper)
+	paper.position = Vector2(24, 22)
+	paper.size = Vector2(520, 676)
+	paper.add_theme_stylebox_override(
+		"panel",
+		StationeryUIScript.paper_style(
+			Color(0.976, 0.949, 0.882, 0.97),
+			22,
+			1,
+			StationeryUIScript.LINE,
+			0
+		)
+	)
+
 	var margin := MarginContainer.new()
-	left.add_child(margin)
+	paper.add_child(margin)
 	margin.add_theme_constant_override("margin_left", 30)
 	margin.add_theme_constant_override("margin_right", 30)
 	margin.add_theme_constant_override("margin_top", 26)
-	margin.add_theme_constant_override("margin_bottom", 26)
+	margin.add_theme_constant_override("margin_bottom", 24)
+
 	var stack := VBoxContainer.new()
 	margin.add_child(stack)
-	stack.add_theme_constant_override("separation", 13)
-	var eyebrow := _label("WELCOME TO", 13, GREEN)
-	stack.add_child(eyebrow)
-	var title := _label(GameState.PRODUCT_NAME, 43, INK)
-	title.add_theme_font_size_override("font_size", 43)
+	stack.add_theme_constant_override("separation", 10)
+
+	var brand := _label(
+		"S  T  U  D  Y  T  O  W  N",
+		12,
+		StationeryUIScript.MOSS
+	)
+	StationeryUIScript.apply_body(
+		brand,
+		12,
+		StationeryUIScript.MOSS
+	)
+	stack.add_child(brand)
+
+	var greeting := _label(
+		"A quieter place to be.",
+		13,
+		StationeryUIScript.MUTED
+	)
+	StationeryUIScript.apply_body(
+		greeting,
+		13,
+		StationeryUIScript.MUTED
+	)
+	stack.add_child(greeting)
+
+	var title := _label(
+		"Where are we\nstudying today?",
+		34,
+		StationeryUIScript.INK
+	)
+	StationeryUIScript.apply_heading(
+		title,
+		34,
+		StationeryUIScript.INK
+	)
 	stack.add_child(title)
-	var subtitle := _label("A cozy place to do meaningful work, together.", 18, COCOA)
-	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	stack.add_child(subtitle)
-	stack.add_child(_separator())
-	stack.add_child(_label("Choose your study buddy", 20, INK))
-	var chars := HBoxContainer.new()
-	chars.add_theme_constant_override("separation", 10)
-	stack.add_child(chars)
-	var char_names := ["Bob", "Rosie", "Raymond"]
-	for i in 3:
-		var b := _button(char_names[i], i == GameState.selected_character)
-		b.custom_minimum_size = Vector2(104, 52)
-		b.pressed.connect(_select_character.bind(i))
-		chars.add_child(b)
-	stack.add_child(_label("Where do you want to focus?", 20, INK))
-	var room_names := ["Grand Library", "Garden Café", "Scenic Train", "Japanese Study Room"]
-	var descriptors := ["Warm & bookish  ·  6 studying", "Sunny & leafy  ·  5 studying", "Mountain views  ·  4 studying", "Quiet & serene  ·  5 studying"]
-	for i in 4:
+
+	var room_intro := _label(
+		"Choose a place and settle in.",
+		14,
+		StationeryUIScript.MUTED
+	)
+	StationeryUIScript.apply_body(
+		room_intro,
+		14,
+		StationeryUIScript.MUTED
+	)
+	stack.add_child(room_intro)
+
+	var separator := HSeparator.new()
+	separator.modulate = StationeryUIScript.LINE
+	stack.add_child(separator)
+
+	var room_names := [
+		"Grand Library",
+		"Garden Café",
+		"Scenic Train",
+		"Japanese Study Room",
+	]
+
+	var descriptors := [
+		"Tall books, longer thoughts.",
+		"Fresh air, same focus.",
+		"Different views, same progress.",
+		"Quiet, slow, deliberate.",
+	]
+
+	for i: int in range(room_names.size()):
 		var card := Button.new()
-		card.text = room_names[i] + "\n" + descriptors[i]
+		card.text = (
+			"%02d    %s\n        %s"
+			% [
+				i + 1,
+				room_names[i],
+				descriptors[i],
+			]
+		)
 		card.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		card.custom_minimum_size = Vector2(0, 62)
-		card.add_theme_font_size_override("font_size", 16)
-		card.add_theme_color_override("font_color", INK)
-		card.add_theme_color_override("font_hover_color", INK)
-		card.add_theme_stylebox_override("normal", _panel_style(Color("#f7e8c8"), 16, 2, Color("#ead09b")))
-		card.add_theme_stylebox_override("hover", _panel_style(Color("#ffe3a9"), 16, 3, HONEY))
-		card.add_theme_stylebox_override("pressed", _panel_style(Color("#f4cd82"), 16, 3, WOOD))
-		card.pressed.connect(_enter_room.bind(i))
+		card.custom_minimum_size = Vector2(0, 68)
+		card.focus_mode = Control.FOCUS_ALL
+
+		StationeryUIScript.apply_room_button(
+			card,
+			i == GameState.selected_room
+		)
+
+		card.pressed.connect(
+			_enter_room.bind(i)
+		)
 		stack.add_child(card)
 
-	var tip := _pill("Pick a room card to begin", Vector2(860, 638))
-	ui_root.add_child(tip)
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(0, 2)
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	stack.add_child(spacer)
+
+	var character_line := HSeparator.new()
+	character_line.modulate = StationeryUIScript.LINE
+	stack.add_child(character_line)
+
+	var selected_profile = character_loader.get_profile(
+		clampi(
+			GameState.selected_character,
+			0,
+			maxi(
+				character_loader.profiles.size() - 1,
+				0
+			)
+		)
+	)
+
+	var buddy_row := HBoxContainer.new()
+	buddy_row.add_theme_constant_override("separation", 12)
+	stack.add_child(buddy_row)
+
+	var buddy_copy := VBoxContainer.new()
+	buddy_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	buddy_copy.add_theme_constant_override("separation", 1)
+	buddy_row.add_child(buddy_copy)
+
+	var buddy_eyebrow := _label(
+		"STUDY BUDDY",
+		10,
+		StationeryUIScript.MOSS
+	)
+	StationeryUIScript.apply_body(
+		buddy_eyebrow,
+		10,
+		StationeryUIScript.MOSS
+	)
+	buddy_copy.add_child(buddy_eyebrow)
+
+	var buddy_name := _label(
+		selected_profile.display_name,
+		17,
+		StationeryUIScript.INK
+	)
+	StationeryUIScript.apply_body(
+		buddy_name,
+		17,
+		StationeryUIScript.INK
+	)
+	buddy_copy.add_child(buddy_name)
+
+	var species_text := str(
+		selected_profile.species
+	).capitalize()
+
+	if species_text.is_empty():
+		species_text = "Villager"
+
+	var buddy_species := _label(
+		species_text,
+		12,
+		StationeryUIScript.MUTED
+	)
+	StationeryUIScript.apply_body(
+		buddy_species,
+		12,
+		StationeryUIScript.MUTED
+	)
+	buddy_copy.add_child(buddy_species)
+
+	var change := Button.new()
+	change.text = "Change  →"
+	change.custom_minimum_size = Vector2(112, 46)
+	StationeryUIScript.apply_soft_button(change, false)
+	change.pressed.connect(_open_character_selection)
+	buddy_row.add_child(change)
+
+func _open_character_selection() -> void:
+	if character_loader == null:
+		return
+
+	var selector := CharacterSelectionScreenScript.new()
+
+	ui_root.add_child(
+		selector
+	)
+
+	selector.character_chosen.connect(
+		_select_character
+	)
+
+	selector.closed.connect(
+		show_main_menu
+	)
+
+	selector.configure(
+		character_loader,
+		GameState.selected_character
+	)
+
 
 func _select_character(index: int) -> void:
 	GameState.selected_character = index
@@ -648,10 +818,14 @@ func _create_fallback_character(parent: Node, variant: int, seated: bool) -> Nod
 	var root := Node3D.new()
 	root.name = "Character_%02d" % (variant + 1)
 	parent.add_child(root)
-	var skin: Material = mats[["skin1", "skin2", "skin3"][variant]]
-	var hair: Material = mats[["hair1", "hair2", "hair3"][variant]]
-	var top: Material = [mats.honey, mats.green, mats.gold][variant]
-	var accent: Material = [mats.blue, mats.cream, mats.blue][variant]
+
+	# Public fallback art still has three palettes. Local playable characters are
+	# no longer limited to three, so wrap only the fallback palette index.
+	var fallback_variant := posmod(variant, 3)
+	var skin: Material = mats[["skin1", "skin2", "skin3"][fallback_variant]]
+	var hair: Material = mats[["hair1", "hair2", "hair3"][fallback_variant]]
+	var top: Material = [mats.honey, mats.green, mats.gold][fallback_variant]
+	var accent: Material = [mats.blue, mats.cream, mats.blue][fallback_variant]
 	var parts := {}
 
 	var torso := _sphere(root, Vector3(0.68, 0.67, 0.48), Vector3(0, 1.18, 0), top, 32, 20)
@@ -665,7 +839,7 @@ func _create_fallback_character(parent: Node, variant: int, seated: bool) -> Nod
 	for side in [-1.0, 1.0]:
 		var eye := _sphere(root, Vector3(0.235, 0.285, 0.105), Vector3(side * 0.33, 2.02, -0.67), mats.paper, 24, 16)
 		eye.rotation.x = -0.05
-		_sphere(root, Vector3(0.122, 0.16, 0.07), Vector3(side * 0.33, 2.00, -0.765), [mats.blue, mats.green, mats.cocoa][variant], 20, 12)
+		_sphere(root, Vector3(0.122, 0.16, 0.07), Vector3(side * 0.33, 2.00, -0.765), [mats.blue, mats.green, mats.cocoa][fallback_variant], 20, 12)
 		_sphere(root, Vector3(0.064, 0.095, 0.052), Vector3(side * 0.33, 1.995, -0.82), mats.ink, 16, 10)
 		_sphere(root, Vector3(0.025, 0.034, 0.022), Vector3(side * 0.292, 2.055, -0.863), mats.paper, 12, 8)
 	var mouth := _sphere(root, Vector3(0.09, 0.035, 0.025), Vector3(0, 1.67, -0.735), mats.coral, 16, 8)
@@ -2766,21 +2940,112 @@ func _set_collision_debug(value: bool) -> void:
 	_show_toast("Structural collision "+("visible" if value else "hidden"))
 
 func _build_room_ui() -> void:
-	var top:=PanelContainer.new();ui_root.add_child(top);top.position=Vector2(28,24);top.size=Vector2(430,76)
-	top.add_theme_stylebox_override("panel",_panel_style(Color(0.09,0.065,0.05,0.92),24,2,Color(1,0.85,0.56,0.25)))
-	var h:=HBoxContainer.new();top.add_child(h);h.add_theme_constant_override("separation",16)
-	var back:=_button("‹  Places",false);back.custom_minimum_size=Vector2(112,54);back.pressed.connect(show_main_menu);h.add_child(back)
-	var title_box:=VBoxContainer.new();h.add_child(title_box)
-	var title:=_label(current_room_name,22,CREAM);title_box.add_child(title)
-	title_box.add_child(_label("A quiet room · %d studying"%npcs.size(),13,Color("#d6c6aa")))
+	var back := Button.new()
+	ui_root.add_child(back)
+	back.text = "←  Places"
+	back.position = Vector2(24, 22)
+	back.size = Vector2(108, 42)
+	StationeryUIScript.apply_dark_button(back)
+	back.pressed.connect(show_main_menu)
 
-	var stats:=PanelContainer.new();ui_root.add_child(stats);stats.position=Vector2(1000,24);stats.size=Vector2(250,76)
-	stats.add_theme_stylebox_override("panel",_panel_style(Color(0.09,0.065,0.05,0.92),24,2,Color(1,0.85,0.56,0.25)))
-	coins_label=_label("●  %d Focus Coins"%GameState.focus_coins,18,CREAM);coins_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER;coins_label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER;stats.add_child(coins_label)
+	var room_copy := VBoxContainer.new()
+	ui_root.add_child(room_copy)
+	room_copy.position = Vector2(24, 76)
+	room_copy.size = Vector2(380, 70)
+	room_copy.add_theme_constant_override("separation", 1)
 
-	prompt_label=_label("E   Study here",17,INK);ui_root.add_child(prompt_label);prompt_label.position=Vector2(490,630);prompt_label.size=Vector2(300,58);prompt_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER;prompt_label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER;prompt_label.add_theme_stylebox_override("normal",_panel_style(Color("#fff2cc"),22,3,HONEY));prompt_label.visible=false
-	var hint:=_pill("WASD move   ·   E interact   ·   F wave",Vector2(28,650));ui_root.add_child(hint)
-	debug_label=_label("DEV  F3 anchors  ·  F4 collision  ·  F5 short focus  ·  F6 performance\nFPS: --   Grounded: --",13,CREAM);ui_root.add_child(debug_label);debug_label.position=Vector2(820,610);debug_label.size=Vector2(430,84);debug_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_RIGHT;debug_label.visible=false
+	var room_title := _label(
+		current_room_name,
+		22,
+		StationeryUIScript.LIGHT_TEXT
+	)
+	StationeryUIScript.apply_heading(
+		room_title,
+		22,
+		StationeryUIScript.LIGHT_TEXT
+	)
+	room_copy.add_child(room_title)
+
+	var room_meta := _label(
+		"focus  ·  read  ·  create",
+		12,
+		StationeryUIScript.LIGHT_MUTED
+	)
+	StationeryUIScript.apply_body(
+		room_meta,
+		12,
+		StationeryUIScript.LIGHT_MUTED
+	)
+	room_copy.add_child(room_meta)
+
+	var coins := PanelContainer.new()
+	ui_root.add_child(coins)
+	coins.position = Vector2(1080, 22)
+	coins.size = Vector2(176, 42)
+	coins.add_theme_stylebox_override(
+		"panel",
+		StationeryUIScript.dark_glass_style(0.54, 18, 1)
+	)
+
+	coins_label = _label(
+		"%d focus" % GameState.focus_coins,
+		13,
+		StationeryUIScript.LIGHT_TEXT
+	)
+	StationeryUIScript.apply_body(
+		coins_label,
+		13,
+		StationeryUIScript.LIGHT_TEXT
+	)
+	coins_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	coins_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	coins.add_child(coins_label)
+
+	prompt_label = _label(
+		"E   Study here",
+		14,
+		StationeryUIScript.LIGHT_TEXT
+	)
+	ui_root.add_child(prompt_label)
+	prompt_label.position = Vector2(500, 638)
+	prompt_label.size = Vector2(280, 44)
+	prompt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	prompt_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	prompt_label.add_theme_stylebox_override(
+		"normal",
+		StationeryUIScript.dark_glass_style(0.72, 18, 1)
+	)
+	prompt_label.visible = false
+	StationeryUIScript.apply_body(
+		prompt_label,
+		14,
+		StationeryUIScript.LIGHT_TEXT
+	)
+
+	var hint := _label(
+		"WASD move   ·   E interact   ·   F wave",
+		11,
+		StationeryUIScript.LIGHT_MUTED
+	)
+	ui_root.add_child(hint)
+	hint.position = Vector2(24, 676)
+	hint.size = Vector2(360, 26)
+	StationeryUIScript.apply_body(
+		hint,
+		11,
+		StationeryUIScript.LIGHT_MUTED
+	)
+
+	debug_label = _label(
+		"DEV  F3 anchors  ·  F4 collision  ·  F5 short focus  ·  F6 performance\nFPS: --   Grounded: --",
+		12,
+		StationeryUIScript.LIGHT_TEXT
+	)
+	ui_root.add_child(debug_label)
+	debug_label.position = Vector2(820, 610)
+	debug_label.size = Vector2(430, 84)
+	debug_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	debug_label.visible = false
 
 func _open_resting_setup(spot_index: int) -> void:
 	if study_spots.is_empty():
@@ -2926,40 +3191,234 @@ func _close_resting_setup() -> void:
 
 
 func _open_focus_setup(spot_index: int) -> void:
-	if study_spots.is_empty():return
-	spot_index=clampi(spot_index,0,study_spots.size()-1)
+	if study_spots.is_empty():
+		return
+
+	spot_index = clampi(
+		spot_index,
+		0,
+		study_spots.size() - 1
+	)
+
 	var spot = study_spots[spot_index]
-	if not spot.reserve("local_player", StudySpot.OccupantType.PLAYER):
+
+	if not spot.reserve(
+		"local_player",
+		StudySpot.OccupantType.PLAYER
+	):
 		_show_toast("That seat is occupied")
 		return
+
 	pending_study_spot = spot
 	_set_movement_enabled(false)
-	var overlay:=ColorRect.new();ui_root.add_child(overlay);overlay.name="FocusSetupOverlay";overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);overlay.color=Color(0.06,0.04,0.03,0.68)
-	var panel:=PanelContainer.new();overlay.add_child(panel);panel.position=Vector2(355,115);panel.size=Vector2(570,490);panel.add_theme_stylebox_override("panel",_panel_style(CREAM,30,5,HONEY))
-	var margin:=MarginContainer.new();panel.add_child(margin)
-	for key in ["left","right","top","bottom"]:margin.add_theme_constant_override("margin_"+key,28)
-	var stack:=VBoxContainer.new();margin.add_child(stack);stack.add_theme_constant_override("separation",14)
-	stack.add_child(_label("Settle in and focus",30,INK))
-	stack.add_child(_label("What are you working on?",17,COCOA))
-	task_input=LineEdit.new();task_input.placeholder_text="e.g. Data structures coursework";task_input.max_length=64;task_input.custom_minimum_size=Vector2(0,56);task_input.add_theme_font_size_override("font_size",18);task_input.add_theme_color_override("font_color",INK);task_input.add_theme_color_override("font_placeholder_color",Color("#927d68"));task_input.add_theme_stylebox_override("normal",_panel_style(Color("#fffaf0"),15,2,Color("#d7b87d")));stack.add_child(task_input)
-	stack.add_child(_label("Choose a focus time",17,COCOA))
-	var presets:=GridContainer.new();presets.columns=3;presets.add_theme_constant_override("h_separation",10);presets.add_theme_constant_override("v_separation",10);stack.add_child(presets)
-	for data in [["25 min",1500],["50 min",3000],["90 min",5400],["120 min",7200],["10 sec · DEV",10]]:
-		var b:=_button(data[0],int(data[1])==selected_duration);b.custom_minimum_size=Vector2(155,48);b.pressed.connect(_choose_duration.bind(int(data[1]),presets));presets.add_child(b);b.set_meta("seconds",data[1])
-	var custom_row := HBoxContainer.new(); custom_row.add_theme_constant_override("separation", 12); stack.add_child(custom_row)
-	custom_row.add_child(_label("Custom minutes", 16, COCOA))
-	var custom_minutes := SpinBox.new(); custom_minutes.min_value = 1; custom_minutes.max_value = 180; custom_minutes.value = clampi(selected_duration / 60, 1, 180); custom_minutes.custom_minimum_size = Vector2(150, 44); custom_minutes.add_theme_font_size_override("font_size", 17); custom_minutes.value_changed.connect(func(value: float): selected_duration = int(value) * 60); custom_row.add_child(custom_minutes)
-	var actions:=HBoxContainer.new();actions.add_theme_constant_override("separation",12);stack.add_child(actions)
-	var cancel:=_button("Not yet",false);cancel.custom_minimum_size=Vector2(180,58);cancel.pressed.connect(_close_focus_setup);actions.add_child(cancel)
-	var start:=_button("Begin focus  →",true);start.custom_minimum_size=Vector2(300,58);start.pressed.connect(_begin_focus.bind(spot_index));actions.add_child(start)
+
+	var overlay := ColorRect.new()
+	ui_root.add_child(overlay)
+	overlay.name = "FocusSetupOverlay"
+	overlay.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+	overlay.color = Color(0.035, 0.03, 0.025, 0.46)
+
+	var panel := PanelContainer.new()
+	overlay.add_child(panel)
+	panel.position = Vector2(390, 84)
+	panel.size = Vector2(500, 552)
+	panel.add_theme_stylebox_override(
+		"panel",
+		StationeryUIScript.paper_style(
+			StationeryUIScript.PAPER,
+			22,
+			1,
+			StationeryUIScript.LINE,
+			0
+		)
+	)
+
+	var margin := MarginContainer.new()
+	panel.add_child(margin)
+	margin.add_theme_constant_override("margin_left", 26)
+	margin.add_theme_constant_override("margin_right", 26)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_bottom", 24)
+
+	var stack := VBoxContainer.new()
+	margin.add_child(stack)
+	stack.add_theme_constant_override("separation", 14)
+
+	var eyebrow := _label(
+		"FOCUS SESSION",
+		11,
+		StationeryUIScript.MOSS
+	)
+	StationeryUIScript.apply_body(
+		eyebrow,
+		11,
+		StationeryUIScript.MOSS
+	)
+	stack.add_child(eyebrow)
+
+	var title := _label(
+		"Settle in.",
+		30,
+		StationeryUIScript.INK
+	)
+	StationeryUIScript.apply_heading(
+		title,
+		30,
+		StationeryUIScript.INK
+	)
+	stack.add_child(title)
+
+	var helper := _label(
+		"One task. One place. A little uninterrupted time.",
+		13,
+		StationeryUIScript.MUTED
+	)
+	StationeryUIScript.apply_body(
+		helper,
+		13,
+		StationeryUIScript.MUTED
+	)
+	stack.add_child(helper)
+
+	var divider := HSeparator.new()
+	divider.modulate = StationeryUIScript.LINE
+	stack.add_child(divider)
+
+	var task_label := _label(
+		"Task",
+		13,
+		StationeryUIScript.INK
+	)
+	StationeryUIScript.apply_body(
+		task_label,
+		13,
+		StationeryUIScript.INK
+	)
+	stack.add_child(task_label)
+
+	task_input = LineEdit.new()
+	task_input.placeholder_text = "What are you working on?"
+	task_input.max_length = 64
+	task_input.custom_minimum_size = Vector2(0, 48)
+	StationeryUIScript.apply_line_edit(task_input)
+	stack.add_child(task_input)
+
+	var duration_label := _label(
+		"Duration",
+		13,
+		StationeryUIScript.INK
+	)
+	StationeryUIScript.apply_body(
+		duration_label,
+		13,
+		StationeryUIScript.INK
+	)
+	stack.add_child(duration_label)
+
+	var presets := GridContainer.new()
+	presets.columns = 4
+	presets.add_theme_constant_override("h_separation", 8)
+	presets.add_theme_constant_override("v_separation", 8)
+	stack.add_child(presets)
+
+	for data in [
+		["25 min", 1500],
+		["50 min", 3000],
+		["90 min", 5400],
+		["120 min", 7200],
+	]:
+		var button := Button.new()
+		button.text = data[0]
+		button.custom_minimum_size = Vector2(100, 46)
+		button.set_meta("seconds", data[1])
+		StationeryUIScript.apply_soft_button(
+			button,
+			int(data[1]) == selected_duration
+		)
+		button.pressed.connect(
+			_choose_duration.bind(
+				int(data[1]),
+				presets
+			)
+		)
+		presets.add_child(button)
+
+	var custom_row := HBoxContainer.new()
+	custom_row.add_theme_constant_override("separation", 10)
+	stack.add_child(custom_row)
+
+	var custom_label := _label(
+		"Custom minutes",
+		13,
+		StationeryUIScript.MUTED
+	)
+	StationeryUIScript.apply_body(
+		custom_label,
+		13,
+		StationeryUIScript.MUTED
+	)
+	custom_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	custom_row.add_child(custom_label)
+
+	var custom_minutes := SpinBox.new()
+	custom_minutes.min_value = 1
+	custom_minutes.max_value = 180
+	custom_minutes.value = clampi(
+		selected_duration / 60,
+		1,
+		180
+	)
+	custom_minutes.custom_minimum_size = Vector2(120, 42)
+	StationeryUIScript.apply_spinbox(custom_minutes)
+	custom_minutes.value_changed.connect(
+		func(value: float):
+			selected_duration = int(value) * 60
+	)
+	custom_row.add_child(custom_minutes)
+
+	var actions := HBoxContainer.new()
+	actions.add_theme_constant_override("separation", 10)
+	stack.add_child(actions)
+
+	var cancel := Button.new()
+	cancel.text = "Not yet"
+	cancel.custom_minimum_size = Vector2(150, 48)
+	cancel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	StationeryUIScript.apply_soft_button(cancel, false)
+	cancel.pressed.connect(_close_focus_setup)
+	actions.add_child(cancel)
+
+	var start := Button.new()
+	start.text = "Start focus  →"
+	start.custom_minimum_size = Vector2(220, 48)
+	start.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	StationeryUIScript.apply_soft_button(start, true)
+	start.pressed.connect(
+		_begin_focus.bind(spot_index)
+	)
+	actions.add_child(start)
+
 	task_input.grab_focus()
 
-func _choose_duration(seconds: int, grid: GridContainer) -> void:
-	selected_duration=seconds
-	for child in grid.get_children():
+func _choose_duration(
+	seconds: int,
+	grid: GridContainer
+) -> void:
+	selected_duration = seconds
+
+	for child: Node in grid.get_children():
 		if child is Button:
-			var selected:=int(child.get_meta("seconds"))==seconds
-			child.add_theme_stylebox_override("normal",_panel_style(HONEY if selected else Color("#f4e3bf"),14,2,WOOD if selected else Color("#d8bd88")))
+			StationeryUIScript.apply_soft_button(
+				child as Button,
+				int(
+					child.get_meta(
+						"seconds",
+						0
+					)
+				) == seconds
+			)
 
 func _close_focus_setup() -> void:
 	var overlay:=ui_root.get_node_or_null("FocusSetupOverlay")
@@ -3434,80 +3893,178 @@ func _activate_npc_review() -> void:
 	_make_camera(target + camera_offset, target, 40.0)
 
 func _build_resting_hud() -> void:
-	for child in ui_root.get_children():
+	for child: Node in ui_root.get_children():
 		child.queue_free()
 
 	var vignette := ColorRect.new()
 	ui_root.add_child(vignette)
-	vignette.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	vignette.color = Color(0.03, 0.02, 0.015, 0.09)
+	vignette.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+	vignette.color = Color(0.02, 0.018, 0.015, 0.06)
 	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var hud := PanelContainer.new()
+	var hud := VBoxContainer.new()
 	ui_root.add_child(hud)
-	hud.position = Vector2(36, 36)
-	hud.size = Vector2(370, 155)
-	hud.add_theme_stylebox_override(
-		"panel",
-		_panel_style(
-			Color(0.08, 0.055, 0.04, 0.90),
-			25,
-			2,
-			Color(1, 0.83, 0.52, 0.28)
-		)
-	)
+	hud.position = Vector2(1032, 26)
+	hud.size = Vector2(220, 112)
 
-	var margin := MarginContainer.new()
-	hud.add_child(margin)
-	for key in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + key, 20)
-
-	var stack := VBoxContainer.new()
-	margin.add_child(stack)
-	stack.add_child(
-		_label(
-			current_room_name.to_upper(),
-			12,
-			Color("#e2b95e")
-		)
-	)
-	focus_task_label = _label("RESTING", 18, CREAM)
-	stack.add_child(focus_task_label)
 	focus_time_label = _label(
-		"%02d:%02d" % [
+		"%02d:%02d"
+		% [
 			resting_duration / 60,
-			resting_duration % 60
+			resting_duration % 60,
 		],
-		35,
-		CREAM
+		42,
+		StationeryUIScript.LIGHT_TEXT
 	)
-	stack.add_child(focus_time_label)
-	focus_shot_label = _label(
-		"RESTING  ·  settling in",
+	StationeryUIScript.apply_heading(
+		focus_time_label,
+		42,
+		StationeryUIScript.LIGHT_TEXT
+	)
+	focus_time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	hud.add_child(focus_time_label)
+
+	focus_task_label = _label(
+		"Resting",
 		13,
-		Color("#c7b496")
+		StationeryUIScript.LIGHT_MUTED
 	)
-	stack.add_child(focus_shot_label)
+	StationeryUIScript.apply_body(
+		focus_task_label,
+		13,
+		StationeryUIScript.LIGHT_MUTED
+	)
+	focus_task_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	hud.add_child(focus_task_label)
 
-	var end := _button("End resting", false)
-	ui_root.add_child(end)
-	end.position = Vector2(1070, 642)
-	end.size = Vector2(170, 48)
+	focus_shot_label = _label("", 1, Color.TRANSPARENT)
+	focus_shot_label.visible = false
+	hud.add_child(focus_shot_label)
+
+	var controls := HBoxContainer.new()
+	ui_root.add_child(controls)
+	controls.position = Vector2(1038, 142)
+	controls.size = Vector2(214, 44)
+	controls.add_theme_constant_override("separation", 8)
+
+	var pause := Button.new()
+	pause.text = "Pause"
+	pause.custom_minimum_size = Vector2(98, 42)
+	StationeryUIScript.apply_dark_button(pause)
+	pause.pressed.connect(
+		func():
+			FocusManager.toggle_pause()
+			pause.text = (
+				"Resume"
+				if FocusManager.paused
+				else "Pause"
+			)
+	)
+	controls.add_child(pause)
+
+	var end := Button.new()
+	end.text = "End"
+	end.custom_minimum_size = Vector2(98, 42)
+	StationeryUIScript.apply_dark_button(end)
 	end.pressed.connect(FocusManager.cancel_session)
-
+	controls.add_child(end)
 
 func _build_focus_hud(task: String) -> void:
-	for child in ui_root.get_children():child.queue_free()
-	var vignette:=ColorRect.new();ui_root.add_child(vignette);vignette.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);vignette.color=Color(0.03,0.02,0.015,0.13);vignette.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	var hud:=PanelContainer.new();ui_root.add_child(hud);hud.position=Vector2(36,36);hud.size=Vector2(370,155);hud.add_theme_stylebox_override("panel",_panel_style(Color(0.08,0.055,0.04,0.90),25,2,Color(1,0.83,0.52,0.28)))
-	var margin:=MarginContainer.new();hud.add_child(margin)
-	for key in ["left","right","top","bottom"]:margin.add_theme_constant_override("margin_"+key,20)
-	var stack:=VBoxContainer.new();margin.add_child(stack)
-	stack.add_child(_label(current_room_name.to_upper(),12,Color("#e2b95e")))
-	focus_task_label=_label(task if not task.strip_edges().is_empty() else "Quiet focus",18,CREAM);stack.add_child(focus_task_label)
-	focus_time_label=_label("25:00",35,CREAM);stack.add_child(focus_time_label)
-	focus_shot_label=_label("FOCUS  ·  settling in",13,Color("#c7b496"));stack.add_child(focus_shot_label)
-	var end:=_button("End session",false);ui_root.add_child(end);end.position=Vector2(1090,642);end.size=Vector2(150,48);end.pressed.connect(FocusManager.cancel_session)
+	for child: Node in ui_root.get_children():
+		child.queue_free()
+
+	var vignette := ColorRect.new()
+	ui_root.add_child(vignette)
+	vignette.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+	vignette.color = Color(0.02, 0.018, 0.015, 0.08)
+	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var hud := VBoxContainer.new()
+	ui_root.add_child(hud)
+	hud.position = Vector2(1032, 26)
+	hud.size = Vector2(220, 112)
+	hud.add_theme_constant_override("separation", 0)
+
+	focus_time_label = _label(
+		"%02d:%02d"
+		% [
+			selected_duration / 60,
+			selected_duration % 60,
+		],
+		42,
+		StationeryUIScript.LIGHT_TEXT
+	)
+	StationeryUIScript.apply_heading(
+		focus_time_label,
+		42,
+		StationeryUIScript.LIGHT_TEXT
+	)
+	focus_time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	hud.add_child(focus_time_label)
+
+	focus_task_label = _label(
+		task if not task.strip_edges().is_empty() else "Quiet focus",
+		13,
+		StationeryUIScript.LIGHT_MUTED
+	)
+	StationeryUIScript.apply_body(
+		focus_task_label,
+		13,
+		StationeryUIScript.LIGHT_MUTED
+	)
+	focus_task_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	focus_task_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	hud.add_child(focus_task_label)
+
+	focus_shot_label = _label("", 1, Color.TRANSPARENT)
+	focus_shot_label.visible = false
+	hud.add_child(focus_shot_label)
+
+	var controls := HBoxContainer.new()
+	ui_root.add_child(controls)
+	controls.position = Vector2(1038, 142)
+	controls.size = Vector2(214, 44)
+	controls.add_theme_constant_override("separation", 8)
+
+	var pause := Button.new()
+	pause.text = "Pause"
+	pause.custom_minimum_size = Vector2(98, 42)
+	StationeryUIScript.apply_dark_button(pause)
+	pause.pressed.connect(
+		func():
+			FocusManager.toggle_pause()
+			pause.text = (
+				"Resume"
+				if FocusManager.paused
+				else "Pause"
+			)
+	)
+	controls.add_child(pause)
+
+	var end := Button.new()
+	end.text = "End"
+	end.custom_minimum_size = Vector2(98, 42)
+	StationeryUIScript.apply_dark_button(end)
+	end.pressed.connect(FocusManager.cancel_session)
+	controls.add_child(end)
+
+	var escape_hint := _label(
+		"Esc  menu",
+		11,
+		StationeryUIScript.LIGHT_MUTED
+	)
+	ui_root.add_child(escape_hint)
+	escape_hint.position = Vector2(24, 680)
+	escape_hint.size = Vector2(120, 24)
+	StationeryUIScript.apply_body(
+		escape_hint,
+		11,
+		StationeryUIScript.LIGHT_MUTED
+	)
 
 func _on_focus_tick(remaining: int) -> void:
 	if is_instance_valid(focus_time_label):focus_time_label.text="%02d:%02d"%[remaining/60,remaining%60]
@@ -3879,65 +4436,181 @@ func _restore_player_standing() -> void:
 	player.velocity = Vector3.ZERO
 	active_study_spot = null
 
-func _show_resting_completion(minutes: int) -> void:
+func _show_resting_completion(
+	minutes: int
+) -> void:
 	var overlay := ColorRect.new()
 	ui_root.add_child(overlay)
-	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.color = Color(0.05, 0.035, 0.025, 0.72)
+	overlay.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+	overlay.color = Color(0.02, 0.018, 0.015, 0.26)
 
 	var panel := PanelContainer.new()
 	overlay.add_child(panel)
-	panel.position = Vector2(370, 165)
-	panel.size = Vector2(540, 360)
+	panel.position = Vector2(448, 238)
+	panel.size = Vector2(384, 244)
 	panel.add_theme_stylebox_override(
 		"panel",
-		_panel_style(CREAM, 30, 6, HONEY)
+		StationeryUIScript.paper_style(
+			StationeryUIScript.PAPER,
+			22,
+			1,
+			StationeryUIScript.LINE,
+			0
+		)
 	)
 
 	var margin := MarginContainer.new()
 	panel.add_child(margin)
-	for key in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + key, 34)
+	margin.add_theme_constant_override("margin_left", 26)
+	margin.add_theme_constant_override("margin_right", 26)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_bottom", 22)
 
 	var stack := VBoxContainer.new()
 	margin.add_child(stack)
-	stack.add_theme_constant_override("separation", 18)
+	stack.add_theme_constant_override("separation", 10)
 
-	var done := _label("Rest complete", 39, INK)
+	var done := _label(
+		"Rest complete.",
+		29,
+		StationeryUIScript.INK
+	)
+	StationeryUIScript.apply_heading(
+		done,
+		29,
+		StationeryUIScript.INK
+	)
 	done.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stack.add_child(done)
 
 	var detail := _label(
 		"%d minutes resting" % minutes,
-		24,
-		COCOA
+		14,
+		StationeryUIScript.MUTED
+	)
+	StationeryUIScript.apply_body(
+		detail,
+		14,
+		StationeryUIScript.MUTED
 	)
 	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stack.add_child(detail)
 
-	var return_button := _button("Return to the garden", true)
-	return_button.custom_minimum_size = Vector2(0, 56)
+	var return_button := Button.new()
+	return_button.text = "Return"
+	return_button.custom_minimum_size = Vector2(0, 46)
+	StationeryUIScript.apply_soft_button(
+		return_button,
+		true
+	)
 	return_button.pressed.connect(
 		build_room.bind(GameState.selected_room)
 	)
 	stack.add_child(return_button)
 
-	var places := _button("Choose another place", false)
-	places.custom_minimum_size = Vector2(0, 54)
+func _show_completion(
+	minutes: int,
+	reward: int
+) -> void:
+	var overlay := ColorRect.new()
+	ui_root.add_child(overlay)
+	overlay.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+	overlay.color = Color(0.02, 0.018, 0.015, 0.28)
+
+	var panel := PanelContainer.new()
+	overlay.add_child(panel)
+	panel.position = Vector2(438, 226)
+	panel.size = Vector2(404, 270)
+	panel.add_theme_stylebox_override(
+		"panel",
+		StationeryUIScript.paper_style(
+			StationeryUIScript.PAPER,
+			22,
+			1,
+			StationeryUIScript.LINE,
+			0
+		)
+	)
+
+	var margin := MarginContainer.new()
+	panel.add_child(margin)
+	margin.add_theme_constant_override("margin_left", 26)
+	margin.add_theme_constant_override("margin_right", 26)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_bottom", 22)
+
+	var stack := VBoxContainer.new()
+	margin.add_child(stack)
+	stack.add_theme_constant_override("separation", 10)
+
+	var eyebrow := _label(
+		"SESSION COMPLETE",
+		10,
+		StationeryUIScript.MOSS
+	)
+	StationeryUIScript.apply_body(
+		eyebrow,
+		10,
+		StationeryUIScript.MOSS
+	)
+	eyebrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stack.add_child(eyebrow)
+
+	var done := _label(
+		"Good work.",
+		30,
+		StationeryUIScript.INK
+	)
+	StationeryUIScript.apply_heading(
+		done,
+		30,
+		StationeryUIScript.INK
+	)
+	done.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stack.add_child(done)
+
+	var detail := _label(
+		"%d minutes focused   ·   +%d focus"
+		% [
+			minutes,
+			reward,
+		],
+		14,
+		StationeryUIScript.MUTED
+	)
+	StationeryUIScript.apply_body(
+		detail,
+		14,
+		StationeryUIScript.MUTED
+	)
+	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stack.add_child(detail)
+
+	var buttons := HBoxContainer.new()
+	buttons.add_theme_constant_override("separation", 8)
+	stack.add_child(buttons)
+
+	var again := Button.new()
+	again.text = "Study again"
+	again.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	again.custom_minimum_size = Vector2(0, 46)
+	StationeryUIScript.apply_soft_button(again, true)
+	again.pressed.connect(
+		build_room.bind(GameState.selected_room)
+	)
+	buttons.add_child(again)
+
+	var places := Button.new()
+	places.text = "Places"
+	places.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	places.custom_minimum_size = Vector2(0, 46)
+	StationeryUIScript.apply_soft_button(places, false)
 	places.pressed.connect(show_main_menu)
-	stack.add_child(places)
-
-
-func _show_completion(minutes: int, reward: int) -> void:
-	var overlay:=ColorRect.new();ui_root.add_child(overlay);overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);overlay.color=Color(0.05,0.035,0.025,0.72)
-	var panel:=PanelContainer.new();overlay.add_child(panel);panel.position=Vector2(370,145);panel.size=Vector2(540,430);panel.add_theme_stylebox_override("panel",_panel_style(CREAM,30,6,GOLD))
-	var margin:=MarginContainer.new();panel.add_child(margin)
-	for key in ["left","right","top","bottom"]:margin.add_theme_constant_override("margin_"+key,34)
-	var stack:=VBoxContainer.new();margin.add_child(stack);stack.add_theme_constant_override("separation",18)
-	var done:=_label("Nice work!",39,INK);done.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER;stack.add_child(done)
-	var detail:=_label("%d minutes focused\n\n+%d Focus Coins"%[minutes,reward],24,COCOA);detail.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER;stack.add_child(detail)
-	var again:=_button("Study again",true);again.custom_minimum_size=Vector2(0,56);again.pressed.connect(build_room.bind(GameState.selected_room));stack.add_child(again)
-	var places:=_button("Choose another place",false);places.custom_minimum_size=Vector2(0,54);places.pressed.connect(show_main_menu);stack.add_child(places)
+	buttons.add_child(places)
 
 func _add_environment(background: Color, ambient: Color, energy: float) -> void:
 	var environment:=WorldEnvironment.new();world_root.add_child(environment)

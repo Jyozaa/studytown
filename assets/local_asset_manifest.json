@@ -9983,7 +9983,7 @@
         896,
         896
       ],
-      "material_notes": "Supplied 896\u00d7896 tiled triangular grass albedo",
+      "material_notes": "Supplied 896×896 tiled triangular grass albedo",
       "tags": [
         "garden",
         "grass",
@@ -10019,6 +10019,7 @@
     },
     {
       "asset_id": "bob",
+      "character_id": "bob",
       "display_name": "Bob",
       "category": "character",
       "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
@@ -10042,18 +10043,14 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [
-        1.55,
-        2.7,
-        1.52
-      ],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
       "tags": [
         "cat",
-        "playable"
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10075,12 +10072,17 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
       "animation_clips": [
         "Idle",
         "Walk",
@@ -10088,6 +10090,12 @@
         "SeatedIdle",
         "StudyLaptop",
         "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
         "Wave",
         "Stretch",
         "Cheer"
@@ -10099,10 +10107,103 @@
         "npcs",
         "menu"
       ],
-      "notes": "No source clips; local skeletal actions generated."
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "mitzi",
+      "character_id": "mitzi",
+      "display_name": "Mitzi",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/mitzi.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
       "asset_id": "rosie",
+      "character_id": "rosie",
       "display_name": "Rosie",
       "category": "character",
       "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
@@ -10126,18 +10227,14 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [
-        1.55,
-        2.7,
-        1.52
-      ],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
       "tags": [
         "cat",
-        "playable"
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10159,12 +10256,17 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
       "animation_clips": [
         "Idle",
         "Walk",
@@ -10172,6 +10274,12 @@
         "SeatedIdle",
         "StudyLaptop",
         "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
         "Wave",
         "Stretch",
         "Cheer"
@@ -10183,10 +10291,1759 @@
         "npcs",
         "menu"
       ],
-      "notes": "No source clips; local skeletal actions generated."
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "olivia",
+      "character_id": "olivia",
+      "display_name": "Olivia",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/olivia.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "kiki",
+      "character_id": "kiki",
+      "display_name": "Kiki",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/kiki.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "tangy",
+      "character_id": "tangy",
+      "display_name": "Tangy",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/tangy.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "punchy",
+      "character_id": "punchy",
+      "display_name": "Punchy",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/punchy.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "purrl",
+      "character_id": "purrl",
+      "display_name": "Purrl",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/purrl.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "moe",
+      "character_id": "moe",
+      "display_name": "Moe",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/moe.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "kabuki",
+      "character_id": "kabuki",
+      "display_name": "Kabuki",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/kabuki.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "kid_cat",
+      "character_id": "kid_cat",
+      "display_name": "Kid Cat",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/kid_cat.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "monique",
+      "character_id": "monique",
+      "display_name": "Monique",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/monique.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "tabby",
+      "character_id": "tabby",
+      "display_name": "Tabby",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/tabby.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "stinky",
+      "character_id": "stinky",
+      "display_name": "Stinky",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/stinky.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "kitty",
+      "character_id": "kitty",
+      "display_name": "Kitty",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/kitty.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "tom",
+      "character_id": "tom",
+      "display_name": "Tom",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/tom.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "merry",
+      "character_id": "merry",
+      "display_name": "Merry",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/merry.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "felicity",
+      "character_id": "felicity",
+      "display_name": "Felicity",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/felicity.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "lolly",
+      "character_id": "lolly",
+      "display_name": "Lolly",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/lolly.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "ankha",
+      "character_id": "ankha",
+      "display_name": "Ankha",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/ankha.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "rudy",
+      "character_id": "rudy",
+      "display_name": "Rudy",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/rudy.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "katt",
+      "character_id": "katt",
+      "display_name": "Katt",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/katt.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "cat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.52,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
       "asset_id": "raymond",
+      "character_id": "raymond",
       "display_name": "Raymond",
       "category": "character",
       "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
@@ -10210,18 +12067,14 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [
-        1.55,
-        2.7,
-        1.52
-      ],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Cat villager variant textures from the user-supplied character pack",
       "tags": [
         "cat",
-        "playable"
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10243,12 +12096,17 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
       "animation_clips": [
         "Idle",
         "Walk",
@@ -10256,6 +12114,12 @@
         "SeatedIdle",
         "StudyLaptop",
         "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
         "Wave",
         "Stretch",
         "Cheer"
@@ -10267,14 +12131,15 @@
         "npcs",
         "menu"
       ],
-      "notes": "No source clips; local skeletal actions generated."
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "ankha",
-      "display_name": "Ankha",
+      "asset_id": "alfonso",
+      "character_id": "alfonso",
+      "display_name": "Alfonso",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Alligators _ Crocodiles.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/alfonso.glb",
       "room_tags": [
         "all"
       ],
@@ -10294,14 +12159,658 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Alligator villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "alligator",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "alli",
+      "character_id": "alli",
+      "display_name": "Alli",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Alligators _ Crocodiles.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/alli.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Alligator villager variant textures from the user-supplied character pack",
+      "tags": [
+        "alligator",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "boots",
+      "character_id": "boots",
+      "display_name": "Boots",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Alligators _ Crocodiles.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/boots.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Alligator villager variant textures from the user-supplied character pack",
+      "tags": [
+        "alligator",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "del",
+      "character_id": "del",
+      "display_name": "Del",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Alligators _ Crocodiles.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/del.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Alligator villager variant textures from the user-supplied character pack",
+      "tags": [
+        "alligator",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "sly",
+      "character_id": "sly",
+      "display_name": "Sly",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Alligators _ Crocodiles.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/sly.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Alligator villager variant textures from the user-supplied character pack",
+      "tags": [
+        "alligator",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "gayle",
+      "character_id": "gayle",
+      "display_name": "Gayle",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Alligators _ Crocodiles.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/gayle.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Alligator villager variant textures from the user-supplied character pack",
+      "tags": [
+        "alligator",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "drago",
+      "character_id": "drago",
+      "display_name": "Drago",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Alligators _ Crocodiles.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/drago.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Alligator villager variant textures from the user-supplied character pack",
+      "tags": [
+        "alligator",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
+      "collider_height": 2.2,
+      "collider_y_offset": 1.1,
+      "label_height": 2.98,
+      "standing_visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sitting_visual_offset": [
+        0.0,
+        -0.14,
+        0.12
+      ],
+      "animation_map": {
+        "Idle": "Idle",
+        "Walk": "Walk",
+        "Sit": "Sit",
+        "SeatedIdle": "SeatedIdle",
+        "StudyLaptop": "StudyLaptop",
+        "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
+        "Wave": "Wave",
+        "Stretch": "Stretch",
+        "Cheer": "Cheer"
+      },
+      "rigged": true,
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
+    },
+    {
+      "asset_id": "chevre",
+      "character_id": "chevre",
+      "display_name": "Chevre",
+      "category": "character",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Goats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/chevre.glb",
+      "room_tags": [
+        "all"
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation_degrees": [
+        0.0,
+        180.0,
+        0.0
+      ],
+      "visual_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_type": "capsule",
+      "material_notes": "Goat villager variant textures from the user-supplied character pack",
+      "tags": [
+        "goat",
+        "playable",
+        "character_pack"
+      ],
+      "skeleton": "Armature",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10323,24 +12832,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "felicity",
-      "display_name": "Felicity",
+      "asset_id": "nan",
+      "character_id": "nan",
+      "display_name": "Nan",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Goats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/nan.glb",
       "room_tags": [
         "all"
       ],
@@ -10360,14 +12895,14 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Goat villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "goat",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10389,24 +12924,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "kabuki",
-      "display_name": "Kabuki",
+      "asset_id": "billy",
+      "character_id": "billy",
+      "display_name": "Billy",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Goats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/billy.glb",
       "room_tags": [
         "all"
       ],
@@ -10426,14 +12987,14 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Goat villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "goat",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10455,24 +13016,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "katt",
-      "display_name": "Katt",
+      "asset_id": "gruff",
+      "character_id": "gruff",
+      "display_name": "Gruff",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Goats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/gruff.glb",
       "room_tags": [
         "all"
       ],
@@ -10492,14 +13079,14 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Goat villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "goat",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10521,24 +13108,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "kid_cat",
-      "display_name": "Kid Cat",
+      "asset_id": "velma",
+      "character_id": "velma",
+      "display_name": "Velma",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Goats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/velma.glb",
       "room_tags": [
         "all"
       ],
@@ -10558,14 +13171,14 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Goat villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "goat",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10587,24 +13200,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "kiki",
-      "display_name": "Kiki",
+      "asset_id": "kidd",
+      "character_id": "kidd",
+      "display_name": "Kidd",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Goats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/kidd.glb",
       "room_tags": [
         "all"
       ],
@@ -10624,14 +13263,14 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Goat villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "goat",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10653,24 +13292,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "kitty",
-      "display_name": "Kitty",
+      "asset_id": "pashmina",
+      "character_id": "pashmina",
+      "display_name": "Pashmina",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Goats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/pashmina.glb",
       "room_tags": [
         "all"
       ],
@@ -10690,14 +13355,14 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Goat villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "goat",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10719,24 +13384,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "lolly",
-      "display_name": "Lolly",
+      "asset_id": "sherb",
+      "character_id": "sherb",
+      "display_name": "Sherb",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Goats.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/sherb.glb",
       "room_tags": [
         "all"
       ],
@@ -10756,14 +13447,14 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Goat villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "goat",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10785,24 +13476,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "merry",
-      "display_name": "Merry",
+      "asset_id": "cece",
+      "character_id": "cece",
+      "display_name": "Cece",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers (Update) - Cece.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/cece.glb",
       "room_tags": [
         "all"
       ],
@@ -10822,14 +13539,14 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Squirrel villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "squirrel",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
       "collider_radius": 0.52,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
@@ -10851,24 +13568,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "mitzi",
-      "display_name": "Mitzi",
+      "asset_id": "rolf",
+      "character_id": "rolf",
+      "display_name": "Rolf",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Tigers.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/rolf.glb",
       "room_tags": [
         "all"
       ],
@@ -10888,15 +13631,15 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Tiger villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "tiger",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
-      "collider_radius": 0.52,
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
       "label_height": 2.98,
@@ -10917,24 +13660,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "moe",
-      "display_name": "Moe",
+      "asset_id": "rowan",
+      "character_id": "rowan",
+      "display_name": "Rowan",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Tigers.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/rowan.glb",
       "room_tags": [
         "all"
       ],
@@ -10954,15 +13723,15 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Tiger villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "tiger",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
-      "collider_radius": 0.52,
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
       "label_height": 2.98,
@@ -10983,24 +13752,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "monique",
-      "display_name": "Monique",
+      "asset_id": "tybalt",
+      "character_id": "tybalt",
+      "display_name": "Tybalt",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Tigers.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/tybalt.glb",
       "room_tags": [
         "all"
       ],
@@ -11020,15 +13815,15 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Tiger villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "tiger",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
-      "collider_radius": 0.52,
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
       "label_height": 2.98,
@@ -11049,24 +13844,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "olivia",
-      "display_name": "Olivia",
+      "asset_id": "bangle",
+      "character_id": "bangle",
+      "display_name": "Bangle",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Tigers.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/bangle.glb",
       "room_tags": [
         "all"
       ],
@@ -11086,15 +13907,15 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Tiger villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "tiger",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
-      "collider_radius": 0.52,
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
       "label_height": 2.98,
@@ -11115,24 +13936,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "punchy",
-      "display_name": "Punchy",
+      "asset_id": "leonardo",
+      "character_id": "leonardo",
+      "display_name": "Leonardo",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Tigers.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/leonardo.glb",
       "room_tags": [
         "all"
       ],
@@ -11152,15 +13999,15 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Tiger villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "tiger",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
-      "collider_radius": 0.52,
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
       "label_height": 2.98,
@@ -11181,24 +14028,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "purrl",
-      "display_name": "Purrl",
+      "asset_id": "claudia",
+      "character_id": "claudia",
+      "display_name": "Claudia",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Tigers.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/claudia.glb",
       "room_tags": [
         "all"
       ],
@@ -11218,15 +14091,15 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Tiger villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "tiger",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
-      "collider_radius": 0.52,
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
       "label_height": 2.98,
@@ -11247,24 +14120,50 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
+      ],
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
+      ],
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     },
     {
-      "asset_id": "rudy",
-      "display_name": "Rudy",
+      "asset_id": "bianca",
+      "character_id": "bianca",
+      "display_name": "Bianca",
       "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
+      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Tigers.zip",
+      "runtime_relative_path": "res://assets/dev_local/characters/bianca.glb",
       "room_tags": [
         "all"
       ],
@@ -11284,15 +14183,15 @@
         0.0
       ],
       "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
+      "material_notes": "Tiger villager variant textures from the user-supplied character pack",
       "tags": [
-        "cat",
-        "variant"
+        "tiger",
+        "playable",
+        "character_pack"
       ],
       "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
-      "collider_radius": 0.52,
+      "forward_axis": "VisualRoot correction to canonical gameplay -Z",
+      "collider_radius": 0.6,
       "collider_height": 2.2,
       "collider_y_offset": 1.1,
       "label_height": 2.98,
@@ -11313,281 +14212,42 @@
         "SeatedIdle": "SeatedIdle",
         "StudyLaptop": "StudyLaptop",
         "StudyBook": "StudyBook",
+        "ArmchairSeatedIdle": "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop": "ArmchairStudyLaptop",
+        "ArmchairStudyBook": "ArmchairStudyBook",
+        "FloorStudy": "FloorStudy",
+        "TrainStudy": "TrainStudy",
+        "Resting": "Resting",
         "Wave": "Wave",
         "Stretch": "Stretch",
         "Cheer": "Cheer"
       },
       "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
-    },
-    {
-      "asset_id": "stinky",
-      "display_name": "Stinky",
-      "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
-      "room_tags": [
-        "all"
+      "animation_clips": [
+        "Idle",
+        "Walk",
+        "Sit",
+        "SeatedIdle",
+        "StudyLaptop",
+        "StudyBook",
+        "ArmchairSeatedIdle",
+        "ArmchairStudyLaptop",
+        "ArmchairStudyBook",
+        "FloorStudy",
+        "TrainStudy",
+        "Resting",
+        "Wave",
+        "Stretch",
+        "Cheer"
       ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
+      "imported": true,
+      "currently_used": true,
+      "where_used": [
+        "player",
+        "npcs",
+        "menu"
       ],
-      "rotation_degrees": [
-        0.0,
-        180.0,
-        0.0
-      ],
-      "visual_offset": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
-      "tags": [
-        "cat",
-        "variant"
-      ],
-      "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
-      "collider_radius": 0.52,
-      "collider_height": 2.2,
-      "collider_y_offset": 1.1,
-      "label_height": 2.98,
-      "standing_visual_offset": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "sitting_visual_offset": [
-        0.0,
-        -0.14,
-        0.12
-      ],
-      "animation_map": {
-        "Idle": "Idle",
-        "Walk": "Walk",
-        "Sit": "Sit",
-        "SeatedIdle": "SeatedIdle",
-        "StudyLaptop": "StudyLaptop",
-        "StudyBook": "StudyBook",
-        "Wave": "Wave",
-        "Stretch": "Stretch",
-        "Cheer": "Cheer"
-      },
-      "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
-    },
-    {
-      "asset_id": "tabby",
-      "display_name": "Tabby",
-      "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
-      "room_tags": [
-        "all"
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "rotation_degrees": [
-        0.0,
-        180.0,
-        0.0
-      ],
-      "visual_offset": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
-      "tags": [
-        "cat",
-        "variant"
-      ],
-      "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
-      "collider_radius": 0.52,
-      "collider_height": 2.2,
-      "collider_y_offset": 1.1,
-      "label_height": 2.98,
-      "standing_visual_offset": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "sitting_visual_offset": [
-        0.0,
-        -0.14,
-        0.12
-      ],
-      "animation_map": {
-        "Idle": "Idle",
-        "Walk": "Walk",
-        "Sit": "Sit",
-        "SeatedIdle": "SeatedIdle",
-        "StudyLaptop": "StudyLaptop",
-        "StudyBook": "StudyBook",
-        "Wave": "Wave",
-        "Stretch": "Stretch",
-        "Cheer": "Cheer"
-      },
-      "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
-    },
-    {
-      "asset_id": "tangy",
-      "display_name": "Tangy",
-      "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
-      "room_tags": [
-        "all"
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "rotation_degrees": [
-        0.0,
-        180.0,
-        0.0
-      ],
-      "visual_offset": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
-      "tags": [
-        "cat",
-        "variant"
-      ],
-      "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
-      "collider_radius": 0.52,
-      "collider_height": 2.2,
-      "collider_y_offset": 1.1,
-      "label_height": 2.98,
-      "standing_visual_offset": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "sitting_visual_offset": [
-        0.0,
-        -0.14,
-        0.12
-      ],
-      "animation_map": {
-        "Idle": "Idle",
-        "Walk": "Walk",
-        "Sit": "Sit",
-        "SeatedIdle": "SeatedIdle",
-        "StudyLaptop": "StudyLaptop",
-        "StudyBook": "StudyBook",
-        "Wave": "Wave",
-        "Stretch": "Stretch",
-        "Cheer": "Cheer"
-      },
-      "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
-    },
-    {
-      "asset_id": "tom",
-      "display_name": "Tom",
-      "category": "character",
-      "source_relative_path": "Nintendo Switch - Animal Crossing_ New Horizons - Villagers - Cats.zip",
-      "runtime_relative_path": "",
-      "room_tags": [
-        "all"
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "rotation_degrees": [
-        0.0,
-        180.0,
-        0.0
-      ],
-      "visual_offset": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "collision_type": "capsule",
-      "dimensions": [],
-      "material_notes": "Variant body, eye, mouth, and top textures",
-      "tags": [
-        "cat",
-        "variant"
-      ],
-      "skeleton": "Armature",
-      "forward_axis": "VisualRoot correction to -Z",
-      "collider_radius": 0.52,
-      "collider_height": 2.2,
-      "collider_y_offset": 1.1,
-      "label_height": 2.98,
-      "standing_visual_offset": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "sitting_visual_offset": [
-        0.0,
-        -0.14,
-        0.12
-      ],
-      "animation_map": {
-        "Idle": "Idle",
-        "Walk": "Walk",
-        "Sit": "Sit",
-        "SeatedIdle": "SeatedIdle",
-        "StudyLaptop": "StudyLaptop",
-        "StudyBook": "StudyBook",
-        "Wave": "Wave",
-        "Stretch": "Stretch",
-        "Cheer": "Cheer"
-      },
-      "rigged": true,
-      "bone_count": 51,
-      "animation_clips": [],
-      "imported": false,
-      "currently_used": false,
-      "where_used": [],
-      "notes": "Texture variant audited; not selected for runtime conversion."
+      "notes": "StudyTown generates the same skeletal action set used by the previous characters."
     }
   ]
 }

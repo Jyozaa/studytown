@@ -83,7 +83,7 @@ func create_character(
 	if not warned_missing:
 		warned_missing = true
 		push_warning(
-			"Local cat development models are absent; "
+			"Local villager development models are absent; "
 			+ "using the public fallback characters."
 		)
 

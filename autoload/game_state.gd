@@ -21,7 +21,7 @@ func load_save() -> void:
 	var data = JSON.parse_string(file.get_as_text())
 	if typeof(data) != TYPE_DICTIONARY:
 		return
-	selected_character = clampi(int(data.get("selected_character", 0)), 0, 2)
+	selected_character = maxi(0, int(data.get("selected_character", 0)))
 	selected_room = clampi(int(data.get("selected_room", 0)), 0, ROOMS.size() - 1)
 	focus_coins = maxi(0, int(data.get("focus_coins", 0)))
 	total_focus_minutes = maxi(0, int(data.get("total_focus_minutes", 0)))

@@ -3,6 +3,7 @@ extends RefCounted
 
 var character_id := "fallback"
 var display_name := "Study buddy"
+var species := "villager"
 var source_page := ""
 var expected_local_path := ""
 var model_format := "glb"
@@ -21,6 +22,39 @@ static func from_dictionary(data: Dictionary) -> CharacterProfile:
 	var profile := CharacterProfile.new()
 	profile.character_id = str(data.get("character_id", data.get("asset_id", "fallback")))
 	profile.display_name = str(data.get("display_name", "Study buddy"))
+	var species_value := str(
+		data.get(
+			"species",
+			""
+		)
+	).strip_edges().to_lower()
+
+	if species_value.is_empty():
+		var tags_value: Variant = data.get(
+			"tags",
+			[]
+		)
+
+		if tags_value is Array:
+			for tag_variant: Variant in tags_value:
+				var tag_value := str(
+					tag_variant
+				).strip_edges().to_lower()
+
+				if tag_value in [
+					"cat",
+					"alligator",
+					"goat",
+					"squirrel",
+					"tiger",
+				]:
+					species_value = tag_value
+					break
+
+	if species_value.is_empty():
+		species_value = "villager"
+
+	profile.species = species_value
 	profile.source_page = str(data.get("source_page", ""))
 	profile.expected_local_path = str(data.get("runtime_relative_path", data.get("expected_local_path", "")))
 	profile.model_format = str(data.get("model_format", "glb"))
