@@ -1,7 +1,7 @@
 extends RefCounted
 
 # Generates one-shot, low-resolution previews from the actual editable room
-# scenes so the scrapbook postcards stay in sync with the rooms.
+# scenes so the dashboard stays in sync with the rooms.
 
 const ROOM_SCENES := {
 	"library": "res://assets/dev_local/room_layouts/library.tscn",
@@ -11,22 +11,26 @@ const ROOM_SCENES := {
 }
 
 const ROOM_CAMERAS := {
-	"library": {
-		"position": Vector3(10.5, 6.8, 12.5),
-		"target": Vector3(0.0, 1.6, 0.0),
-		"fov": 44.0,
+	"library":
+	{
+		"position": Vector3(5.2, 4.4, 9.3),
+		"target": Vector3(0.0, 1.0, 2.3),
+		"fov": 40.0,
 	},
-	"garden": {
+	"garden":
+	{
 		"position": Vector3(12.0, 8.0, 13.5),
 		"target": Vector3(0.0, 1.0, 0.0),
 		"fov": 47.0,
 	},
-	"train": {
-		"position": Vector3(4.5, 3.4, 10.0),
-		"target": Vector3(0.0, 1.6, 3.5),
+	"train":
+	{
+		"position": Vector3(0.1, 3.1, 9.5),
+		"target": Vector3(0.0, 1.3, -1.0),
 		"fov": 46.0,
 	},
-	"japanese": {
+	"japanese":
+	{
 		"position": Vector3(9.0, 6.8, 11.0),
 		"target": Vector3(0.0, 1.2, 0.0),
 		"fov": 46.0,
@@ -34,21 +38,15 @@ const ROOM_CAMERAS := {
 }
 
 
-static func make_preview(
-	room_id: String,
-	size_value := Vector2i(240, 170)
-) -> Control:
+static func make_preview(room_id: String, size_value := Vector2i(240, 170)) -> Control:
 	var holder := Control.new()
-	holder.custom_minimum_size = Vector2(
-		size_value.x,
-		size_value.y
-	)
+	holder.custom_minimum_size = Vector2(size_value.x, size_value.y)
 	holder.clip_contents = true
+	if DisplayServer.get_name() == "headless":
+		return holder
 
 	var container := SubViewportContainer.new()
-	container.set_anchors_and_offsets_preset(
-		Control.PRESET_FULL_RECT
-	)
+	container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	container.stretch = true
 	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	holder.add_child(container)
@@ -60,21 +58,11 @@ static func make_preview(
 	viewport.own_world_3d = true
 	container.add_child(viewport)
 
-	var scene_path := str(
-		ROOM_SCENES.get(
-			room_id,
-			""
-		)
-	)
+	var scene_path := str(ROOM_SCENES.get(room_id, ""))
 
-	if (
-		scene_path.is_empty()
-		or not ResourceLoader.exists(scene_path)
-	):
+	if scene_path.is_empty() or not ResourceLoader.exists(scene_path):
 		var fallback := ColorRect.new()
-		fallback.set_anchors_and_offsets_preset(
-			Control.PRESET_FULL_RECT
-		)
+		fallback.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		fallback.color = Color("#8c775c")
 		holder.add_child(fallback)
 		return holder
@@ -87,6 +75,16 @@ static func make_preview(
 	var room := packed.instantiate()
 	room.process_mode = Node.PROCESS_MODE_DISABLED
 	viewport.add_child(room)
+	if room_id == "garden":
+		# Garden carries its own authored afternoon lighting. Extra preview
+		# lights washed out the new pond/grass and doubled the key exposure.
+		var pond_camera := Camera3D.new()
+		viewport.add_child(pond_camera)
+		pond_camera.position = Vector3(17, 15, 21)
+		pond_camera.look_at_from_position(pond_camera.position, Vector3(0, 1, -1))
+		pond_camera.fov = 52
+		pond_camera.current = true
+		return holder
 
 	var environment_node := WorldEnvironment.new()
 	var environment := Environment.new()
@@ -98,30 +96,18 @@ static func make_preview(
 	environment_node.environment = environment
 	viewport.add_child(environment_node)
 
-	var key := (
-		room_id
-		if ROOM_CAMERAS.has(room_id)
-		else "library"
-	)
+	var key := room_id if ROOM_CAMERAS.has(room_id) else "library"
 
 	var camera_data: Dictionary = ROOM_CAMERAS[key]
 
 	var light := DirectionalLight3D.new()
-	light.rotation_degrees = Vector3(
-		-48.0,
-		-30.0,
-		0.0
-	)
+	light.rotation_degrees = Vector3(-48.0, -30.0, 0.0)
 	light.light_color = Color("#ffd59a")
 	light.light_energy = 1.25
 	viewport.add_child(light)
 
 	var fill := OmniLight3D.new()
-	fill.position = Vector3(
-		-4.0,
-		6.0,
-		5.0
-	)
+	fill.position = Vector3(-4.0, 6.0, 5.0)
 	fill.light_color = Color("#fff0cd")
 	fill.light_energy = 2.2
 	fill.omni_range = 22.0
@@ -131,10 +117,7 @@ static func make_preview(
 	camera.position = camera_data["position"]
 	camera.fov = float(camera_data["fov"])
 	viewport.add_child(camera)
-	camera.look_at_from_position(
-		camera.position,
-		camera_data["target"]
-	)
+	camera.look_at_from_position(camera.position, camera_data["target"])
 	camera.current = true
 
 	return holder

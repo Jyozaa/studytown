@@ -12,6 +12,7 @@ var look_height := 1.2
 var look_ahead := 0.32
 var smoothed_look := Vector3.ZERO
 
+
 func setup(follow_target: Node3D, settings: Dictionary) -> Camera3D:
 	target = follow_target
 	offset = settings.get("camera_offset", offset)
@@ -29,6 +30,7 @@ func setup(follow_target: Node3D, settings: Dictionary) -> Camera3D:
 	camera.current = true
 	return camera
 
+
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(target) or not is_instance_valid(camera):
 		return
@@ -38,19 +40,48 @@ func _physics_process(delta: float) -> void:
 	var desired_look := target.global_position + Vector3.UP * look_height + velocity_hint
 	var desired_position := desired_look + offset
 	var weight := 1.0 - exp(-position_damping * delta)
-	global_position = global_position.lerp(_resolve_obstruction(desired_look, desired_position), weight)
+	global_position = global_position.lerp(
+		_resolve_obstruction(desired_look, desired_position), weight
+	)
 	smoothed_look = smoothed_look.lerp(desired_look, 1.0 - exp(-look_damping * delta))
 	if global_position.distance_squared_to(smoothed_look) > 0.0001:
 		look_at(smoothed_look, Vector3.UP)
 
+
 func _resolve_obstruction(from: Vector3, desired: Vector3) -> Vector3:
-	if not is_inside_tree():
-		return desired
-	var query := PhysicsRayQueryParameters3D.create(from, desired, 1)
-	if target is CollisionObject3D:
-		query.exclude = [target.get_rid()]
-	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	var hit := raycast_obstructions(from, desired)
 	if hit.is_empty():
 		return desired
 	var normal: Vector3 = hit.get("normal", Vector3.UP)
 	return hit.get("position", desired) + normal * collision_margin
+
+
+func raycast_obstructions(from: Vector3, to: Vector3, mask := 1) -> Dictionary:
+	if not is_inside_tree():
+		return {}
+	var query := PhysicsRayQueryParameters3D.create(from, to, mask)
+	if target is CollisionObject3D:
+		query.exclude = [target.get_rid()]
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	# Invisible limits constrain walking, not the camera or presence badges.
+	# Actual walls and furniture still participate in obstruction tests.
+	for _attempt in 8:
+		if hit.is_empty():
+			break
+		var collider = hit.get("collider")
+		if (
+			not is_instance_valid(collider)
+			or not (
+				(
+					str(collider.name)
+					in ["NorthBoundary", "SouthBoundary", "EastBoundary", "WestBoundary"]
+				)
+				or bool(collider.get_meta("camera_passthrough", false))
+			)
+		):
+			break
+		var excluded := query.exclude
+		excluded.append(collider.get_rid())
+		query.exclude = excluded
+		hit = get_world_3d().direct_space_state.intersect_ray(query)
+	return hit

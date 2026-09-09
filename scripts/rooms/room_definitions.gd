@@ -21,7 +21,7 @@ const ROOMS := {
 	1: {
 		"id": "garden",
 		"size": Vector2(52.0, 38.0),
-		"spawn": Vector3(0.0, 0.65, 12.0),
+		"spawn": Vector3(0.0, 0.65, 15.6),
 		"bounds": Vector2(25.2, 18.2),
 
 		# Cozy Garden exploration camera.
@@ -32,7 +32,7 @@ const ROOMS := {
 		# The smaller X moves the camera viewpoint slightly left.
 		# The extra height/distance + 42° FOV pull the framing back enough to
 		# show more of the Garden and its new forest edge without feeling tiny.
-		"camera_offset": Vector3(2.2, 8.6, 12.4),
+		"camera_offset": Vector3(2.2, 11.8, 16.8),
 		"camera_look_height": 1.50,
 		"camera_fov": 42.0,
 		"camera_damping": 7.0,

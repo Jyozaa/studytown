@@ -5,6 +5,874 @@
   "runtime_root": "res://assets/dev_local/",
   "assets": [
     {
+      "asset_id": "central_pond_garden_pond_gazebo",
+      "display_name": "Central Pond green gazebo",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_pond_gazebo.glb",
+      "source_relative_path": "FtrWesternGazebo.Nin_NX_NVN/FtrWesternGazebo.dae + FtrWesternGazeboReBody2",
+      "room_tags": ["garden"],
+      "license": "Owner-local only; not CC0 or redistributable",
+      "currently_used": true
+    },
+    {
+      "asset_id": "central_pond_garden_pond_log_bridge",
+      "display_name": "garden pond log bridge",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_pond_log_bridge.glb",
+      "source_relative_path": "BridgeLog.Nin_NX_NVN/BridgeLog03.dae",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_pond_parasol",
+      "display_name": "garden pond parasol",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_pond_parasol.glb",
+      "source_relative_path": "FtrCafeParasoltable.Nin_NX_NVN/FtrCafeParasoltable.dae",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_pond_low_rock",
+      "display_name": "garden pond low rock",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_pond_low_rock.glb",
+      "source_relative_path": "FtrGardenrockLow.Nin_NX_NVN/FtrGardenrockLow.dae",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_pond_blossom",
+      "display_name": "garden pond blossom",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_pond_blossom.glb",
+      "source_relative_path": "PltTreeOakSakura.Nin_NX_NVN/PltTreeOak4Sakura.dae",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_big_tree",
+      "display_name": "garden big tree",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_big_tree.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_oak_tree",
+      "display_name": "garden oak tree",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_oak_tree.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_western_gazebo",
+      "display_name": "garden western gazebo",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_western_gazebo.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": false,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_forest_bench",
+      "display_name": "garden forest bench",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_forest_bench.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_cafe_chair",
+      "display_name": "cafe chair",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/cafe_chair.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_cafe_table",
+      "display_name": "garden cafe table",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_cafe_table.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_party_light_arch",
+      "display_name": "garden party light arch",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_party_light_arch.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_log_seat",
+      "display_name": "garden log seat",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_log_seat.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_cafe_counter",
+      "display_name": "garden cafe counter",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_cafe_counter.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_cafe_coffee_mill",
+      "display_name": "garden cafe coffee mill",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_cafe_coffee_mill.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_cafe_siphon",
+      "display_name": "garden cafe siphon",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_cafe_siphon.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_cafe_milk_pitcher",
+      "display_name": "garden cafe milk pitcher",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_cafe_milk_pitcher.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_cafe_coffee_cup",
+      "display_name": "garden cafe coffee cup",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_cafe_coffee_cup.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_cafe_saucer",
+      "display_name": "garden cafe saucer",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_cafe_saucer.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_forest_firepit",
+      "display_name": "garden forest firepit",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_forest_firepit.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_shrub",
+      "display_name": "garden shrub",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_shrub.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_flower_patch",
+      "display_name": "garden flower patch",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_flower_patch.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_weed_clump",
+      "display_name": "garden weed clump",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_weed_clump.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_rock_a",
+      "display_name": "garden rock a",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_rock_a.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_rock_b",
+      "display_name": "garden rock b",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_rock_b.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_hedge",
+      "display_name": "garden hedge",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_hedge.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset_id": "central_pond_garden_forest_lamp",
+      "display_name": "garden forest lamp",
+      "category": "garden_prop",
+      "runtime_relative_path": "blender_generated/runtime/garden_forest_lamp.glb",
+      "source_relative_path": "existing owner-local runtime asset",
+      "room_tags": [
+        "garden"
+      ],
+      "license": "Owner-supplied reference asset; local only, not CC0 or redistributable",
+      "currently_used": true,
+      "where_used": [
+        "Garden central pond"
+      ],
+      "tags": [
+        "central_pond"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation_degrees": [
+        0,
+        0,
+        0
+      ],
+      "visual_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
       "asset_id": "player_tent",
       "display_name": "Player Tent",
       "category": "architecture",

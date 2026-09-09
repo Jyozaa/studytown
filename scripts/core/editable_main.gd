@@ -26,8 +26,9 @@ func build_room(index: int) -> void:
 			editable_path
 		)
 	):
-		super.build_room(index)
-		return
+		if index != 1:
+			super.build_room(index)
+			return
 
 	screen = Screen.ROOM
 	_clear_scene()
@@ -38,10 +39,15 @@ func build_room(index: int) -> void:
 		)
 	)
 
-	var packed: PackedScene = (
-		load(editable_path)
-		as PackedScene
-	)
+	var packed: PackedScene
+	if ResourceLoader.exists(editable_path):
+		packed = load(editable_path) as PackedScene
+	elif index == 1:
+		# Same central-pond geography on public checkouts without local assets.
+		var fallback_garden: Node3D = preload("res://scripts/rooms/garden_builder.gd").new().build()
+		packed = PackedScene.new()
+		packed.pack(fallback_garden)
+		fallback_garden.free()
 
 	if packed == null:
 		push_warning(
@@ -267,6 +273,14 @@ func _bind_editable_room(
 			character_loader,
 			spots_by_id
 		)
+
+		# The new Garden stores only NPC identity/anchors. Public checkouts
+		# without owner-local GLBs still need visible, seated fallback students.
+		if current_room_config.get("id", "") == "garden" and not is_instance_valid(npc.visual):
+			var fallback_visual := _create_character(npc, npcs.size() % 3, true)
+			var fallback_spot = npc.assigned_spot
+			character_loader.set_seated(fallback_visual, true, fallback_spot.seated_visual_offset if fallback_spot != null else Vector3.ZERO)
+			npc.setup(fallback_visual, character_loader, true, npc.editor_study_kind, fallback_spot, npc.editor_occupant_id)
 
 		if (
 			npc.assigned_spot != null
