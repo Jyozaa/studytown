@@ -49,6 +49,7 @@ func run() -> void:
 	DirAccess.make_dir_recursive_absolute(directory)
 	app = load("res://scenes/main/main.tscn").instantiate()
 	root.add_child(app)
+	app.ensure_legacy_flow()
 	await process_frame
 	app.current_room_name = state.ROOMS[room_index]
 	app.build_room(room_index)

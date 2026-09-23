@@ -116,6 +116,7 @@ var focus_camera_director
 var current_room_config: Dictionary = {}
 var dev_mode := false
 var dev_panel = null
+var dev_music = null
 var collision_debug_visible := false
 var train_scenery_nodes: Array[Node3D] = []
 var garden_water_jet_nodes: Array[Node3D] = []
@@ -128,6 +129,7 @@ var performance_samples: Array[int] = []
 var seat_scan_countdown := 0.0
 
 var application_flow
+var gameplay = null
 
 var mats := {}
 
@@ -144,9 +146,10 @@ func _ready() -> void:
 	focus_camera_director.name = "FocusCameraDirector"
 	add_child(focus_camera_director)
 	_build_materials()
-	application_flow = preload("res://scripts/ui/application_flow.gd").new()
-	add_child(application_flow)
-	application_flow.configure(self)
+	gameplay = preload("res://scripts/core/gameplay_flow.gd").new()
+	gameplay.name = "GameplayFlow"
+	add_child(gameplay)
+	gameplay.configure(self)
 	FocusManager.tick.connect(_on_focus_tick)
 	FocusManager.completed.connect(_on_focus_completed)
 	FocusManager.cancelled.connect(_on_focus_cancelled)
@@ -155,6 +158,10 @@ func _ready() -> void:
 		if arg.begins_with("review="): review = arg.trim_prefix("review=")
 		elif arg.begins_with("--review="): review = arg.trim_prefix("--review=")
 		elif arg in ["perf", "--perf"]: performance_review = true
+	# Explicit review modes exercise the legacy production UI; normal dev
+	# boot (no review arg) runs gameplay-only with no UI controller.
+	if review != "":
+		ensure_legacy_flow()
 	if review.begins_with("ui_"):
 		if review == "ui_test":
 			return
@@ -445,7 +452,19 @@ func _update_ui_canvas_layout() -> void:
 	) * 0.5
 
 
+func ensure_legacy_flow():
+	# Explicit legacy-UI entry: instantiate the production navigation
+	# controller on demand. Normal dev boot never calls this; review modes
+	# and legacy UI tests do. Safe to call repeatedly.
+	if application_flow == null:
+		application_flow = preload("res://scripts/ui/application_flow.gd").new()
+		add_child(application_flow)
+		application_flow.configure(self)
+	return application_flow
+
+
 func show_main_menu() -> void:
+	ensure_legacy_flow()
 	screen = Screen.MENU
 	application_flow.ui_enabled = true
 	_set_movement_enabled(false)
@@ -455,11 +474,12 @@ func show_main_menu() -> void:
 
 
 func _boot_dev() -> void:
-	# Development strip boot: straight into gameplay, no menus/auth/map.
-	# application_flow stays instantiated (reviews/tests use it) but draws
-	# nothing: ui_enabled=false suppresses every UI surface.
+	# Development strip boot: straight into gameplay. No UI controller is
+	# instantiated: gameplay_flow owns seating/focus, dev_panel calls it.
 	dev_mode = true
-	application_flow.ui_enabled = false
+	dev_music = preload("res://scripts/ui/music_controller.gd").new()
+	dev_music.name = "DevMusicBackend"
+	add_child(dev_music)
 	dev_panel = preload("res://scripts/dev/dev_panel.gd").new()
 	add_child(dev_panel)
 	dev_panel.setup(self)
@@ -646,7 +666,18 @@ func _physics_process(delta: float) -> void:
 		debug_label.text = "DEV  F3 anchors  ·  F4 collision  ·  F5 short focus  ·  F6 performance\nFPS: %d   Grounded: %s   Y: %.2f" % [Engine.get_frames_per_second(), str(is_instance_valid(player) and player.is_on_floor()), player.global_position.y if is_instance_valid(player) else 0.0]
 
 func _unhandled_input(event: InputEvent) -> void:
-	if application_flow.input_event(event):
+	# Legacy UI build: the production controller owns keys. Dev-strip build
+	# (no UI controller): gameplay owns E directly, Escape toggles the dev
+	# panel, menu never opens legacy screens.
+	if application_flow != null:
+		if application_flow.input_event(event):
+			return
+	elif event.is_action_pressed("interact") and screen == Screen.ROOM:
+		gameplay.try_interact()
+		return
+	elif event.is_action_pressed("menu"):
+		if dev_panel != null:
+			dev_panel.toggle_collapsed()
 		return
 	if event.is_action_pressed("menu"):
 		if screen == Screen.MENU:
@@ -2882,19 +2913,34 @@ func _set_collision_debug(value: bool) -> void:
 	_show_toast("Structural collision "+("visible" if value else "hidden"))
 
 func _build_room_ui() -> void:
-	application_flow.room_loaded()
+	if application_flow != null:
+		application_flow.room_loaded()
+	else:
+		_ft_install_seat_glows()
 
 func _open_resting_setup(spot_index: int) -> void:
-	application_flow.take_seat(spot_index)
+	if application_flow != null:
+		application_flow.take_seat(spot_index)
+	else:
+		await gameplay.take_seat(spot_index)
 
 func _close_resting_setup() -> void:
-	application_flow.leave_seat()
+	if application_flow != null:
+		application_flow.leave_seat()
+	else:
+		await gameplay.stand_up()
 
 func _open_focus_setup(spot_index: int) -> void:
-	application_flow.take_seat(spot_index)
+	if application_flow != null:
+		application_flow.take_seat(spot_index)
+	else:
+		await gameplay.take_seat(spot_index)
 
 func _close_focus_setup() -> void:
-	application_flow.leave_seat()
+	if application_flow != null:
+		application_flow.leave_seat()
+	else:
+		await gameplay.stand_up()
 
 func _study_animation_for_spot(spot) -> String:
 	if spot == null or not is_instance_valid(spot):
@@ -3080,8 +3126,9 @@ func _install_exit_trigger(index: int) -> void:
 	# so the player must deliberately walk INTO the exit. The room perimeter
 	# and every other blocker stay untouched — exterior scenery stays
 	# unreachable. One authoritative guard prevents double transitions.
-	# Skipped entirely in dev-strip mode (no map UI there).
-	if not application_flow.ui_enabled:
+	# Skipped entirely in dev-strip mode (no map UI there) and whenever the
+	# legacy UI controller is absent.
+	if application_flow == null or not application_flow.ui_enabled:
 		return
 	var thresholds := {
 		0: {"pos": Vector3(0, 1.1, 11.5), "size": Vector3(2.4, 2.2, 0.6)},  # Library front door (z=+12)
@@ -3089,6 +3136,8 @@ func _install_exit_trigger(index: int) -> void:
 		2: {"pos": Vector3(0, 1.1, 20.0), "size": Vector3(4.0, 2.2, 0.7)},  # Train +z carriage doors
 	}
 	if not thresholds.has(index) or not is_instance_valid(player):
+		return
+	if application_flow == null:
 		return
 	var spec: Dictionary = thresholds[index]
 	var area := Area3D.new()
@@ -3493,7 +3542,8 @@ func _build_focus_hud(_task: String) -> void:
 	application_flow.navigate(application_flow.State.ACTIVE_SESSION)
 
 func _on_focus_tick(remaining: int) -> void:
-	application_flow.tick(remaining)
+	if application_flow != null:
+		application_flow.tick(remaining)
 
 func _cycle_focus_camera() -> void:
 	var sequence := _build_focus_sequence()
@@ -3839,7 +3889,10 @@ func _is_focus_shot_clear(camera_position: Vector3, spot) -> bool:
 	return true
 
 func _on_focus_completed() -> void:
-	application_flow.completed()
+	if gameplay != null and gameplay.consume_completion():
+		return
+	if application_flow != null:
+		application_flow.completed()
 
 func _on_focus_cancelled() -> void:
 	# The flow controller handles early-exit rewards and seat release atomically.
@@ -4458,4 +4511,7 @@ func _pill(text_value: String,pos: Vector2) -> Label:
 	var label:=_label(text_value,14,CREAM);label.position=pos;label.size=Vector2(310,46);label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER;label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER;label.add_theme_stylebox_override("normal",_panel_style(Color(0.09,0.065,0.05,0.88),20,1,Color(1,0.85,0.56,0.20)));return label
 
 func _show_toast(message: String) -> void:
-	application_flow.toast(message)
+	if application_flow != null:
+		application_flow.toast(message)
+	else:
+		print("[StudyTown] ", message)

@@ -18,7 +18,29 @@ StudyTown is a Godot 4.7 GDScript project using the Compatibility renderer for m
 
 ## State flow
 
+Legacy production path (explicit UI review modes and legacy tests only):
+
 `Menu → Room → Focus Setup → Focus → Completion → Room/Menu`
+
+### Development runtime (normal `Godot --path .` startup)
+
+No UI controller is instantiated. Gameplay stands alone:
+
+`BOOT → ROOM → SEATED → FOCUS → SEATED/ROOM`
+
+- `scripts/core/gameplay_flow.gd` (child of main, always present) owns
+  seating mechanics (`take_seat`/`stand_up`, result-coded, no UI) and focus
+  mechanics (`start_focus`/`cancel_focus`/natural completion with rewards).
+  Seated is `active_study_spot != null`; no invisible SESSION_SETUP page is
+  required to start focus.
+- `scripts/ui/application_flow.gd` is NOT instantiated during dev boot. It
+  remains for explicit legacy UI review modes (`--review=…`, which create it
+  via `ensure_legacy_flow()`) and consumes the gameplay API for its
+  take/leave/start paths instead of owning mechanics.
+- Input: E → `gameplay.try_interact()`; F wave unchanged; Escape toggles the
+  dev panel (never opens legacy menus).
+- `scripts/dev/dev_panel.gd` + controls hint are the only UI, calling the
+  gameplay API directly.
 
 ## Web constraints
 

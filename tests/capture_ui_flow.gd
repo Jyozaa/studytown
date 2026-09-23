@@ -21,6 +21,7 @@ func _initialize() -> void:
 	root.size = Vector2i(1280, 720)
 	app = load("res://scenes/main/main.tscn").instantiate()
 	root.add_child(app)
+	app.ensure_legacy_flow()
 
 func _shot(name: String) -> void:
 	await process_frame

@@ -40,6 +40,7 @@ func _run() -> void:
 	data.preferences["seat_availability_view"] = true
 	app = load("res://scenes/main/main.tscn").instantiate()
 	root.add_child(app)
+	app.ensure_legacy_flow()
 	await process_frame
 	await process_frame
 	flow = app.application_flow

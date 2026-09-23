@@ -22,6 +22,7 @@ func _initialize() -> void:
 	save_data.persistence_enabled = false
 	app = load("res://scenes/main/main.tscn").instantiate()
 	root.add_child(app)
+	app.ensure_legacy_flow()
 
 func _shot(name: String) -> void:
 	await process_frame

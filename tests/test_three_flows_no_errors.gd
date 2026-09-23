@@ -13,6 +13,7 @@ func _initialize() -> void:
 	print("FLOWTEST launch -> dashboard")
 	app = load("res://scenes/main/main.tscn").instantiate()
 	root.add_child(app)
+	app.ensure_legacy_flow()
 
 func _process(_delta: float) -> bool:
 	frame += 1

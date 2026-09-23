@@ -22,6 +22,7 @@ func run() -> void:
 	DirAccess.make_dir_recursive_absolute(capture_dir)
 	app = load("res://scenes/main/main.tscn").instantiate()
 	root.add_child(app)
+	app.ensure_legacy_flow()
 	await process_frame
 	app.current_room_name = root.get_node("GameState").ROOMS[1]
 	app.build_room(1)

@@ -426,51 +426,26 @@ func join_room(index: int) -> void:
 func take_seat(index: int, review := false) -> void:
 	if state != State.ROOM_EXPLORING or index < 0 or index >= main.study_spots.size():
 		return
-	var spot = main.study_spots[index]
-	if (
-		not review
-		and (
-			main.player.global_position.distance_to(spot.standing_position)
-			> spot.interaction_radius
-		)
-	):
+	navigate(State.SEAT_TRANSITION)
+	var res: String = await main.gameplay.take_seat(index, review)
+	if res == "ok":
+		var lounger: bool = str(main.study_spots[index].seat_type) == "tanning_bed"
+		navigate(State.BREAK_SETUP if lounger else State.SESSION_SETUP)
 		return
-	if not spot.reserve("local_player", StudySpot.OccupantType.PLAYER):
+	if res == "taken":
+		navigate(State.ROOM_EXPLORING)
 		toast("That seat is already taken.")
 		return
-	main.active_study_spot = spot
-	main.pending_study_spot = spot
-	main.session_setup_open = true
-	main._set_movement_enabled(false)
-	main.seat_highlights_suspended = true
-	main._ft_set_seat_glows_enabled(false)
-	navigate(State.SEAT_TRANSITION)
-	var lounger: bool = str(spot.seat_type) == "tanning_bed"
-	if lounger:
-		await main._transition_player_to_resting_spot(spot)
-	else:
-		await main._transition_player_to_study_spot(spot)
-	main.character_loader.set_seated(main.player_visual, true, spot.seated_visual_offset)
-	main._play_seated_character_animation(
-		main.player_visual, "Resting" if lounger else main._study_animation_for_spot(spot)
-	)
-	if lounger and not bool(main.player_visual.get_meta("is_imported_character", false)):
-		main.player_visual.rotation.x = -PI / 2.0
-	main.session_setup_camera = main._ft_make_session_setup_camera(spot)
-	if not is_instance_valid(main.session_setup_camera):
-		navigate(State.SESSION_SETUP)
-		await leave_seat()
+	if res == "too_far" or res == "busy" or res == "invalid":
+		navigate(State.ROOM_EXPLORING)
+		return
+	navigate(State.SESSION_SETUP)
+	await main.gameplay.stand_up()
+	navigate(State.ROOM_EXPLORING)
+	if res == "no_camera":
 		toast("This seat's camera needs attention. Please try another seat.")
-		return
-	var from_camera: Camera3D = main.get_viewport().get_camera_3d()
-	main.focus_camera_director.transition(from_camera, main.session_setup_camera, 0.78)
-	if not main.focus_camera_director.last_transition_clear:
-		navigate(State.SESSION_SETUP)
-		await leave_seat()
+	else:
 		toast("No clear camera approach to that seat.")
-		return
-	await get_tree().create_timer(0.80).timeout
-	navigate(State.BREAK_SETUP if lounger else State.SESSION_SETUP)
 
 
 func save_focus() -> void:
@@ -487,22 +462,11 @@ func start_session() -> void:
 	if state != State.SESSION_SETUP or main.active_study_spot == null:
 		return
 	save_focus()
-	main.session_setup_open = false
-	main.pending_study_spot = null
-	main.active_session_mode = "focus"
-	main.screen = main.Screen.FOCUS
-	main._prepare_focus_camera_pool(main.active_study_spot)
-	main.focus_shot_index = -1
-	if is_instance_valid(main.get("garden_seat_director")) and not main.focus_cameras.is_empty():
-		main.focus_shot_index = 0
-		main.focus_camera_director.transition(main.get_viewport().get_camera_3d(), main.focus_cameras[0], 0.78)
-	# Preserve setup framing for the start; later shots remain slow and quiet.
-	main.next_shot_at = Time.get_unix_time_from_system() + 25.0
-	navigate(State.ACTIVE_SESSION)
-	FocusManager.start_session(
-		focus_text if not focus_text.is_empty() else "Quiet focus", 10 if debug_short else duration
-	)
+	var res: String = main.gameplay.start_focus(10 if debug_short else duration)
 	debug_short = false
+	if res != "ok":
+		return
+	navigate(State.ACTIVE_SESSION)
 
 
 func tick(remaining: int) -> void:
@@ -584,25 +548,7 @@ func leave_seat(go_home := false) -> void:
 	if state == State.SEAT_TRANSITION:
 		return
 	navigate(State.SEAT_TRANSITION)
-	main.next_shot_at = INF
-	main.screen = main.Screen.ROOM
-	var spot = main.active_study_spot
-	if is_instance_valid(spot):
-		if str(spot.seat_type).begins_with("garden_") or spot.has_meta("garden_category"):
-			main.character_loader.play_animation(main.player_visual, "Stand", 0.12)
-		var motion := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-		motion.tween_property(main.player, "global_position", spot.standing_position, 0.7)
-		await motion.finished
-	main._restore_player_standing()
-	main.pending_study_spot = null
-	main.session_setup_open = false
-	main._transition_back_to_follow_camera()
-	if main.focus_camera_director.last_transition_clear and is_instance_valid(main.focus_camera_director.active_tween):
-		await main.focus_camera_director.active_tween.finished
-	else:
-		await get_tree().create_timer(0.72).timeout
-	main.seat_highlights_suspended = false
-	main._ft_set_seat_glows_enabled(true)
+	await main.gameplay.stand_up()
 	if go_home and ui_enabled:
 		main.show_main_menu()
 	else:
