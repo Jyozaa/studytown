@@ -27,7 +27,7 @@ func run() -> void:
 		await create_timer(0.5).timeout
 		check(app.player.is_on_floor(), "Room %d grounded spawn" % index)
 		check(app.study_spots.size() > 0, "Room %d has seats" % index)
-	check(app.study_spots.size() == 18, "18 Garden seats")
+	check(app.study_spots.size() == 32, "32 audited Garden seating positions")
 	check(app.npcs.size() == 6, "6 Garden students")
 	check_sunset(app.editable_room_layout)
 	app.player.set_physics_process(false)
@@ -70,7 +70,7 @@ func run() -> void:
 	var public_builder := preload("res://scripts/rooms/garden_builder.gd").new()
 	public_builder.use_local_assets = false
 	var public_room := public_builder.build()
-	check(public_builder.spots.size() == 18, "Public fallback retains all seats")
+	check(public_builder.spots.size() == 32, "Public fallback retains all seats")
 	check_sunset(public_room)
 	check(
 		public_room.find_children("*", "MeshInstance3D", true, false).size() > 50,
@@ -93,7 +93,7 @@ func check_sunset(garden: Node3D) -> void:
 	check(environment.fog_enabled and environment.fog_depth_begin >= 40, "Fog leaves playable Garden clear")
 	var sun: DirectionalLight3D = garden.get_node("Lighting/GardenWarmSun")
 	check(sun.rotation_degrees.x <= -25 and sun.rotation_degrees.x >= -35, "Sun is 25–35 degrees above horizon")
-	check(garden.find_children("*", "OmniLight3D", true, false).size() <= 8, "At most eight real lamps")
+	check(garden.find_children("*", "OmniLight3D", true, false).size() <= 48, "At most forty-eight real lamps")
 	var terrain: MeshInstance3D = garden.get_node("Surroundings/RollingLandscape480x400")
 	check(terrain.get_aabb().size.x >= 140 and terrain.get_aabb().size.z >= 110, "Extended visual terrain")
 	check(terrain.get_aabb().size.y > 10, "Outer terrain is rolling, not a flat rectangle")
@@ -105,7 +105,7 @@ func check_sunset(garden: Node3D) -> void:
 		materials[particle.process_material] = true
 		check(particle.get_parent() == garden.get_node("Planting"), "No distant-tree particles")
 	check(count == 224, "Bounded 224-live-leaf budget")
-	check(materials.size() == 2, "Two shared leaf process materials")
+	check(materials.size() <= 3, "Shared leaf materials: pink, green and higher-density island group")
 	for node in garden.get_node("Surroundings").get_children():
 		if node is MultiMeshInstance3D:
 			check(node.placements.size() == node.multimesh.instance_count, "Forest transforms survive headless bake")

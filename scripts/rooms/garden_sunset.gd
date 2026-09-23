@@ -5,6 +5,37 @@ var builder
 var rng := RandomNumberGenerator.new()
 
 
+static func soften_baked_light(layout: Node3D) -> void:
+	# Night-time garden: deep navy sky with a faint warm remnant at the
+	# horizon, cool moonlight, dim blue ambient and fog. The baked
+	# Environment is duplicated first so menu thumbnails and later visits
+	# (which share the cached PackedScene) keep authored values.
+	for child in layout.find_children("*", "WorldEnvironment", true, false):
+		var world_env := child as WorldEnvironment
+		if world_env == null or world_env.environment == null:
+			continue
+		var environment: Environment = world_env.environment.duplicate()
+		environment.ambient_light_color = Color(0.20, 0.24, 0.38, 1.0)
+		environment.ambient_light_energy = 0.55
+		environment.fog_light_color = Color(0.10, 0.12, 0.20, 1.0)
+		if environment.sky != null:
+			var sky: Sky = environment.sky.duplicate()
+			var sky_material: ShaderMaterial = (sky.sky_material as ShaderMaterial).duplicate() if sky.sky_material is ShaderMaterial else null
+			if sky_material != null and sky_material.shader != null and str(sky_material.shader.resource_path).ends_with("garden_sunset_sky.gdshader"):
+				sky_material.set_shader_parameter("zenith", Color(0.03, 0.05, 0.12, 1.0))
+				sky_material.set_shader_parameter("middle", Color(0.10, 0.13, 0.26, 1.0))
+				sky_material.set_shader_parameter("horizon", Color(0.30, 0.20, 0.28, 1.0))
+				sky.sky_material = sky_material
+				environment.sky = sky
+		world_env.environment = environment
+	for child in layout.find_children("*", "DirectionalLight3D", true, false):
+		var sun := child as DirectionalLight3D
+		if sun != null and str(sun.name) == "GardenWarmSun":
+			sun.light_color = Color(0.62, 0.74, 1.0, 1.0)
+			sun.light_energy = 0.4
+			sun.shadow_opacity = 0.45
+
+
 func build(source) -> void:
 	builder = source
 	rng.seed = 283048
@@ -16,7 +47,9 @@ func build(source) -> void:
 
 func height_at(p: Vector2) -> float:
 	var distance_out := maxf(absf(p.x) - 27.0, absf(p.y) - 20.0)
-	var rise := smoothstep(0.0, 38.0, distance_out)
+	# Keep the entire inner ellipse below the clearing; otherwise its exposed
+	# lip casts a thin circular shadow at the terrain join in steep views.
+	var rise := smoothstep(5.0, 43.0, distance_out)
 	var hills := 3.5 + 2.0 * sin(p.x * 0.049 + p.y * 0.032) + 1.5 * cos(p.y * 0.077)
 	var mountains := smoothstep(65.0, 125.0, distance_out) * (
 		12.0 + 7.0 * sin(p.x * 0.029) * cos(p.y * 0.035) + 5.0 * sin(p.y * 0.061)
@@ -204,7 +237,7 @@ func emitter(pos: Vector3, count: int, mat: Material, mesh: Mesh) -> void:
 	particles.name = "CherryPetals" if count == 20 else "GreenLeaves"
 	particles.position = pos
 	particles.amount = count
-	particles.lifetime = 7.0 if count == 20 else 8.5
+	particles.lifetime = 12.0
 	particles.preprocess = rng.randf_range(0.0, 8.0)
 	particles.randomness = 0.35
 	particles.fixed_fps = 30

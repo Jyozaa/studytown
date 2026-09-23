@@ -1,0 +1,1649 @@
+[
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(2.179591, 2.42, -3.112778)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.094464, 2.42, -3.007016)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(2.179591, 2.42, -3.112778)",
+				"target": "(0.990683, 1.57, 0.693684)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L01",
+		"label": "Library seat 1",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235012054443,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(-1.299676, 2.42, -3.570832)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(2.17959, 2.42, -3.112778)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(-1.299676, 2.42, -3.570832)",
+				"target": "(1.136464, 1.57, -0.413639)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L02",
+		"label": "Library seat 2",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234916687012,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.42, -3.8)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299676, 2.42, -3.570832)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.42, -3.8)",
+				"target": "(1.2094, 1.57, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L04",
+		"label": "Library seat 4",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234964370728,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.42, -3.8)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299677, 2.42, -3.570832)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.42, -3.8)",
+				"target": "(1.2094, 1.57, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L05",
+		"label": "Library seat 5",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235012054443,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.42, -3.8)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299676, 2.42, -3.570832)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.42, -3.8)",
+				"target": "(1.2094, 1.57, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L06",
+		"label": "Library seat 6",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234964370728,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(2.179591, 2.42, -3.112778)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.094465, 2.42, -3.007016)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(2.179591, 2.42, -3.112778)",
+				"target": "(0.990682, 1.57, 0.693683)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L07",
+		"label": "Library seat 7",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234964370728,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(-1.299676, 2.42, -3.570832)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(2.17959, 2.42, -3.112778)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(-1.299676, 2.42, -3.570832)",
+				"target": "(1.136464, 1.57, -0.413639)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L08",
+		"label": "Library seat 8",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234916687012,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.42, -3.8)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299677, 2.42, -3.570832)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.42, -3.8)",
+				"target": "(1.2094, 1.57, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L09",
+		"label": "Library seat 9",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235012054443,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.42, -3.8)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299677, 2.42, -3.570832)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.42, -3.8)",
+				"target": "(1.2094, 1.57, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L10",
+		"label": "Library seat 10",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234964370728,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.42, -3.8)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299676, 2.42, -3.570831)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.42, -3.8)",
+				"target": "(1.2094, 1.57, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L11",
+		"label": "Library seat 11",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235107421875,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(3.112778, 2.42, -2.17959)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(-3.112777, 2.42, -2.17959)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(3.112778, 2.42, -2.17959)",
+				"target": "(0.693683, 1.57, 0.990683)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L13",
+		"label": "Library seat 13",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235012054443,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(3.112778, 2.42, -2.179591)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(-3.112777, 2.42, -2.179591)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(3.112778, 2.42, -2.179591)",
+				"target": "(0.693683, 1.57, 0.990682)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L15",
+		"label": "Library seat 15",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234869003296,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(3.112778, 2.42, -2.17959)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(-3.112777, 2.42, -2.17959)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(3.112778, 2.42, -2.17959)",
+				"target": "(0.693683, 1.57, 0.990683)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L16",
+		"label": "Library seat 16",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235012054443,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(3.112778, 2.42, -2.179591)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(-3.112778, 2.42, -2.179591)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(3.112778, 2.42, -2.179591)",
+				"target": "(0.693684, 1.57, 0.990682)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L17",
+		"label": "Library seat 17",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234869003296,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(3.112778, 2.42, -2.179591)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(-3.112777, 2.42, -2.179591)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(3.112778, 2.42, -2.179591)",
+				"target": "(0.693683, 1.57, 0.990683)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L18",
+		"label": "Library seat 18",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234916687012,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.67, -3.8)",
+					"target": "(0.0, 1.82, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299676, 2.67, -3.570832)",
+					"target": "(0.0, 1.82, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.67, -3.8)",
+				"target": "(1.2094, 1.82, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L19",
+		"label": "Library seat 19",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235107421875,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.67, -3.8)",
+					"target": "(0.0, 1.82, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299676, 2.67, -3.570832)",
+					"target": "(0.0, 1.82, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.67, -3.8)",
+				"target": "(1.2094, 1.82, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L20",
+		"label": "Library seat 20",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235107421875,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.67, -3.8)",
+					"target": "(0.0, 1.82, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299676, 2.67, -3.570832)",
+					"target": "(0.0, 1.82, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.67, -3.8)",
+				"target": "(1.2094, 1.82, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L21",
+		"label": "Library seat 21",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235107421875,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.67, -3.799999)",
+					"target": "(0.0, 1.82, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299677, 2.67, -3.570833)",
+					"target": "(0.0, 1.82, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.67, -3.799999)",
+				"target": "(1.2094, 1.82, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L23",
+		"label": "Library seat 23",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235155105591,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.67, -3.8)",
+					"target": "(0.0, 1.82, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299676, 2.67, -3.570832)",
+					"target": "(0.0, 1.82, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.67, -3.8)",
+				"target": "(1.2094, 1.82, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L24",
+		"label": "Library seat 24",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234964370728,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.67, -3.8)",
+					"target": "(0.0, 1.82, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299676, 2.67, -3.570832)",
+					"target": "(0.0, 1.82, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.67, -3.8)",
+				"target": "(1.209401, 1.82, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L25",
+		"label": "Library seat 25",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234964370728,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(-0.000001, 2.67, -3.8)",
+					"target": "(0.0, 1.82, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299676, 2.67, -3.570832)",
+					"target": "(0.0, 1.82, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(-0.000001, 2.67, -3.8)",
+				"target": "(1.2094, 1.82, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L26",
+		"label": "Library seat 26",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747234964370728,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.67, -3.799999)",
+					"target": "(0.0, 1.82, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299676, 2.67, -3.570832)",
+					"target": "(0.0, 1.82, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.67, -3.799999)",
+				"target": "(1.2094, 1.82, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": false,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L27",
+		"label": "Library seat 27",
+		"passed": false,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235012054443,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.67, -3.800001)",
+					"target": "(0.0, 1.82, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299676, 2.67, -3.570833)",
+					"target": "(0.0, 1.82, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.67, -3.800001)",
+				"target": "(1.209401, 1.82, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L28",
+		"label": "Library seat 28",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235107421875,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.0, 2.67, -3.800001)",
+					"target": "(0.0, 1.82, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299677, 2.67, -3.570833)",
+					"target": "(0.0, 1.82, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.0, 2.67, -3.800001)",
+				"target": "(1.2094, 1.82, -0.000001)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L30",
+		"label": "Library seat 30",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235012054443,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(0.000001, 2.42, -3.800001)",
+					"target": "(0.0, 1.57, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(1.299677, 2.42, -3.570833)",
+					"target": "(0.0, 1.57, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(0.000001, 2.42, -3.800001)",
+				"target": "(1.2094, 1.57, 0.0)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L31",
+		"label": "Library seat 31",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235012054443,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	},
+	{
+		"E": true,
+		"camera_coordinates": {
+			"focus": [
+				{
+					"fov": 40.0,
+					"position": "(-3.112778, 2.47, -2.17959)",
+					"target": "(0.0, 1.62, 0.0)"
+				},
+				{
+					"fov": 44.0,
+					"position": "(-3.670518, 2.47, -0.983513)",
+					"target": "(0.0, 1.62, 0.0)"
+				}
+			],
+			"setup": {
+				"fov": 40.0,
+				"position": "(-3.112778, 2.47, -2.17959)",
+				"target": "(0.693684, 1.62, -0.990683)"
+			}
+		},
+		"character": "raymond",
+		"completion_retains_slot": true,
+		"completion_transition": true,
+		"exit": true,
+		"exit_camera": true,
+		"facing": true,
+		"id": "library-L33",
+		"label": "Library seat 33",
+		"passed": true,
+		"position": true,
+		"primary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"prompt": true,
+		"right_third": true,
+		"screen_x": 0.747235059738159,
+		"secondary": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"secondary_transition": true,
+		"setup": {
+			"chest": true,
+			"clear": true,
+			"head": true,
+			"lens": true,
+			"neighbours": true,
+			"torso": true
+		},
+		"transition": true
+	}
+]

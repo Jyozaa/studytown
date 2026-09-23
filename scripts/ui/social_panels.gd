@@ -1,6 +1,6 @@
 extends RefCounted
 
-const UI := preload("res://scripts/ui/dark_ui.gd")
+const UI := preload("res://scripts/ui/study_theme.gd")
 const Preview := preload("res://scripts/ui/retro_character_preview.gd")
 
 
@@ -16,7 +16,7 @@ static func build(flow, root: Control) -> void:
 
 static func _drawer(flow, root: Control, title: String, right: bool) -> Panel:
 	var x := 922.0 if right else 18.0
-	var panel := UI.panel(root, Rect2(x, 92, 340, 528), Color(0.10, 0.11, 0.13, 0.98))
+	var panel := UI.panel(root, Rect2(x, 92, 340, 528), UI.PANEL)
 	UI.label(panel, title, Rect2(22, 19, 260, 37), 24)
 	UI.button(panel, "×", Rect2(280, 20, 40, 33), flow.close_overlay)
 	panel.position.x += 45 if right else -45
@@ -69,7 +69,7 @@ static func _profile(flow, root: Control) -> void:
 	var members: Array = flow.members()
 	flow.selected_member = posmod(flow.selected_member, members.size())
 	var member: Dictionary = members[flow.selected_member]
-	var card := UI.panel(root, Rect2(480, 99, 418, 476), Color(0.10, 0.11, 0.13, 0.97))
+	var card := UI.panel(root, Rect2(480, 99, 418, 476), UI.PANEL)
 	UI.button(card, "×", Rect2(355, 20, 40, 33), flow.close_overlay)
 	UI.flag(card, str(member.country), Rect2(24, 38, 30, 18))
 	UI.label(card, member.name, Rect2(65, 27, 266, 37), 25)

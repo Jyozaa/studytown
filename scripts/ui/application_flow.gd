@@ -5,6 +5,8 @@ extends Node
 enum State {
 	ONBOARDING,
 	HOME,
+	AUTH,
+	MAP,
 	ROOM_EXPLORING,
 	SEAT_TRANSITION,
 	SESSION_SETUP,
@@ -20,12 +22,18 @@ enum State {
 	BREAK_SETUP,
 	ACTIVE_BREAK
 }
-const UI := preload("res://scripts/ui/dark_ui.gd")
+const UI := preload("res://scripts/ui/study_theme.gd")
 const Dashboard := preload("res://scripts/ui/dashboard.gd")
+const StudyTheme := preload("res://scripts/ui/study_theme.gd")
 const Onboarding := preload("res://scripts/ui/onboarding.gd")
 const SessionPanels := preload("res://scripts/ui/session_panels.gd")
 const Social := preload("res://scripts/ui/social_panels.gd")
 const Radio := preload("res://scripts/ui/music_controller.gd")
+const MapScreen := preload("res://scripts/ui/map_screen.gd")
+const TransitionFX := preload("res://scripts/ui/transition_fx.gd")
+const AuthScreens := preload("res://scripts/ui/auth_screens.gd")
+const AppLauncher := preload("res://scripts/ui/app_launcher.gd")
+const AuthService := preload("res://scripts/services/auth_service.gd")
 
 var main
 var state := State.HOME
@@ -54,6 +62,24 @@ var ending_was_break := false
 var chat_acknowledged := false
 var editing_buddy := false
 var overlay_snapshot: Dictionary = {}
+var auth_mode := "welcome"
+var auth_email := ""
+var auth_password := ""
+var auth_error := ""
+var auth_busy := false
+var auth_service: RefCounted
+var map_via_exit := false
+var map_travel_in_progress := false
+var launcher_open := false
+var launcher_page := "menu"
+var transitioning := false
+var exit_cooldown := false
+# Dev-strip mode: when false, no UI is drawn/presented at all (draw, toast,
+# overlays, menus, nameplates are all suppressed) while gameplay logic
+# (seating, sessions, room flow) keeps working. Reviews set it true.
+var ui_enabled := true
+var transition_layer: CanvasLayer
+var transition_veil: ColorRect
 
 
 func configure(owner_node: Node) -> void:
@@ -61,8 +87,50 @@ func configure(owner_node: Node) -> void:
 	focus_text = GameState.current_focus
 	tag = GameState.current_tag
 	deep_focus = bool(GameState.preferences.get("deep_focus", false))
+	auth_email = str(GameState.auth_email)
+	auth_service = AuthService.new()
 	radio = Radio.new()
 	add_child(radio)
+	# Persistent warm dip used by room <-> map transitions. Lives on its own
+	# CanvasLayer so clear_ui() rebuilding the page never destroys it.
+	transition_layer = CanvasLayer.new()
+	transition_layer.name = "TransitionLayer"
+	transition_layer.layer = 50
+	main.add_child(transition_layer)
+	transition_veil = ColorRect.new()
+	transition_veil.name = "TransitionVeil"
+	transition_veil.color = Color(0.23, 0.15, 0.09, 0.0)
+	transition_veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	transition_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	transition_layer.add_child(transition_veil)
+
+
+func _dip(to_alpha: float, duration: float) -> Tween:
+	transition_veil.mouse_filter = Control.MOUSE_FILTER_STOP
+	var tween := transition_veil.create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(transition_veil, "color:a", to_alpha, duration)
+	return tween
+
+
+func _dip_done() -> void:
+	transition_veil.color.a = 0.0
+	transition_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func boot() -> void:
+	# Fresh installs (no auth, no onboarding) start at a short splash, then
+	# Welcome. Existing saves route as before; completed users land on the Map.
+	if str(GameState.auth_email).is_empty() and not GameState.onboarding_complete:
+		auth_mode = "splash"
+		navigate(State.AUTH)
+		await get_tree().create_timer(1.0).timeout
+		if auth_mode == "splash":
+			auth_mode = "welcome"
+			draw()
+	elif not GameState.onboarding_complete:
+		navigate(State.ONBOARDING)
+	else:
+		navigate(State.MAP)
 
 
 func home() -> void:
@@ -75,9 +143,12 @@ func home() -> void:
 func room_loaded() -> void:
 	state = State.ROOM_EXPLORING
 	base_state = state
+	map_travel_in_progress = false
 	main.session_setup_open = false
+	main.seat_highlights_suspended = false
 	main._ft_install_seat_glows()
-	Social.install_nameplates(self)
+	if ui_enabled:
+		Social.install_nameplates(self)
 	messages = [
 		"Welcome to %s." % main.current_room_name, "Local room • members and chat are simulated."
 	]
@@ -103,6 +174,8 @@ func clear_ui() -> void:
 
 
 func draw() -> void:
+	if not ui_enabled:
+		return
 	if not is_instance_valid(main.ui_root):
 		return
 	clear_ui()
@@ -110,8 +183,17 @@ func draw() -> void:
 	match visible_state:
 		State.ONBOARDING:
 			Onboarding.build(self, page)
+		State.AUTH:
+			if auth_mode == "splash":
+				AuthScreens.splash(self, page)
+			elif auth_mode == "welcome":
+				AuthScreens.welcome(self, page)
+			else:
+				AuthScreens.form(self, page, auth_mode)
 		State.HOME:
 			Dashboard.build(self, page)
+		State.MAP:
+			MapScreen.build(self, page)
 		_:
 			SessionPanels.hud(self, page, visible_state)
 			match visible_state:
@@ -133,8 +215,9 @@ func draw() -> void:
 			Social.build(self, overlay)
 		else:
 			var dim := ColorRect.new()
-			dim.color = Color(0.02, 0.025, 0.035, 0.65)
+			dim.color = StudyTheme.SCRIM
 			dim.size = Vector2(1280, 720)
+			dim.mouse_filter = Control.MOUSE_FILTER_STOP
 			overlay.add_child(dim)
 			match state:
 				State.CURRENT_FOCUS_EDITOR:
@@ -144,6 +227,11 @@ func draw() -> void:
 				State.MUSIC_RADIO:
 					radio.build(self, overlay)
 		UI.fade(overlay)
+	if launcher_open and state in [State.ROOM_EXPLORING, State.MAP, State.HOME]:
+		if launcher_page == "settings":
+			AppLauncher.settings(self, page)
+		else:
+			AppLauncher.launcher(self, page)
 	tick(FocusManager.get_remaining_seconds())
 
 
@@ -165,11 +253,15 @@ func navigate(next: int) -> void:
 	generation += 1
 	state = next
 	base_state = next
+	if not ui_enabled:
+		return
 	draw()
 	UI.fade(page)
 
 
 func open_overlay(next: int) -> void:
+	if not ui_enabled:
+		return
 	if state == State.SEAT_TRANSITION or joining:
 		return
 	if not is_overlay():
@@ -201,18 +293,133 @@ func close_overlay(commit := false) -> void:
 	main._set_movement_enabled(state == State.ROOM_EXPLORING)
 
 
+func submit_auth(mode: String, email: String, password: String) -> void:
+	if auth_busy:
+		return
+	auth_busy = true
+	auth_error = ""
+	draw()
+	# Never log, print, or persist the password.
+	var result: Dictionary = (
+		auth_service.create_account(email, password)
+		if mode != "login" else auth_service.sign_in(email, password)
+	)
+	auth_busy = false
+	if result.is_empty():
+		auth_error = str(auth_service.last_error)
+		draw()
+		return
+	auth_email = str(result.email)
+	auth_password = ""
+	GameState.auth_email = auth_email
+	GameState.save()
+	if mode != "login" and not GameState.onboarding_complete:
+		onboarding_step = 0
+		navigate(State.ONBOARDING)
+	else:
+		navigate(State.MAP)
+
+
+func open_launcher() -> void:
+	if state in [State.SEAT_TRANSITION] or transitioning or joining:
+		return
+	launcher_open = true
+	launcher_page = "menu"
+	draw()
+
+
+func close_launcher() -> void:
+	launcher_open = false
+	draw()
+
+
+func open_map() -> void:
+	if transitioning or joining:
+		return
+	if FocusManager.active:
+		toast("End your focus session first.")
+		return
+	if is_instance_valid(main.active_study_spot):
+		toast("Stand up first to travel.")
+		return
+	if state != State.ROOM_EXPLORING and state != State.MAP and state != State.HOME:
+		return
+	map_via_exit = false
+	main.set_map_suppression(true)
+	navigate(State.MAP)
+
+
+func close_map() -> void:
+	if state != State.MAP:
+		return
+	map_via_exit = false
+	main.set_map_suppression(false)
+	if main.screen == main.Screen.ROOM:
+		navigate(State.ROOM_EXPLORING)
+	else:
+		navigate(State.HOME)
+
+
+func request_exit_to_map() -> void:
+	if not ui_enabled:
+		return
+	# Reaching a doorway threshold locks movement, bar-sweeps to cover,
+	# reveals the Map. One authoritative guard prevents double triggers.
+	if state != State.ROOM_EXPLORING or transitioning or joining or exit_cooldown:
+		return
+	if FocusManager.active or is_instance_valid(main.active_study_spot):
+		return
+	exit_cooldown = true
+	transitioning = true
+	map_via_exit = true
+	main._set_movement_enabled(false)
+	main.set_map_suppression(true)
+	await TransitionFX.bar_wipe(
+		transition_layer, get_tree(),
+		func():
+			navigate(State.MAP)
+	)
+	transitioning = false
+	get_tree().create_timer(8.0).timeout.connect(func(): exit_cooldown = false)
+
+
+func map_travel(destination_id: String) -> void:
+	# Spec 41: destination selection disables map input, dips, swaps the room
+	# behind an opaque veil, then reveals the loaded room (no stale frames).
+	if transitioning or joining:
+		return
+	var entry: Dictionary = preload("res://scripts/ui/destination_registry.gd").for_id(destination_id)
+	if entry.is_empty():
+		return
+	if FocusManager.active:
+		toast("End your focus session first.")
+		return
+	transitioning = true
+	launcher_open = false
+	map_via_exit = false
+	map_travel_in_progress = true
+	await TransitionFX.bar_wipe(
+		transition_layer, get_tree(),
+		func():
+			main.set_map_suppression(false)
+			await join_room(int(entry.room_index))
+	)
+	map_travel_in_progress = false
+	transitioning = false
+
+
 func join_room(index: int) -> void:
 	if joining:
 		return
 	joining = true
-	var cover := UI.panel(page, Rect2(0, 0, 1280, 720), UI.BG, 0)
-	UI.label(cover, "Joining %s…" % GameState.ROOMS[index], Rect2(390, 322, 600, 60), 28)
-	UI.fade(cover, 0.20)
-	await get_tree().create_timer(0.22).timeout
+	# The transition veil already covers the swap; just let the current frame
+	# settle so no half-torn room is ever visible.
+	await get_tree().process_frame
 	GameState.selected_room = index
 	GameState.save()
 	main.current_room_name = GameState.ROOMS[index]
 	main.build_room(index)
+	await get_tree().process_frame
 	joining = false
 
 
@@ -235,6 +442,7 @@ func take_seat(index: int, review := false) -> void:
 	main.pending_study_spot = spot
 	main.session_setup_open = true
 	main._set_movement_enabled(false)
+	main.seat_highlights_suspended = true
 	main._ft_set_seat_glows_enabled(false)
 	navigate(State.SEAT_TRANSITION)
 	var lounger: bool = str(spot.seat_type) == "tanning_bed"
@@ -249,8 +457,18 @@ func take_seat(index: int, review := false) -> void:
 	if lounger and not bool(main.player_visual.get_meta("is_imported_character", false)):
 		main.player_visual.rotation.x = -PI / 2.0
 	main.session_setup_camera = main._ft_make_session_setup_camera(spot)
+	if not is_instance_valid(main.session_setup_camera):
+		navigate(State.SESSION_SETUP)
+		await leave_seat()
+		toast("This seat's camera needs attention. Please try another seat.")
+		return
 	var from_camera: Camera3D = main.get_viewport().get_camera_3d()
 	main.focus_camera_director.transition(from_camera, main.session_setup_camera, 0.78)
+	if not main.focus_camera_director.last_transition_clear:
+		navigate(State.SESSION_SETUP)
+		await leave_seat()
+		toast("No clear camera approach to that seat.")
+		return
 	await get_tree().create_timer(0.80).timeout
 	navigate(State.BREAK_SETUP if lounger else State.SESSION_SETUP)
 
@@ -275,6 +493,9 @@ func start_session() -> void:
 	main.screen = main.Screen.FOCUS
 	main._prepare_focus_camera_pool(main.active_study_spot)
 	main.focus_shot_index = -1
+	if is_instance_valid(main.get("garden_seat_director")) and not main.focus_cameras.is_empty():
+		main.focus_shot_index = 0
+		main.focus_camera_director.transition(main.get_viewport().get_camera_3d(), main.focus_cameras[0], 0.78)
 	# Preserve setup framing for the start; later shots remain slow and quiet.
 	main.next_shot_at = Time.get_unix_time_from_system() + 25.0
 	navigate(State.ACTIVE_SESSION)
@@ -367,6 +588,8 @@ func leave_seat(go_home := false) -> void:
 	main.screen = main.Screen.ROOM
 	var spot = main.active_study_spot
 	if is_instance_valid(spot):
+		if str(spot.seat_type).begins_with("garden_") or spot.has_meta("garden_category"):
+			main.character_loader.play_animation(main.player_visual, "Stand", 0.12)
 		var motion := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 		motion.tween_property(main.player, "global_position", spot.standing_position, 0.7)
 		await motion.finished
@@ -374,9 +597,13 @@ func leave_seat(go_home := false) -> void:
 	main.pending_study_spot = null
 	main.session_setup_open = false
 	main._transition_back_to_follow_camera()
-	await get_tree().create_timer(0.72).timeout
+	if main.focus_camera_director.last_transition_clear and is_instance_valid(main.focus_camera_director.active_tween):
+		await main.focus_camera_director.active_tween.finished
+	else:
+		await get_tree().create_timer(0.72).timeout
+	main.seat_highlights_suspended = false
 	main._ft_set_seat_glows_enabled(true)
-	if go_home:
+	if go_home and ui_enabled:
 		main.show_main_menu()
 	else:
 		navigate(State.ROOM_EXPLORING)
@@ -384,8 +611,21 @@ func leave_seat(go_home := false) -> void:
 
 
 func back() -> void:
+	if not ui_enabled:
+		return
+	if launcher_open:
+		if launcher_page == "settings":
+			launcher_page = "menu"
+			draw()
+		else:
+			close_launcher()
+		return
 	if is_overlay():
 		close_overlay()
+	elif state == State.MAP:
+		close_map()
+	elif state == State.AUTH:
+		return
 	elif state == State.SESSION_SETUP:
 		leave_seat()
 	elif state in [State.ACTIVE_SESSION, State.ACTIVE_BREAK]:
@@ -404,6 +644,7 @@ func input_event(event: InputEvent) -> bool:
 		return true
 	if event.is_action_pressed("interact"):
 		if state == State.ROOM_EXPLORING:
+			main._update_nearest_spot()
 			take_seat(main.nearest_spot)
 		return true
 	if event.is_action_pressed("debug_focus") and state == State.ROOM_EXPLORING:
@@ -462,14 +703,10 @@ func copy_code() -> void:
 
 
 func toast(message: String) -> void:
-	var card := UI.panel(main.ui_root, Rect2(300, 28, 680, 50))
-	UI.label(card, message, Rect2(18, 5, 644, 40), 14)
-	UI.fade(card)
-	get_tree().create_timer(3.2).timeout.connect(
-		func():
-			if is_instance_valid(card):
-				card.queue_free()
-	)
+	if not ui_enabled:
+		print("[StudyTown] ", message)
+		return
+	StudyTheme.toast(main.ui_root, message)
 
 
 func run_review(kind: String) -> void:

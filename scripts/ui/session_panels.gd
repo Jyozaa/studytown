@@ -1,139 +1,172 @@
 extends RefCounted
+## Gameplay HUD, seat prompt and session panels.
+##
+## Level 1 (HUD): compact room identity top-left, global pill top-right,
+## music bottom-left, contextual seat prompt bottom-right.
+## Level 2/3: session setup + timer cards keep the world visible on the right.
+##
+## All visuals come from StudyTownTheme; nothing here hand-styles tokens.
 
-const UI := preload("res://scripts/ui/dark_ui.gd")
+const UI := preload("res://scripts/ui/study_theme.gd")
+const StudyTheme := preload("res://scripts/ui/study_theme.gd")
+const Registry := preload("res://scripts/ui/destination_registry.gd")
+
+
+static func _room_population() -> String:
+	var entry: Dictionary = Registry.for_room_index(GameState.selected_room)
+	return str(entry.get("population", "studying"))
 
 
 static func hud(flow, root: Control, visible_state: int) -> void:
 	if visible_state == flow.State.SEAT_TRANSITION:
-		UI.label(root, "Settling in…", Rect2(34, 634, 450, 45), 20)
+		StudyTheme.label(
+			root, "Settling in…", Rect2(440, 640, 400, 44), 17, StudyTheme.PANEL_2
+		).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		return
-	UI.button(root, "‹", Rect2(22, 22, 48, 44), flow.back)
-	UI.button(
-		root,
-		"○",
-		Rect2(82, 22, 48, 44),
+
+	# ---- TOP LEFT: compact room identity -------------------------------------
+	var identity := StudyTheme.hud_pill(root, Rect2(20, 18, 238, 64))
+	StudyTheme.label(identity, flow.main.current_room_name, Rect2(16, 8, 206, 28), 20, StudyTheme.TEXT)
+	StudyTheme.label(identity, _room_population(), Rect2(16, 34, 206, 22), 13, StudyTheme.FAINT)
+
+	# ---- TOP RIGHT: compact global controls ----------------------------------
+	var tools := StudyTheme.hud_pill(root, Rect2(920, 18, 340, 60))
+	StudyTheme.label(tools, "◈ %d" % GameState.focus_coins, Rect2(16, 8, 150, 44), 18, StudyTheme.TEXT)
+	StudyTheme.icon_button(
+		tools, "♫", Rect2(186, 7, 46, 46),
+		func():
+			flow.radio_expanded = true
+			flow.draw(),
+		StudyTheme.PANEL, "Music"
+	)
+	StudyTheme.icon_button(
+		tools, "♧", Rect2(232, 7, 46, 46),
 		func():
 			flow.selected_member = 0
-			flow.open_overlay(flow.State.PLAYER_PROFILE_OVERLAY)
+			flow.open_overlay(flow.State.ROOM_MEMBERS),
+		StudyTheme.PANEL, "Room members"
 	)
-	UI.label(root, flow.main.current_room_name, Rect2(150, 21, 370, 29), 20)
-	UI.label(root, "A little focus, together", Rect2(151, 50, 330, 22), 12, Color("D0D3D9"))
-	var tools := UI.panel(root, Rect2(883, 20, 375, 54), Color(0.10, 0.11, 0.13, 0.96), 18)
-	UI.label(tools, "◈ %d   ◇ 0" % GameState.focus_coins, Rect2(15, 7, 143, 38), 16)
-	UI.button(tools, "♫", Rect2(154, 5, 47, 38), flow.open_overlay.bind(flow.State.MUSIC_RADIO))
-	UI.button(tools, "Copy room code", Rect2(213, 5, 149, 38), flow.copy_code)
-	UI.button(root, "☰", Rect2(18, 335, 47, 48), flow.open_overlay.bind(flow.State.ROOM_CHAT))
-	UI.button(root, "♧", Rect2(1213, 335, 47, 48), flow.open_overlay.bind(flow.State.ROOM_MEMBERS))
+	StudyTheme.icon_button(
+		tools, "☰", Rect2(278, 7, 46, 46), flow.open_launcher, StudyTheme.PANEL, "StudyTown menu"
+	)
+
+	# ---- BOTTOM LEFT: music --------------------------------------------------
 	if flow.radio_expanded:
-		var widget := UI.panel(root, Rect2(22, 599, 342, 91), UI.PANEL, 18)
-		UI.label(widget, "♫  " + str(flow.radio.station), Rect2(15, 6, 254, 28), 16)
-		UI.button(
+		var widget := StudyTheme.panel(root, Rect2(22, 556, 330, 148), StudyTheme.PANEL, StudyTheme.R_DRAWER)
+		StudyTheme.label(widget, "♫  " + str(flow.radio.station), Rect2(18, 12, 220, 30), 17, StudyTheme.TEXT)
+		StudyTheme.label(
 			widget,
-			"⌄",
-			Rect2(286, 9, 40, 25),
-			func():
-				flow.radio_expanded = false
-				flow.draw()
+			"No local track linked" if flow.radio.radio_player.stream == null else ("Playing" if flow.radio.playing else "Paused"),
+			Rect2(18, 44, 220, 22), 12, StudyTheme.FAINT
 		)
-		var play := UI.button(
-			widget,
-			"Pause" if flow.radio.playing else "Play",
-			Rect2(15, 44, 89, 31),
+		var play := StudyTheme.button(
+			widget, "Pause" if flow.radio.playing else "Play", Rect2(18, 76, 140, 52),
 			func():
 				flow.radio.toggle_playback()
 				flow.draw(),
-			UI.BLUE
+			StudyTheme.GREEN
 		)
 		play.disabled = flow.radio.radio_player.stream == null
-		UI.button(
-			widget,
-			"Unmute" if flow.radio.muted else "Mute",
-			Rect2(117, 44, 89, 31),
+		StudyTheme.icon_button(
+			widget, "×", Rect2(272, 12, 44, 44),
 			func():
-				flow.radio.muted = not flow.radio.muted
+				flow.radio_expanded = false
+				flow.draw(),
+			StudyTheme.NESTED, "Collapse music"
+		)
+		var volume := StudyTheme.slider(
+			widget, Rect2(18, 92, 294, 32), 0.0, 1.0, 0.01, flow.radio.master, Callable()
+		)
+		volume.value_changed.connect(
+			func(value: float):
+				flow.radio.master = value
 				flow.radio._update_mix()
-				flow.draw()
 		)
-		UI.button(
-			widget,
-			"Settings",
-			Rect2(219, 44, 106, 31),
-			flow.open_overlay.bind(flow.State.MUSIC_RADIO)
-		)
+		StudyTheme.label(widget, "VOLUME", Rect2(18, 132, 200, 14), 11, StudyTheme.FAINT)
 	else:
-		UI.button(
-			root,
-			"♫  " + str(flow.radio.station),
-			Rect2(22, 636, 218, 51),
+		StudyTheme.button(
+			root, "♫  " + str(flow.radio.station), Rect2(22, 636, 218, 51),
 			func():
 				flow.radio_expanded = true
-				flow.draw()
+				flow.draw(),
+			StudyTheme.PANEL
 		)
+
+	# ---- BOTTOM RIGHT: contextual seat prompt (exploration only) -------------
 	if visible_state == flow.State.ROOM_EXPLORING:
-		var prompt := UI.panel(root, Rect2(445, 628, 390, 58), Color(0.10, 0.11, 0.13, 0.95), 22)
-		flow.main.prompt_label = UI.label(prompt, "", Rect2(15, 5, 360, 44), 17)
-		flow.main.prompt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		var prompt := StudyTheme.panel(root, Rect2(878, 622, 382, 66), StudyTheme.PANEL_2, StudyTheme.R_DRAWER)
+		prompt.name = "SeatPrompt"
+		StudyTheme.keycap(prompt, "E", Rect2(14, 11, 44, 44))
+		flow.main.prompt_label = StudyTheme.label(prompt, "", Rect2(70, 11, 298, 44), 18, StudyTheme.TEXT)
 		prompt.set_script(preload("res://scripts/ui/seat_prompt.gd"))
 		prompt.set("label", flow.main.prompt_label)
 		prompt.set_process(true)
-		UI.label(
-			root,
-			"WASD move   ·   E take seat   ·   F wave",
-			Rect2(447, 689, 540, 21),
-			12,
-			Color("D0D3D9")
-		)
-	elif (
-		visible_state
-		in [flow.State.ACTIVE_SESSION, flow.State.ACTIVE_BREAK, flow.State.ENDING_SESSION]
-	):
-		var is_break: bool = flow.main.active_session_mode == "break"
-		var accent := UI.ORANGE if is_break else UI.GREEN
-		var timer_x := 730 if flow.state == flow.State.ROOM_MEMBERS else 1088
-		var timer := UI.panel(root, Rect2(timer_x, 492, 170, 195), UI.PANEL, 22)
-		timer.add_theme_stylebox_override("panel", UI.style(UI.PANEL, 22, accent.darkened(0.28)))
-		UI.label(timer, "BREAK" if is_break else "FOCUS SESSION", Rect2(14, 12, 142, 24), 11, accent).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		flow.timer_label = UI.label(
-			timer, UI.countdown(FocusManager.get_remaining_seconds()), Rect2(10, 44, 150, 46), 31
-		)
-		flow.timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		UI.label(timer, "Breathe a little" if is_break else flow.tag, Rect2(14, 94, 142, 26), 14, UI.MUTED).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		var pause := UI.button(
-			timer, "Resume" if FocusManager.paused else "Pause", Rect2(13, 138, 84, 35), Callable()
-		)
-		pause.pressed.connect(
-			func():
-				FocusManager.toggle_pause()
-				pause.text = "Resume" if FocusManager.paused else "Pause"
-		)
-		UI.button(timer, "End", Rect2(106, 138, 51, 35), flow.request_end, UI.CORAL.darkened(0.50))
+		StudyTheme.label(
+			root, "WASD move   ·   E take seat   ·   F wave",
+			Rect2(640, 694, 620, 20), 12, StudyTheme.PANEL
+		).horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+
+	# ---- ACTIVE SESSION / BREAK: compact timer card (left, world stays clear) -
+	if visible_state in [flow.State.ACTIVE_SESSION, flow.State.ACTIVE_BREAK, flow.State.ENDING_SESSION]:
+		_timer_card(flow, root)
+
+
+static func _timer_card(flow, root: Control) -> void:
+	var is_break: bool = flow.main.active_session_mode == "break"
+	var accent: Color = StudyTheme.ORANGE if is_break else StudyTheme.GREEN
+	var timer := StudyTheme.panel(root, Rect2(74, 300, 300, 202), StudyTheme.PANEL, StudyTheme.R_DRAWER)
+	timer.add_theme_stylebox_override(
+		"panel", StudyTheme.style(StudyTheme.PANEL, StudyTheme.R_DRAWER, accent.darkened(0.25))
+	)
+	StudyTheme.label(
+		timer, "BREAK" if is_break else "FOCUS SESSION", Rect2(20, 16, 260, 20), 12, accent
+	).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	flow.timer_label = StudyTheme.label(
+		timer, StudyTheme.countdown(FocusManager.get_remaining_seconds()), Rect2(10, 42, 280, 68), 52, StudyTheme.TEXT
+	)
+	flow.timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	StudyTheme.label(
+		timer, "Breathe a little" if is_break else flow.tag, Rect2(20, 114, 260, 24), 15, StudyTheme.FAINT
+	).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var pause := StudyTheme.button(timer, "Resume" if FocusManager.paused else "Pause", Rect2(20, 148, 130, 44), Callable())
+	pause.pressed.connect(
+		func():
+			FocusManager.toggle_pause()
+			pause.text = "Resume" if FocusManager.paused else "Pause"
+	)
+	StudyTheme.button(timer, "End", Rect2(162, 148, 118, 44), flow.request_end, StudyTheme.RED)
 
 
 static func setup(flow, root: Control) -> void:
-	var card := UI.panel(root, Rect2(74, 143, 464, 457))
+	var card := StudyTheme.panel(root, Rect2(74, 112, 474, 496), StudyTheme.PANEL, StudyTheme.R_MODAL)
 	card.name = "SessionSetupPanel"
-	UI.label(card, "YOUR NEXT SMALL WIN", Rect2(26, 17, 350, 25), 11, UI.MUTED)
-	var field := UI.input(card, UI.hhmm(flow.duration), "00:25", Rect2(26, 56, 412, 77))
+	StudyTheme.label(card, "Start focus session", Rect2(28, 22, 418, 40), 28, StudyTheme.TEXT)
+
+	# Duration: 5 min – 2 hr, large current value.
+	var field := StudyTheme.text_field(card, UI.hhmm(flow.duration), "00:25", Rect2(28, 74, 418, 74))
 	field.name = "DurationInput"
 	field.max_length = 5
 	field.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	field.add_theme_font_size_override("font_size", 52)
+	field.add_theme_font_size_override("font_size", 48)
 	field.add_theme_stylebox_override("normal", StyleBoxEmpty.new())
-	var total := UI.label(
-		card, "TOTAL  ·  %d MINUTES" % (flow.duration / 60), Rect2(26, 135, 412, 28), 12, UI.MUTED
+	field.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	var total := StudyTheme.label(
+		card, "%d minutes" % (flow.duration / 60), Rect2(28, 148, 418, 24), 13, StudyTheme.FAINT
 	)
 	total.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var reward_text := UI.label(card, "", Rect2(44, 319, 365, 30), 20, UI.GREEN)
-	var range_slider := UI.slider(
-		card, Rect2(30, 180, 404, 22), 5, 120, 5, flow.duration / 60, Callable()
-	)
+	var range_slider := StudyTheme.slider(card, Rect2(32, 182, 410, 24), 5, 120, 5, flow.duration / 60, Callable())
 	range_slider.name = "DurationSlider"
+	StudyTheme.label(card, "5 min", Rect2(32, 206, 60, 18), 12, StudyTheme.FAINT)
+	StudyTheme.label(card, "2 hr", Rect2(392, 206, 50, 18), 12, StudyTheme.FAINT).horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+
+	var reward_text := StudyTheme.label(card, "", Rect2(28, 330, 418, 30), 20, StudyTheme.GREEN)
+	reward_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var sync := func(seconds: int):
 		flow.duration = seconds
 		field.text = UI.hhmm(seconds)
 		range_slider.set_value_no_signal(seconds / 60)
-		total.text = "TOTAL  ·  %d MINUTES" % (seconds / 60)
-		reward_text.text = "◈ %d points   ·   ◇ 0" % GameState.projected_reward(seconds / 60)
+		total.text = "%d minutes" % (seconds / 60)
+		reward_text.text = "Reward  ◈ +%d" % GameState.projected_reward(seconds / 60)
 	range_slider.value_changed.connect(func(value): sync.call(int(value) * 60))
 	field.text_submitted.connect(
 		func(value):
@@ -143,70 +176,70 @@ static func setup(flow, root: Control) -> void:
 	field.focus_exited.connect(func(): sync.call(UI.parse_duration(field.text)))
 	field.text_changed.connect(
 		func(value):
-			if (
-				(value.length() == 4 and value.is_valid_int())
-				or (value.length() == 5 and value.contains(":"))
-			):
+			if (value.length() == 4 and value.is_valid_int()) or (value.length() == 5 and value.contains(":")):
 				sync.call(UI.parse_duration(value))
 	)
 	sync.call(flow.duration)
-	for marker in [["5m", 0.0], ["25m", 20.0 / 115.0], ["1h", 55.0 / 115.0], ["2h", 1.0]]:
-		UI.label(card, marker[0], Rect2(17 + marker[1] * 404, 205, 32, 20), 12, UI.MUTED).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UI.button(
+
+	# Tag chips: Study / Reading / Work / Creative.
+	for i in mini(GameState.tags.size(), 4):
+		var tag_name := str(GameState.tags[i])
+		var chip := StudyTheme.chip(
+			card, tag_name, Rect2(28 + i * 106, 244, 100, 40), flow.tag == tag_name
+		)
+		chip.pressed.connect(
+			func():
+				flow.tag = tag_name
+				flow.draw()
+		)
+
+	StudyTheme.button(
 		card,
-		(
-			"▏ %s  ·  %s   ✎"
-			% [flow.tag, flow.focus_text if not flow.focus_text.is_empty() else "Set your focus"]
-		),
-		Rect2(26, 244, 412, 49),
+		"✎  %s" % (flow.focus_text if not flow.focus_text.is_empty() else "Set your focus"),
+		Rect2(28, 292, 300, 38),
 		flow.open_overlay.bind(flow.State.CURRENT_FOCUS_EDITOR)
 	)
-	UI.button(
-		card, "⚙", Rect2(380, 316, 58, 35), flow.open_overlay.bind(flow.State.SESSION_SETTINGS)
+	StudyTheme.icon_button(
+		card, "⚙", Rect2(342, 292, 44, 38), flow.open_overlay.bind(flow.State.SESSION_SETTINGS),
+		StudyTheme.NESTED, "Session settings"
 	)
-	UI.label(
-		card,
-		"1 point / minute  ·  +5 for 25 minutes or more",
-		Rect2(28, 354, 410, 24),
-		12,
-		UI.MUTED
-	)
-	UI.button(
-		card,
-		"Start Session" + ("  ·  10s test" if flow.debug_short else ""),
-		Rect2(26, 397, 412, 43),
-		flow.start_session,
-		UI.BLUE
-	)
+
+	StudyTheme.primary_button(card, "START SESSION", Rect2(28, 372, 418, 54), flow.start_session)
+	StudyTheme.label(
+		card, "1 point / minute  ·  +5 for 25 minutes or more",
+		Rect2(28, 434, 418, 22), 12, StudyTheme.FAINT
+	).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	StudyTheme.button(card, "‹  Leave seat", Rect2(28, 460, 418, 30), flow.back)
 
 
 static func _modal(root: Control, title: String, close: Callable, height := 484) -> Panel:
-	var card := UI.panel(root, Rect2(230, (720 - height) / 2, 820, height))
-	UI.label(card, title, Rect2(30, 23, 650, 44), 28)
-	UI.button(card, "×", Rect2(742, 25, 48, 36), close)
+	# The application flow already owns the world scrim for exclusive overlays;
+	# this only builds the warm surface + a short scale-in.
+	var card := StudyTheme.panel(root, Rect2(230, (720 - height) / 2, 820, height), StudyTheme.PANEL, StudyTheme.R_MODAL)
+	card.scale = Vector2(0.97, 0.97)
+	card.pivot_offset = card.size * 0.5
+	card.create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT).tween_property(
+		card, "scale", Vector2.ONE, StudyTheme.T_MODAL
+	)
+	StudyTheme.label(card, title, Rect2(30, 23, 650, 44), 28, StudyTheme.TEXT)
+	StudyTheme.icon_button(card, "×", Rect2(742, 25, 48, 44), close, StudyTheme.NESTED, "Close")
 	return card
 
 
 static func focus_editor(flow, root: Control) -> void:
 	var card := _modal(root, "Current Focus", flow.close_overlay, 560)
-	UI.label(card, "WHAT ARE YOU FOCUSING ON?", Rect2(30, 83, 510, 25), 11, UI.MUTED)
-	var field := UI.input(
-		card, flow.focus_text, "One thing you want to make progress on", Rect2(30, 119, 466, 57)
-	)
+	StudyTheme.label(card, "WHAT ARE YOU FOCUSING ON?", Rect2(30, 83, 510, 22), 12, StudyTheme.FAINT)
+	var field := StudyTheme.text_field(card, flow.focus_text, "One thing you want to make progress on", Rect2(30, 115, 466, 57))
 	field.max_length = 120
-	var count := UI.label(
-		card, "%d / 120" % field.text.length(), Rect2(357, 180, 140, 25), 12, UI.MUTED
-	)
-	UI.button(
-		card,
-		"Clear",
-		Rect2(30, 184, 80, 30),
+	var count := StudyTheme.label(card, "%d / 120" % field.text.length(), Rect2(357, 176, 140, 24), 12, StudyTheme.FAINT)
+	StudyTheme.button(
+		card, "Clear", Rect2(30, 180, 80, 40),
 		func():
 			field.text = ""
 			field.text_changed.emit("")
 	)
-	UI.label(card, "ALL TAGS", Rect2(30, 237, 230, 22), 11, UI.MUTED)
-	var tag_input := UI.input(card, "", "Create or rename tag", Rect2(30, 480, 274, 39))
+	StudyTheme.label(card, "ALL TAGS", Rect2(30, 237, 230, 22), 12, StudyTheme.FAINT)
+	var tag_input := StudyTheme.text_field(card, "", "Create or rename tag", Rect2(30, 480, 274, 44))
 	tag_input.max_length = 24
 	var scroll := ScrollContainer.new()
 	scroll.position = Vector2(30, 270)
@@ -216,17 +249,13 @@ static func focus_editor(flow, root: Control) -> void:
 	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rows.add_theme_constant_override("separation", 10)
 	scroll.add_child(rows)
-	var selected := UI.label(card, flow.tag, Rect2(552, 143, 220, 39), 23)
-	var preview_text := UI.label(
-		card,
-		field.text if not field.text.is_empty() else "No current focus",
-		Rect2(552, 203, 220, 128),
-		18,
-		UI.MUTED
+	var selected := StudyTheme.label(card, flow.tag, Rect2(552, 143, 220, 39), 23, StudyTheme.PURPLE)
+	var preview_text := StudyTheme.label(
+		card, field.text if not field.text.is_empty() else "No current focus", Rect2(552, 203, 220, 128), 18, StudyTheme.FAINT
 	)
 	preview_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UI.label(card, "PREVIEW", Rect2(552, 91, 220, 25), 11, UI.MUTED)
-	UI.label(card, "▏ Selected", Rect2(552, 342, 215, 30), 14, UI.GREEN)
+	StudyTheme.label(card, "PREVIEW", Rect2(552, 91, 220, 25), 12, StudyTheme.FAINT)
+	StudyTheme.label(card, "▏ Selected", Rect2(552, 342, 215, 30), 14, StudyTheme.GREEN)
 	field.text_changed.connect(
 		func(value):
 			count.text = "%d / 120" % value.length()
@@ -238,28 +267,22 @@ static func focus_editor(flow, root: Control) -> void:
 		var row := Control.new()
 		row.custom_minimum_size = Vector2(444, 39)
 		rows.add_child(row)
-		UI.button(
-			row,
-			("✓  " if flow.tag == tag_name else "▏  ") + tag_name,
-			Rect2(0, 0, 305, 32),
+		StudyTheme.button(
+			row, ("✓  " if flow.tag == tag_name else "▏  ") + tag_name, Rect2(0, 0, 305, 39),
 			func():
 				flow.tag = tag_name
 				flow.draw(),
-			UI.BLUE.darkened(0.48) if flow.tag == tag_name else UI.NESTED
+			StudyTheme.PURPLE if flow.tag == tag_name else StudyTheme.NESTED
 		)
-		UI.button(
-			row,
-			"✎",
-			Rect2(318, 0, 48, 32),
+		StudyTheme.button(
+			row, "✎", Rect2(318, 0, 48, 39),
 			func():
 				tag_input.text = tag_name
 				tag_input.set_meta("editing", tag_name)
 				tag_input.grab_focus()
 		)
-		var delete := UI.button(
-			row,
-			"×",
-			Rect2(378, 0, 48, 32),
+		var delete := StudyTheme.button(
+			row, "×", Rect2(378, 0, 48, 39),
 			func():
 				GameState.tags.erase(tag_name)
 				if flow.tag == tag_name:
@@ -268,10 +291,8 @@ static func focus_editor(flow, root: Control) -> void:
 				flow.draw()
 		)
 		delete.disabled = GameState.tags.size() <= 1
-	UI.button(
-		card,
-		"Add / save",
-		Rect2(320, 480, 175, 39),
+	StudyTheme.button(
+		card, "Add / save", Rect2(320, 480, 175, 44),
 		func():
 			var value := tag_input.text.strip_edges()
 			if value.is_empty() or GameState.tags.has(value):
@@ -284,161 +305,114 @@ static func focus_editor(flow, root: Control) -> void:
 			GameState.save()
 			flow.draw()
 	)
-	UI.button(
-		card,
-		"Save Settings",
-		Rect2(542, 480, 248, 48),
+	StudyTheme.primary_button(
+		card, "Save Settings", Rect2(542, 480, 248, 48),
 		func():
 			flow.save_focus()
-			flow.close_overlay(true),
-		UI.BLUE
+			flow.close_overlay(true)
 	)
 
 
 static func settings(flow, root: Control) -> void:
 	var card := _modal(root, "Session settings", flow.close_overlay)
-	UI.label(card, "BOOSTS", Rect2(30, 94, 430, 24), 11, UI.MUTED)
-	UI.button(
-		card,
-		"Deep focus    " + ("ON" if flow.deep_focus else "OFF"),
-		Rect2(30, 137, 425, 49),
+	StudyTheme.label(card, "BOOSTS", Rect2(30, 94, 430, 24), 12, StudyTheme.FAINT)
+	StudyTheme.button(
+		card, "Deep focus    " + ("ON" if flow.deep_focus else "OFF"), Rect2(30, 137, 425, 54),
 		func():
 			flow.deep_focus = not flow.deep_focus
 			flow.draw()
 	)
-	UI.label(
-		card,
-		"A local commitment to keep distractions outside.",
-		Rect2(40, 192, 416, 29),
-		13,
-		UI.MUTED
+	StudyTheme.label(
+		card, "A local commitment to keep distractions outside.", Rect2(40, 196, 416, 29), 13, StudyTheme.FAINT
 	)
-	var long_session := UI.label(
+	var long_session := StudyTheme.label(
 		card,
 		"Long session  ·  " + ("ACTIVE  +5" if flow.duration >= 1500 else "25 minutes to unlock"),
-		Rect2(40, 234, 416, 38),
-		17,
-		UI.GREEN if flow.duration >= 1500 else UI.MUTED
+		Rect2(40, 238, 416, 38), 17,
+		StudyTheme.GREEN if flow.duration >= 1500 else StudyTheme.FAINT
 	)
-	UI.label(card, "Friend boost  ·  coming later", Rect2(40, 293, 416, 38), 17, UI.MUTED)
-	UI.label(
-		card, "No extra points are awarded for mock boosts.", Rect2(40, 341, 416, 40), 13, UI.MUTED
+	StudyTheme.label(card, "Friend boost  ·  coming later", Rect2(40, 297, 416, 38), 17, StudyTheme.FAINT)
+	StudyTheme.label(
+		card, "No extra points are awarded for mock boosts.", Rect2(40, 345, 416, 40), 13, StudyTheme.FAINT
 	)
-	UI.label(card, "FOCUS TIME", Rect2(510, 96, 280, 24), 11, UI.MUTED)
-	var time_label := UI.label(card, UI.hhmm(flow.duration), Rect2(510, 142, 280, 72), 47)
-	var points := UI.label(
-		card,
-		"◈ %d points  ·  ◇ 0" % GameState.projected_reward(flow.duration / 60),
-		Rect2(510, 287, 280, 40),
-		19,
-		UI.GREEN
+	StudyTheme.label(card, "FOCUS TIME", Rect2(510, 96, 280, 24), 12, StudyTheme.FAINT)
+	var time_label := StudyTheme.label(card, UI.hhmm(flow.duration), Rect2(510, 142, 280, 72), 47, StudyTheme.TEXT)
+	var points := StudyTheme.label(
+		card, "◈ %d points" % GameState.projected_reward(flow.duration / 60), Rect2(510, 287, 280, 40), 19, StudyTheme.GREEN
 	)
-	UI.slider(
-		card,
-		Rect2(510, 230, 273, 24),
-		5,
-		120,
-		5,
-		flow.duration / 60,
+	StudyTheme.slider(
+		card, Rect2(510, 230, 273, 24), 5, 120, 5, flow.duration / 60,
 		func(value):
 			flow.duration = int(value) * 60
 			time_label.text = UI.hhmm(flow.duration)
-			long_session.text = (
-				"Long session  ·  "
-				+ ("ACTIVE  +5" if flow.duration >= 1500 else "25 minutes to unlock")
-			)
+			long_session.text = "Long session  ·  " + ("ACTIVE  +5" if flow.duration >= 1500 else "25 minutes to unlock")
 			long_session.add_theme_color_override(
-				"font_color", UI.GREEN if flow.duration >= 1500 else UI.MUTED
+				"font_color", StudyTheme.GREEN if flow.duration >= 1500 else StudyTheme.FAINT
 			)
-			points.text = "◈ %d points  ·  ◇ 0" % GameState.projected_reward(int(value))
+			points.text = "◈ %d points" % GameState.projected_reward(int(value))
 	)
-	UI.button(
-		card,
-		"Save Settings",
-		Rect2(510, 386, 280, 48),
+	StudyTheme.primary_button(
+		card, "Save Settings", Rect2(510, 386, 280, 48),
 		func():
 			flow.save_focus()
-			flow.close_overlay(true),
-		UI.BLUE
+			flow.close_overlay(true)
 	)
 
 
 static func ending(flow, root: Control) -> void:
-	var card := UI.panel(root, Rect2(74, 227, 464, 279))
-	UI.label(card, "ENDING SESSION", Rect2(28, 24, 408, 27), 12, UI.CORAL)
-	UI.label(card, "Leaving already?", Rect2(28, 66, 408, 49), 31)
-	UI.label(
+	var card := StudyTheme.panel(root, Rect2(74, 227, 464, 279), StudyTheme.PANEL, StudyTheme.R_DRAWER)
+	StudyTheme.label(card, "ENDING SESSION", Rect2(28, 24, 408, 24), 12, StudyTheme.RED)
+	StudyTheme.label(card, "Leaving already?", Rect2(28, 60, 408, 49), 31, StudyTheme.TEXT)
+	StudyTheme.label(
 		card,
 		"Only completed focus minutes earn points.\nYou can stay here and keep going.",
-		Rect2(28, 124, 408, 58),
-		16,
-		UI.MUTED
+		Rect2(28, 120, 408, 58), 16, StudyTheme.MUTED
 	)
-	UI.button(card, "Leave room", Rect2(28, 210, 191, 42), flow.end_early, UI.CORAL.darkened(0.42))
-	UI.button(card, "Continue", Rect2(235, 210, 201, 42), flow.continue_session, UI.BLUE)
+	StudyTheme.button(card, "Leave room", Rect2(28, 210, 191, 48), flow.end_early, StudyTheme.RED)
+	StudyTheme.primary_button(card, "Continue", Rect2(235, 210, 201, 48), flow.continue_session)
 
 
 static func complete(flow, root: Control) -> void:
-	var card := UI.panel(root, Rect2(74, 184, 464, 367))
-	UI.label(card, "SESSION COMPLETE", Rect2(28, 26, 408, 25), 12, UI.GREEN)
-	UI.label(card, "+%d points" % flow.reward, Rect2(28, 77, 408, 58), 43, UI.GREEN)
-	UI.label(card, "A little progress looks good on you.", Rect2(28, 151, 408, 37), 19)
-	UI.label(
+	var card := StudyTheme.panel(root, Rect2(74, 184, 464, 367), StudyTheme.PANEL, StudyTheme.R_DRAWER)
+	StudyTheme.label(card, "SESSION COMPLETE", Rect2(28, 26, 408, 24), 12, StudyTheme.GREEN)
+	StudyTheme.label(card, "+%d points" % flow.reward, Rect2(28, 70, 408, 58), 43, StudyTheme.GREEN)
+	StudyTheme.label(card, "A little progress looks good on you.", Rect2(28, 145, 408, 37), 19, StudyTheme.TEXT)
+	StudyTheme.label(
 		card,
-		(
-			"%s  ·  %s\n%d minutes  ·  %s"
-			% [flow.tag, FocusManager.task, flow.elapsed_minutes, flow.main.current_room_name]
-		),
-		Rect2(28, 203, 408, 73),
-		15,
-		UI.MUTED
+		"%s  ·  %s\n%d minutes  ·  %s" % [flow.tag, FocusManager.task, flow.elapsed_minutes, flow.main.current_room_name],
+		Rect2(28, 197, 408, 73), 15, StudyTheme.FAINT
 	)
-	UI.button(
-		card,
-		"Take a little break  →",
-		Rect2(28, 295, 408, 43),
-		flow.navigate.bind(flow.State.BREAK_SETUP),
-		UI.ORANGE.darkened(0.20)
+	StudyTheme.button(
+		card, "Take a little break  →", Rect2(28, 295, 408, 48),
+		flow.navigate.bind(flow.State.BREAK_SETUP), StudyTheme.ORANGE
 	)
 
 
 static func break_setup(flow, root: Control) -> void:
-	var card := UI.panel(root, Rect2(74, 172, 464, 425))
-	UI.label(card, "BREAK TIME", Rect2(28, 23, 408, 25), 12, UI.ORANGE)
-	UI.label(card, "Take a break", Rect2(28, 58, 408, 48), 32)
-	UI.label(
-		card,
-		"Step away for a moment. Your seat stays yours.",
-		Rect2(28, 110, 408, 37),
-		15,
-		UI.MUTED
+	var card := StudyTheme.panel(root, Rect2(74, 172, 464, 425), StudyTheme.PANEL, StudyTheme.R_DRAWER)
+	StudyTheme.label(card, "BREAK TIME", Rect2(28, 23, 408, 24), 12, StudyTheme.ORANGE)
+	StudyTheme.label(card, "Take a break", Rect2(28, 56, 408, 48), 32, StudyTheme.TEXT)
+	StudyTheme.label(
+		card, "Step away for a moment. Your seat stays yours.", Rect2(28, 108, 408, 37), 15, StudyTheme.FAINT
 	)
-	var time := UI.label(card, UI.hhmm(flow.break_duration), Rect2(28, 156, 408, 64), 44)
-	UI.slider(
-		card,
-		Rect2(30, 244, 402, 22),
-		1,
-		30,
-		1,
-		flow.break_duration / 60,
+	var time := StudyTheme.label(card, UI.hhmm(flow.break_duration), Rect2(28, 154, 408, 64), 44, StudyTheme.TEXT)
+	StudyTheme.slider(
+		card, Rect2(30, 244, 402, 24), 1, 30, 1, flow.break_duration / 60,
 		func(value):
 			flow.break_duration = int(value) * 60
-			time.text = UI.hhmm(flow.break_duration),
-		UI.ORANGE
+			time.text = UI.hhmm(flow.break_duration)
 	)
-	UI.label(card, "1m", Rect2(30, 269, 70, 21), 12, UI.MUTED)
-	UI.label(card, "30m", Rect2(394, 269, 44, 21), 12, UI.MUTED)
+	StudyTheme.label(card, "1m", Rect2(30, 269, 70, 21), 12, StudyTheme.FAINT)
+	StudyTheme.label(card, "30m", Rect2(394, 269, 44, 21), 12, StudyTheme.FAINT)
 	var lounger: bool = (
 		is_instance_valid(flow.main.active_study_spot)
 		and flow.main.active_study_spot.seat_type == "tanning_bed"
 	)
-	UI.button(
-		card,
-		"Back to room" if lounger else "Another Session",
-		Rect2(28, 307, 196, 39),
+	StudyTheme.button(
+		card, "Back to room" if lounger else "Another Session", Rect2(28, 307, 196, 44),
 		flow.leave_seat.bind(false) if lounger else flow.another_session
 	)
-	UI.button(card, "Finish & Leave", Rect2(240, 307, 196, 39), flow.leave_seat.bind(true))
-	UI.button(
-		card, "Start Break", Rect2(28, 368, 408, 39), flow.start_break, UI.ORANGE.darkened(0.16)
+	StudyTheme.button(card, "Finish & Leave", Rect2(240, 307, 196, 44), flow.leave_seat.bind(true))
+	StudyTheme.button(
+		card, "Start Break", Rect2(28, 368, 408, 44), flow.start_break, StudyTheme.ORANGE
 	)

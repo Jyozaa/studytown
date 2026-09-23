@@ -20,32 +20,30 @@ const ROOMS := {
 	},
 	1: {
 		"id": "garden",
-		"size": Vector2(52.0, 38.0),
-		"spawn": Vector3(0.0, 0.65, 15.6),
-		"bounds": Vector2(25.2, 18.2),
+		"size": Vector2(32.0, 24.0),
+		"spawn": Vector3(0.0, 0.65, 9.0),
+		"bounds": Vector2(15.5, 11.5),
 
-		# Cozy Garden exploration camera.
-		#
-		# Old:
-		#   Vector3(3.9, 8.0, 11.0), FOV 39
-		#
-		# The smaller X moves the camera viewpoint slightly left.
-		# The extra height/distance + 42° FOV pull the framing back enough to
-		# show more of the Garden and its new forest edge without feeling tiny.
-		"camera_offset": Vector3(2.2, 11.8, 16.8),
+		# Study Café exploration camera (replaces Garden; internal id kept
+		# as "garden" so seat directors, previews and tests keep working).
+		# Close intimate framing: the old outdoor offset left the player tiny.
+		"camera_offset": Vector3(1.8, 6.8, 9.2),
 		"camera_look_height": 1.50,
-		"camera_fov": 42.0,
-		"camera_damping": 7.0,
+		"camera_fov": 40.0,
+		"camera_damping": 7.5,
 	},
 	2: {
 		"id": "train",
 		"size": Vector2(11.0, 42.0),
 		"spawn": Vector3(0.0, 0.65, 16.0),
 		"bounds": Vector2(4.8, 20.2),
-		"camera_offset": Vector3(2.25, 6.0, 9.4),
+		# Lower over-the-shoulder trailing view (explicit user request differs
+		# from Garden/Library here): stays behind the player while walking
+		# the carriage, high enough to clear booths and NPC heads.
+		"camera_offset": Vector3(1.4, 3.6, 6.4),
 		"camera_look_height": 1.50,
-		"camera_fov": 38.0,
-		"camera_damping": 8.2,
+		"camera_fov": 42.0,
+		"camera_damping": 7.0,
 	},
 	3: {
 		"id": "japanese",

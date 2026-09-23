@@ -1,26 +1,49 @@
 extends Node3D
 
-# Runtime-only seat cushion, never a debug torus or a collider.
+# Availability indicator anchor, child of its StudySpot ("AvailabilityGlow").
+#
+# Café seats (seat_id "cafe-*") carry NO geometry here: the
+# SeatHighlightDriver brightens the actual chair/stool/couch mesh with a
+# shared translucent overlay instead. Legacy rooms keep the original disc
+# cushion behavior below, untouched.
 var phase := 0.0
 var enabled := true
 var cushion: MeshInstance3D
-var glow_material: StandardMaterial3D
+static var shared_mesh: SphereMesh
+static var shared_material: ShaderMaterial
+var spot: StudySpot
+var nearest := false
+
+
+func _is_cafe() -> bool:
+	if not is_instance_valid(spot):
+		return false
+	var sid := str(spot.seat_id)
+	return sid.begins_with("cafe-") or sid.begins_with("library-") or sid.begins_with("train-")
 
 
 func configure(index: int) -> void:
 	phase = float(index) * 0.73
+	if is_instance_valid(cushion): cushion.set_instance_shader_parameter("glow_phase", phase)
 
 
 func _ready() -> void:
-	var spot = get_parent()
+	spot = get_parent()
+	if _is_cafe():
+		spot.occupancy_changed.connect(_update_visibility)
+		_update_visibility()
+		return
 	cushion = MeshInstance3D.new()
 	cushion.name = "AvailableSeatCushion"
-	var mesh := SphereMesh.new()
-	mesh.radius = 0.42
-	mesh.height = 0.84
-	mesh.radial_segments = 20
-	mesh.rings = 10
-	cushion.mesh = mesh
+	if shared_mesh == null:
+		shared_mesh = SphereMesh.new()
+		shared_mesh.radius = 0.42
+		shared_mesh.height = 0.84
+		shared_mesh.radial_segments = 20
+		shared_mesh.rings = 10
+		shared_material = ShaderMaterial.new()
+		shared_material.shader = preload("res://shaders/seat_availability_glow.gdshader")
+	cushion.mesh = shared_mesh
 	cushion.scale = Vector3(1.0, 0.13, 0.82)
 	cushion.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(cushion)
@@ -30,25 +53,23 @@ func _ready() -> void:
 	if spot.has_meta("garden_cushion_height"):
 		cushion_height = float(spot.get_meta("garden_cushion_height"))
 	cushion.global_position = spot.sitting_position + Vector3.UP * cushion_height
-	glow_material = StandardMaterial3D.new()
-	glow_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	glow_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	glow_material.emission_enabled = true
-	glow_material.emission = Color.WHITE
-	glow_material.emission_energy_multiplier = 0.6
-	cushion.material_override = glow_material
+	cushion.material_override = shared_material
+	cushion.set_instance_shader_parameter("glow_phase", phase)
+	spot.occupancy_changed.connect(_update_visibility)
+	_update_visibility()
 
 
-func _process(_delta: float) -> void:
-	var spot = get_parent()
-	visible = enabled and spot != null and spot.is_available()
-	if not visible:
-		return
-	var pulse := 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * 0.001 * TAU / 2.1 + phase)
-	glow_material.albedo_color = Color(1, 1, 1, lerpf(0.09, 0.33, pulse))
+func _update_visibility() -> void:
+	visible = enabled and is_instance_valid(spot) and spot.is_available()
+
+
+func set_nearest(value: bool) -> void:
+	nearest = value
+	if is_instance_valid(cushion):
+		cushion.set_instance_shader_parameter("glow_nearest", value)
+		cushion.scale.x = 1.12 if nearest else 1.0
 
 
 func set_enabled(value: bool) -> void:
 	enabled = value
-	if not value:
-		visible = false
+	_update_visibility()

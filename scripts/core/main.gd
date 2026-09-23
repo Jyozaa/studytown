@@ -12,6 +12,8 @@ const StudySpotScript := preload("res://scripts/study/study_spot.gd")
 const NPCControllerScript := preload("res://scripts/npc/npc_controller.gd")
 const RoomFloorScript := preload("res://scripts/world/room_floor.gd")
 const RoomDefinitionsScript := preload("res://scripts/rooms/room_definitions.gd")
+const CafeBuilderScript := preload("res://scripts/rooms/cafe_builder.gd")
+const LibraryBuilderScript := preload("res://scripts/rooms/library_builder.gd")
 const GENERATED_ASSET_DIR := "res://assets/dev_local/blender_generated/runtime/"
 const UI_DESIGN_SIZE := Vector2(1280.0, 720.0)
 
@@ -97,6 +99,7 @@ var resting_duration := 30 * 60
 var active_session_mode := "focus"
 var task_input: LineEdit
 var session_setup_open := false
+var seat_highlights_suspended := false
 var session_setup_camera: Camera3D
 var start_session_button: Button
 var session_tag_name := "Study"
@@ -111,6 +114,8 @@ var character_loader
 var asset_loader
 var focus_camera_director
 var current_room_config: Dictionary = {}
+var dev_mode := false
+var dev_panel = null
 var collision_debug_visible := false
 var train_scenery_nodes: Array[Node3D] = []
 var garden_water_jet_nodes: Array[Node3D] = []
@@ -120,6 +125,7 @@ var pending_study_spot
 var performance_review := false
 var performance_started_at := 0
 var performance_samples: Array[int] = []
+var seat_scan_countdown := 0.0
 
 var application_flow
 
@@ -153,6 +159,29 @@ func _ready() -> void:
 		if review == "ui_test":
 			return
 		application_flow.call_deferred("run_review", review)
+		return
+	if review in ["performance", "performance-library", "performance-train", "occlusion", "occlusion-library", "occlusion-train"]:
+		GameState.persistence_enabled = false
+		var room: int = {"performance": 1, "performance-library": 0, "performance-train": 2, "occlusion": 1, "occlusion-library": 0, "occlusion-train": 2}[review]
+		current_room_name = GameState.ROOMS[room]
+		build_room(room)
+		call_deferred("_enable_xray_debug")
+		return
+	if review in ["garden-seats", "library-seats", "train-seats"]:
+		GameState.persistence_enabled = false
+		var review_room: int = {"garden-seats": 1, "library-seats": 0, "train-seats": 2}[review]
+		current_room_name = GameState.ROOMS[review_room]
+		build_room(review_room)
+		if review_room != 1 and not is_instance_valid(get("garden_seat_director")):
+			var director := preload("res://scripts/study/interior_seat_director.gd").new()
+			world_root.add_child(director)
+			director.configure(self)
+			set("garden_seat_director", director)
+			focus_camera_director.clearance_provider = director
+		var seat_review := preload("res://scripts/study/garden_seat_review.gd").new()
+		add_child(seat_review)
+		seat_review.configure(self)
+		seat_review.call_deferred("select", 0)
 		return
 	match review:
 		"character_picker": show_main_menu(); call_deferred("_open_character_selection")
@@ -190,6 +219,8 @@ func _ready() -> void:
 		"garden_tufts": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_garden_tuft_review")
 		"plant_placement": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_plant_review")
 		"prop_grounding": current_room_name = GameState.ROOMS[0]; build_room(0); call_deferred("_activate_prop_grounding_review")
+		"cafe": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_cafe_review")
+		"cafe_seats": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_begin_cafe_seat_review")
 		"garden_grass": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 0)
 		"garden_cafe": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 1)
 		"garden_water": current_room_name = GameState.ROOMS[1]; build_room(1); call_deferred("_activate_review_camera", 2)
@@ -215,7 +246,7 @@ func _ready() -> void:
 		"cat_wave": _build_character_review(0.0, false, "Wave")
 		"cat_stretch": _build_character_review(0.0, false, "Stretch")
 		"cat_cheer": _build_character_review(0.0, false, "Cheer")
-		_: show_main_menu()
+		_: _boot_dev()
 	if performance_review:
 		performance_started_at = Time.get_ticks_msec()
 
@@ -272,22 +303,17 @@ func _build_materials() -> void:
 	garden_grass_underlay.roughness = 0.94
 	mats.garden_grass_underlay = garden_grass_underlay
 
-	# Seamless continuous stone path material. The supplied tile.png is mapped
-	# in world space so adjacent CSG path segments share one texture scale rather
-	# than each restarting at a tile boundary.
+	# Seamless continuous stone path material. Paths render as a flat
+	# stone tone (world-space triplanar UVs are kept so a future path
+	# texture can be dropped in without touching the geometry).
 	var garden_path := StandardMaterial3D.new()
-	garden_path.albedo_color = Color.WHITE
+	garden_path.albedo_color = Color("#9c958b")
 	garden_path.roughness = 0.94
 	garden_path.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	garden_path.texture_repeat = true
 	garden_path.uv1_triplanar = true
 	garden_path.uv1_world_triplanar = true
 	garden_path.uv1_scale = Vector3(0.72, 0.72, 0.72)
-	var garden_path_texture_path := "res://assets/dev_local/environment/tile.png"
-	if ResourceLoader.exists(garden_path_texture_path):
-		garden_path.albedo_texture = load(garden_path_texture_path)
-	else:
-		garden_path.albedo_color = Color("#9c958b")
 	mats.garden_path = garden_path
 
 	# Animated water surface used by the fountain basin and pool.
@@ -421,16 +447,34 @@ func _update_ui_canvas_layout() -> void:
 
 func show_main_menu() -> void:
 	screen = Screen.MENU
+	application_flow.ui_enabled = true
 	_set_movement_enabled(false)
 	_clear_scene()
 	_build_menu_world()
 	_build_menu_ui()
 
+
+func _boot_dev() -> void:
+	# Development strip boot: straight into gameplay, no menus/auth/map.
+	# application_flow stays instantiated (reviews/tests use it) but draws
+	# nothing: ui_enabled=false suppresses every UI surface.
+	dev_mode = true
+	application_flow.ui_enabled = false
+	dev_panel = preload("res://scripts/dev/dev_panel.gd").new()
+	add_child(dev_panel)
+	dev_panel.setup(self)
+	var index: int = clampi(GameState.selected_room, 0, GameState.ROOMS.size() - 1)
+	current_room_name = GameState.ROOMS[index]
+	build_room(index)
+	dev_panel.refresh()
+
 func _build_menu_world() -> void:
+	# Warm dusk backdrop behind the Map / auth / onboarding surfaces so the
+	# paper UI never floats over a near-black page.
 	_add_environment(
-		Color("#121318"),
-		Color("#1d2330"),
-		0.20
+		Color("#2b211b"),
+		Color("#5b4735"),
+		0.42
 	)
 
 	var camera := Camera3D.new()
@@ -461,7 +505,7 @@ func _build_menu_ui() -> void:
 
 func _open_character_selection() -> void:
 	application_flow.editing_buddy = true
-	application_flow.onboarding_step = 2
+	application_flow.onboarding_step = 1
 	application_flow.navigate(application_flow.State.ONBOARDING)
 
 func _select_character(index: int) -> void:
@@ -489,9 +533,9 @@ func build_room(index: int) -> void:
 
 	match index:
 		0:
-			_build_library()
+			LibraryBuilderScript.build(self)
 		1:
-			_build_garden()
+			CafeBuilderScript.build(self)
 		2:
 			_build_train()
 		3:
@@ -501,6 +545,7 @@ func build_room(index: int) -> void:
 	_create_follow_camera()
 	_build_room_ui()
 	_update_camera_current()
+	_install_exit_trigger(index)
 
 	# Enable movement only after the new Player actually exists.
 	_set_movement_enabled(true)
@@ -523,7 +568,10 @@ func _process(delta: float) -> void:
 			+ sin(Time.get_ticks_msec() * 0.0005) * 0.07
 		)
 	if screen == Screen.ROOM:
-		_update_nearest_spot()
+		seat_scan_countdown -= delta
+		if seat_scan_countdown <= 0.0:
+			seat_scan_countdown = 0.08
+			_update_nearest_spot()
 		if is_instance_valid(player_visual) and not bool(player_visual.get_meta("is_imported_character", false)):
 			if player is PlayerController and player.current_locomotion == "Walk":
 				walk_phase += delta * 9.5
@@ -563,6 +611,35 @@ func _collect_performance_sample() -> void:
 		print("PERF_RESULT room=%s average_fps=%d minimum_fps=%d samples=%d" % [current_room_config.get("id", "menu"), average, minimum if not performance_samples.is_empty() else 0, performance_samples.size()])
 		performance_review = false
 		get_tree().quit()
+
+func _notification(what: int) -> void:
+	# Tear the room down before the renderer does: quitting mid-room with
+	# thousands of live GPU resources otherwise dumps pages of exit-time
+	# leak warnings that hide real errors. _exit_tree repeats the release
+	# for quit paths that never deliver a close request (terminal Ctrl+C).
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_teardown_for_exit()
+
+
+func _exit_tree() -> void:
+	_teardown_for_exit()
+
+
+static var _exit_teardown_done := false
+
+
+func _teardown_for_exit() -> void:
+	if _exit_teardown_done:
+		return
+	_exit_teardown_done = true
+	if is_instance_valid(world_root):
+		world_root.free()
+	if is_instance_valid(ui_root):
+		ui_root.free()
+	preload("res://scripts/performance/room_resource_cache.gd").release()
+	preload("res://scripts/camera/xray_material_cache.gd").release()
+	preload("res://scripts/world/sky_clouds.gd").release()
+	preload("res://scripts/world/craftpix_garden_dressing.gd").release()
 
 func _physics_process(delta: float) -> void:
 	if is_instance_valid(debug_label) and debug_label.visible:
@@ -2718,7 +2795,7 @@ func _add_study_spot(standing: Vector3, sitting: Vector3, yaw: float, study_type
 	var stand_marker:=_cylinder(debug_root,0.22,0.04,standing+Vector3(0,0.05,0),mats.green,18)
 	var sit_marker:=_cylinder(debug_root,0.22,0.04,sitting+Vector3(0,0.08,0),mats.coral,18)
 	var radius_ring := MeshInstance3D.new(); debug_root.add_child(radius_ring); radius_ring.position = standing + Vector3.UP * 0.035
-	var torus := TorusMesh.new(); torus.inner_radius = 1.96; torus.outer_radius = 2.05; torus.rings = 48; torus.ring_segments = 8
+	var torus := TorusMesh.new(); torus.inner_radius = maxf(spot.interaction_radius - 0.09, 0.05); torus.outer_radius = spot.interaction_radius; torus.rings = 48; torus.ring_segments = 8
 	var ring_material := StandardMaterial3D.new(); ring_material.albedo_color = Color(0.25, 1.0, 0.45, 0.58); ring_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; ring_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	torus.material = ring_material; radius_ring.mesh = torus
 	var arrow:=_box(debug_root,Vector3(0.08,0.08,0.9),sitting+Vector3(0,0.15,-0.42),mats.gold);arrow.rotation.y=yaw
@@ -2741,19 +2818,43 @@ func _update_nearest_spot() -> void:
 
 	var best := -1
 	var best_distance := INF
+	var best_facing := -INF
+	var player_floor_is_up: bool = player.global_position.y > 2.4
 
 	for i: int in range(study_spots.size()):
 		if not study_spots[i].is_available():
+			continue
+		var spot_is_up: bool = study_spots[i].standing_position.y > 2.4
+		if spot_is_up != player_floor_is_up:
 			continue
 
 		var distance: float = player.global_position.distance_to(
 			study_spots[i].standing_position
 		)
 
-		if distance <= study_spots[i].interaction_radius and distance < best_distance:
+		var facing_score := 0.0
+		if study_spots[i].has_meta("garden_category"):
+			var to_anchor: Vector3 = study_spots[i].standing_position - player.global_position
+			facing_score = (-player.global_basis.z).dot(to_anchor.normalized())
+			if i == nearest_spot: facing_score += 0.05
+		elif not study_spots[i].physical_seat_id.is_empty():
+			var to_seat: Vector3 = study_spots[i].sitting_position - player.global_position
+			facing_score = (-player.global_basis.z).dot(to_seat.normalized())
+		var preferred := distance < best_distance
+		if (study_spots[i].has_meta("garden_category") or not study_spots[i].physical_seat_id.is_empty()) and absf(distance - best_distance) < 0.06:
+			preferred = facing_score > best_facing
+		if distance <= study_spots[i].interaction_radius and preferred:
 			best = i
 			best_distance = distance
+			best_facing = facing_score
 
+	if best != nearest_spot:
+		if nearest_spot >= 0 and nearest_spot < study_spots.size():
+			var old_glow = study_spots[nearest_spot].get_node_or_null("AvailabilityGlow")
+			if old_glow != null: old_glow.set_nearest(false)
+		if best >= 0:
+			var new_glow = study_spots[best].get_node_or_null("AvailabilityGlow")
+			if new_glow != null: new_glow.set_nearest(true)
 	nearest_spot = best
 
 	if debug_spots_visible:
@@ -2936,26 +3037,107 @@ func _format_focus_countdown(
 func _ft_install_seat_glows() -> void:
 	for i: int in range(study_spots.size()):
 		var spot = study_spots[i]
+		# Defensive: never stack duplicate indicators (the baked café scene
+		# once shipped two per seat). Keep exactly one AvailabilityGlow.
+		var dupes := 0
+		for child in spot.get_children():
+			if str(child.name) == "AvailabilityGlow":
+				dupes += 1
+				if dupes > 1:
+					spot.remove_child(child)
+					child.free()
 		var existing: Node = spot.get_node_or_null("AvailabilityGlow")
 
 		if existing != null:
-			existing.call("set_enabled", true)
+			existing.call("set_enabled", seat_highlights_allowed())
 			continue
 
 		var glow: Node = SeatAvailabilityGlowScript.new()
 		glow.name = "AvailabilityGlow"
 		spot.add_child(glow)
 		glow.call("configure", i)
+	# Café furniture highlight has no geometry of its own; one shared driver
+	# brightens the bound chair meshes. Other rooms are unaffected.
+	var has_cafe := false
+	for spot in study_spots:
+		var sid := str(spot.seat_id)
+		if sid.begins_with("cafe-") or sid.begins_with("library-") or sid.begins_with("train-"):
+			has_cafe = true
+			break
+	if has_cafe and world_root.get_node_or_null("SeatHighlightDriver") == null:
+		var driver = preload("res://scripts/study/seat_highlight_driver.gd").new()
+		driver.name = "SeatHighlightDriver"
+		world_root.add_child(driver)
+		driver.call("setup", self)
+	# Newly created indicators start enabled; reconcile with the saved setting
+	# and the seated state so the visuals never contradict the toggle.
+	refresh_seat_highlights()
+
+
+func _install_exit_trigger(index: int) -> void:
+	# Doorway threshold volumes (spec 36-38): a thin box sits just INSIDE the
+	# real door threshold, between the spawn and the invisible doorway blocker,
+	# so the player must deliberately walk INTO the exit. The room perimeter
+	# and every other blocker stay untouched — exterior scenery stays
+	# unreachable. One authoritative guard prevents double transitions.
+	# Skipped entirely in dev-strip mode (no map UI there).
+	if not application_flow.ui_enabled:
+		return
+	var thresholds := {
+		0: {"pos": Vector3(0, 1.1, 11.5), "size": Vector3(2.4, 2.2, 0.6)},  # Library front door (z=+12)
+		1: {"pos": Vector3(0, 1.1, 11.5), "size": Vector3(2.4, 2.2, 0.6)},  # Café entrance (z=+12)
+		2: {"pos": Vector3(0, 1.1, 20.0), "size": Vector3(4.0, 2.2, 0.7)},  # Train +z carriage doors
+	}
+	if not thresholds.has(index) or not is_instance_valid(player):
+		return
+	var spec: Dictionary = thresholds[index]
+	var area := Area3D.new()
+	area.name = "RoomExitTrigger"
+	area.position = spec["pos"]
+	area.collision_layer = 0
+	area.collision_mask = 2
+	world_root.add_child(area)
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = spec["size"]
+	shape.shape = box
+	area.add_child(shape)
+	area.body_entered.connect(
+		func(body: Node3D):
+			if body == player and is_instance_valid(application_flow):
+				application_flow.request_exit_to_map()
+	)
+
+
+func seat_highlights_allowed() -> bool:
+	# One authoritative state for seat-availability visuals:
+	# setting ON  +  not suspended (map/transition)  +  nobody seated.
+	# This gates VISUALS only: StudySpots and E-take-seat never depend on it.
+	if not bool(GameState.preferences.get("seat_availability_view", true)):
+		return false
+	if seat_highlights_suspended:
+		return false
+	return active_study_spot == null
+
+
+func refresh_seat_highlights() -> void:
+	_ft_set_seat_glows_enabled(seat_highlights_allowed())
+
+
+func set_map_suppression(value: bool) -> void:
+	seat_highlights_suspended = value
+	refresh_seat_highlights()
 
 
 func _ft_set_seat_glows_enabled(value: bool) -> void:
+	var allowed := value and bool(GameState.preferences.get("seat_availability_view", true))
 	for spot in study_spots:
 		if not is_instance_valid(spot):
 			continue
 
 		var glow: Node = spot.get_node_or_null("AvailabilityGlow")
 		if glow != null:
-			glow.call("set_enabled", value)
+			glow.call("set_enabled", allowed)
 
 
 func _ft_make_session_setup_camera(spot) -> Camera3D:
@@ -3264,6 +3446,45 @@ func _activate_npc_review() -> void:
 	if spot.seat_type == "train_booth":
 		camera_offset = forward * 2.20 + right * 3.80 + Vector3.UP * 1.45
 	_make_camera(target + camera_offset, target, 40.0)
+
+
+func _activate_cafe_review() -> void:
+	# 16 fixed review cameras covering both floors and exterior.
+	var cameras := [
+		[Vector3(0, 14, 18), Vector3(0, 1, -2), "GroundFloor_Top"],
+		[Vector3(-14, 7, 10), Vector3(-4, 1, 0), "GroundFloor_SW"],
+		[Vector3(14, 7, 10), Vector3(4, 1, 0), "GroundFloor_SE"],
+		[Vector3(2, 6, -8), Vector3(2, 1, -8), "GroundFloor_NorthKitchen"],
+		[Vector3(-18, 3, 0), Vector3(-14, 1, 0), "GroundFloor_WindowBar"],
+		[Vector3(10, 4, 8), Vector3(10, 1, 6), "GroundFloor_Lounge"],
+		[Vector3(13, 1, 6), Vector3(13, 2, -3), "Staircase_Bottom"],
+		[Vector3(13, 6, -3), Vector3(8, 5, -7), "Staircase_Top"],
+		[Vector3(0, 10, -10), Vector3(0, 4.8, -7), "SecondFloor_Top"],
+		[Vector3(-10, 8, -7), Vector3(-10, 4.8, -7), "SecondFloor_West"],
+		[Vector3(10, 8, -7), Vector3(10, 4.8, -7), "SecondFloor_East"],
+		[Vector3(0, 6, -1), Vector3(0, 1, 2), "Balcony_LookingDown"],
+		[Vector3(0, 8, 22), Vector3(0, 1, 8), "Exterior_South"],
+		[Vector3(-30, 8, 0), Vector3(-16, 1, 0), "Exterior_WestForest"],
+		[Vector3(0, 12, -30), Vector3(0, 4.8, -7), "Exterior_NorthForest"],
+		[Vector3(30, 8, 0), Vector3(16, 1, 0), "Exterior_EastForest"],
+	]
+	for c in cameras:
+		_make_camera(c[0], c[1], 38.0)
+	_make_camera(cameras[0][0], cameras[0][1], 38.0).current = true
+
+
+func _begin_cafe_seat_review() -> void:
+	# Cycle through every StudySpot using the validated café director.
+	if study_spots.is_empty():
+		return
+	var director = get("garden_seat_director")
+	if director == null:
+		return
+	for i in study_spots.size():
+		var spot = study_spots[i]
+		if director.solve(spot):
+			director.camera(spot, spot.setup_camera_override, "setup").current = true
+			break
 
 func _build_resting_hud() -> void:
 	application_flow.navigate(application_flow.State.ACTIVE_BREAK)
@@ -3699,6 +3920,29 @@ func _create_follow_camera() -> void:
 	explore_camera = follow_camera_rig.setup(player, current_room_config)
 	if player is PlayerController:
 		player.set_movement_camera(explore_camera)
+	call_deferred("_create_player_xray")
+
+
+func _create_player_xray() -> void:
+	if not is_instance_valid(player) or world_root.has_node("PlayerOcclusionXRay"): return
+	var budget := preload("res://scripts/performance/room_render_budget.gd").new()
+	world_root.add_child(budget)
+	budget.configure(self)
+	var manager := preload("res://scripts/camera/player_occlusion_xray.gd").new()
+	world_root.add_child(manager)
+	manager.configure(self)
+	for arg in OS.get_cmdline_user_args():
+		if "review=performance" in arg:
+			var overlay := preload("res://scripts/performance/performance_overlay.gd").new()
+			world_root.add_child(overlay)
+			overlay.configure(self)
+
+
+func _enable_xray_debug() -> void:
+	for arg in OS.get_cmdline_user_args():
+		if "review=performance" in arg: return
+	var manager = world_root.get_node_or_null("PlayerOcclusionXRay")
+	if manager != null: manager.set_debug(true)
 
 func _add_world_boundaries(extents: Vector2) -> void:
 	for data in [[Vector3(extents.x+0.3,1.5,0),Vector3(0.4,3.0,extents.y*2.0)],[Vector3(-extents.x-0.3,1.5,0),Vector3(0.4,3.0,extents.y*2.0)],[Vector3(0,1.5,extents.y+0.3),Vector3(extents.x*2.0,3.0,0.4)],[Vector3(0,1.5,-extents.y-0.3),Vector3(extents.x*2.0,3.0,0.4)]]:

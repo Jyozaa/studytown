@@ -1,11 +1,13 @@
 extends Node
 
 # Screen-space pills preserve legibility without inflating character meshes.
-const UI := preload("res://scripts/ui/dark_ui.gd")
+const UI := preload("res://scripts/ui/study_theme.gd")
 var flow
 var layer: CanvasLayer
 var labels: Array[Control] = []
 var actors: Array[Node3D] = []
+var occlusion_clear: Array[bool] = []
+var query_countdown := 0.0
 
 
 func _ready() -> void:
@@ -24,7 +26,7 @@ func _ready() -> void:
 			func():
 				flow.selected_member = i + 1
 				flow.open_overlay(flow.State.PLAYER_PROFILE_OVERLAY),
-			Color(0.16, 0.18, 0.21, 0.82)
+			Color(1.0, 0.957, 0.863, 0.90)
 		)
 		UI.flag(pill, ["GB", "FR", "JP", "CA", "DE", "US"][i % 6], Rect2(80, 7, 22, 13))
 		labels.append(pill)
@@ -38,17 +40,21 @@ func _ready() -> void:
 		Rect2(0, 0, 67, 27),
 		func():
 			flow.selected_member = 0
-			flow.open_overlay(flow.State.PLAYER_PROFILE_OVERLAY),
-		Color(0.16, 0.18, 0.21, 0.86)
+			flow.open_overlay(flow.State.PLAYER_PROFILE_OVERLAY),			Color(0.443, 0.647, 0.400, 0.95)
 	)
 	labels.append(you)
 	actors.append(flow.main.player)
+	occlusion_clear.resize(actors.size())
+	occlusion_clear.fill(true)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	var camera: Camera3D = get_viewport().get_camera_3d()
 	if camera == null:
 		return
+	query_countdown -= delta
+	var refresh := query_countdown <= 0.0
+	if refresh: query_countdown = 0.1
 	for i in labels.size():
 		var actor := actors[i]
 		var target: Vector3 = actor.global_position + Vector3.UP * 3.05
@@ -62,10 +68,6 @@ func _process(_delta: float) -> void:
 			pill.position = camera.unproject_position(target) - Vector2(pill.size.x / 2, 20)
 			if i == actors.size() - 1 and pill.position.x > 850 and pill.position.y < 84:
 				pill.position.y = 84
-			pill.visible = (
-				flow
-				. main
-				. follow_camera_rig
-				. raycast_obstructions(camera.global_position, target, 1 | 16)
-				. is_empty()
-			)
+			if refresh:
+				occlusion_clear[i] = flow.main.follow_camera_rig.raycast_obstructions(camera.global_position, target, 1 | 16).is_empty()
+			pill.visible = occlusion_clear[i]

@@ -11,6 +11,7 @@ var total_focus_minutes := 0
 var completed_sessions := 0
 var recent_sessions: Array = []
 var onboarding_complete := false
+var auth_email := ""
 var profile: Dictionary = {
 	"name": "You", "username": "study_buddy", "subject": "Independent study", "country": "GB"
 }
@@ -41,6 +42,7 @@ func load_save() -> void:
 	completed_sessions = maxi(0, int(data.get("completed_sessions", 0)))
 	recent_sessions = data.get("recent_sessions", [])
 	onboarding_complete = bool(data.get("onboarding_complete", false))
+	auth_email = str(data.get("auth_email", ""))
 	profile.merge(data.get("profile", {}), true)
 	preferences.merge(data.get("preferences", {}), true)
 	tags.assign(data.get("tags", ["Study", "Reading", "Work", "Creative"]))
@@ -57,6 +59,7 @@ func save() -> void:
 		return
 	var data := {
 		"onboarding_complete": onboarding_complete,
+		"auth_email": auth_email,
 		"profile": profile,
 		"preferences": preferences,
 		"tags": tags,

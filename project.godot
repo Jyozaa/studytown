@@ -94,6 +94,7 @@ debug_overlay={
 3d_physics/layer_3="NPC"
 3d_physics/layer_4="Interaction"
 3d_physics/layer_5="CameraOccluder"
+3d_physics/layer_6="VisualOccluder"
 
 [rendering]
 

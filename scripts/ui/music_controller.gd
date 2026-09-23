@@ -2,7 +2,7 @@ extends Node
 
 # Local-only audio adapter. Supply licensed streams to these paths to enable
 # playback; absent streams are explicitly labelled, never replaced by a URL.
-const UI := preload("res://scripts/ui/dark_ui.gd")
+const UI := preload("res://scripts/ui/study_theme.gd")
 const STATIONS := ["Lo-fi", "Dark academia", "Café piano", "Quiet nature"]
 const SOUNDS := ["Rain", "Wind", "Fireplace", "Café chatter", "Keyboard"]
 var station := "Lo-fi"

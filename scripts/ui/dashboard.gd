@@ -33,7 +33,8 @@ static func build(flow, root: Control) -> void:
 				flow.draw(),
 			UI.BLUE.darkened(0.62) if flow.dashboard_tab == destination else UI.PANEL
 		)
-	UI.label(sidebar, "JOINED SERVER", Rect2(27, 577, 170, 25), 11, UI.MUTED)
+	UI.button(sidebar, "◈   World Map", Rect2(18, 518, 182, 42), flow.open_map)
+	UI.label(sidebar, "JOINED SERVER", Rect2(27, 570, 170, 25), 11, UI.MUTED)
 	UI.button(
 		sidebar,
 		"◈  StudyTown",
@@ -80,12 +81,12 @@ static func build(flow, root: Control) -> void:
 	UI.label(feature, "Grand Library", Rect2(24, 57, 330, 44), 30)
 	UI.label(feature, "395 rooms  ·  1,701 studying", Rect2(24, 109, 330, 24), 14, UI.MUTED)
 	UI.button(
-		feature, "Find your seat  →", Rect2(24, 156, 299, 43), flow.join_room.bind(0), UI.BLUE
+		feature, "Find your seat  →", Rect2(24, 156, 299, 43), flow.map_travel.bind("library"), UI.BLUE
 	)
 	UI.label(root, "Official StudyTown Server", Rect2(252, 445, 470, 30), 21)
 	UI.label(root, "● 1,177 rooms live", Rect2(1006, 449, 238, 25), 13, UI.GREEN)
 	UI.label(root, "Quickly join a room and start focusing", Rect2(252, 477, 700, 25), 14, UI.MUTED)
-	var room_names := ["Grand Library", "Garden Commons", "Scenic Train"]
+	var room_names := ["Grand Library", "Study Café", "Scenic Train"]
 	var counts := [
 		"395 rooms  ·  1,701 studying", "258 rooms  ·  1,006 studying", "13 rooms  ·  47 studying"
 	]
@@ -99,7 +100,7 @@ static func build(flow, root: Control) -> void:
 		UI.label(card, counts[i], Rect2(120, 49, 188, 41), 12, UI.MUTED).autowrap_mode = (
 			TextServer.AUTOWRAP_WORD_SMART
 		)
-		UI.button(card, "Join room  →", Rect2(15, 107, 288, 43), flow.join_room.bind(i), UI.BLUE)
+		UI.button(card, "Join room  →", Rect2(15, 107, 288, 43), flow.map_travel.bind(["library", "cafe", "train"][i]), UI.BLUE)
 	UI.label(
 		root,
 		"Local demo • discovery counts are illustrative",

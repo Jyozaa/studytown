@@ -267,6 +267,19 @@ func _remove_runtime_player_and_follow_camera(
 		main.follow_camera_rig = null
 		main.explore_camera = null
 
+	# Name pills are flow-bound runtime UI (flow == null when deserialized).
+	# Never bake them: room load reinstalls them via install_nameplates.
+	for child in main.world_root.get_children():
+		if child.get_script() != null and str(child.get_script().resource_path).ends_with("room_nameplates.gd"):
+			main.world_root.remove_child(child)
+			child.free()
+	# Exit triggers bind the live player/flow; runtime reinstalls them.
+	# Baking one would serialize a connection to a freed callable.
+	for child in main.world_root.get_children():
+		if str(child.name) == "RoomExitTrigger":
+			main.world_root.remove_child(child)
+			child.free()
+
 
 func _prepare_study_spots(main: Node) -> void:
 	for spot in main.study_spots:

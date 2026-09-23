@@ -57,6 +57,11 @@ static func make_preview(room_id: String, size_value := Vector2i(240, 170)) -> C
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	viewport.own_world_3d = true
 	container.add_child(viewport)
+	# Menu thumbnails are static by design (see UPDATE_ONCE above), but the
+	# mode does not hold once the viewport joins the live menu tree: it keeps
+	# re-rendering full rooms every frame (~8k draws in the menu). Freeze the
+	# viewport after its first presents so the thumbnail stays a still image.
+	viewport.tree_entered.connect(_freeze_after_present.bind(viewport), CONNECT_ONE_SHOT)
 
 	var scene_path := str(ROOM_SCENES.get(room_id, ""))
 
@@ -67,7 +72,7 @@ static func make_preview(room_id: String, size_value := Vector2i(240, 170)) -> C
 		holder.add_child(fallback)
 		return holder
 
-	var packed := load(scene_path) as PackedScene
+	var packed := preload("res://scripts/performance/room_resource_cache.gd").get_scene(scene_path)
 
 	if packed == null:
 		return holder
@@ -121,3 +126,22 @@ static func make_preview(room_id: String, size_value := Vector2i(240, 170)) -> C
 	camera.current = true
 
 	return holder
+
+
+static func _freeze_after_present(viewport: SubViewport) -> void:
+	if not is_instance_valid(viewport):
+		return
+	var tree := viewport.get_tree()
+	if tree == null:
+		return
+	# Weakref: the menu tree (and this viewport) is freed on room change while
+	# the timer may still be pending. A direct lambda capture would error when
+	# the timer fires after the viewport is gone.
+	var ref: WeakRef = weakref(viewport)
+	tree.create_timer(1.5).timeout.connect(func() -> void: _disable_viewport(ref))
+
+
+static func _disable_viewport(ref: WeakRef) -> void:
+	var viewport := ref.get_ref() as SubViewport
+	if is_instance_valid(viewport):
+		viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED

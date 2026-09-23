@@ -64,9 +64,11 @@ func configure(value: String, color: Color) -> void:
 
 
 func _process(_delta: float) -> void:
+	if not is_visible_in_tree(): return
 	if is_instance_valid(caption):
-		caption.text = text
-		face.modulate.a = 0.45 if disabled else 1.0
+		if caption.text != text: caption.text = text
+		var alpha := 0.45 if disabled else 1.0
+		if face.modulate.a != alpha: face.modulate.a = alpha
 
 
 func _move_face(value: float, duration: float) -> void:

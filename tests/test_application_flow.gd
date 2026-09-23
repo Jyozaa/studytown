@@ -156,7 +156,10 @@ func _run() -> void:
 		flow.start_session()
 		check(flow.state == flow.State.ACTIVE_SESSION and focus.active, "Start begins timer")
 		check(focus.duration_seconds == 10, "Developer short session uses ten seconds")
-		check(app.get_viewport().get_camera_3d() == camera, "Start preserves the seated camera")
+		if room in [0, 1, 2]:
+			check(app.focus_cameras.size() >= 2, "Audited room starts its per-seat camera pool")
+		else:
+			check(app.get_viewport().get_camera_3d() == camera, "Start preserves the seated camera")
 		check(
 			app.next_shot_at > Time.get_unix_time_from_system() + 20,
 			"B-roll waits before switching"

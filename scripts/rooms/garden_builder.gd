@@ -33,9 +33,13 @@ var materials: Dictionary = {}
 var spots: Array[StudySpot] = []
 var shore := PackedVector2Array()
 var island := PackedVector2Array()
+var camera_overrides: Dictionary = {}
 
 
 func build() -> Node3D:
+	var cameras_path := "res://resources/cameras/garden_seats.json"
+	if FileAccess.file_exists(cameras_path):
+		camera_overrides = JSON.parse_string(FileAccess.get_file_as_string(cameras_path))
 	var registry = JSON.parse_string(
 		FileAccess.get_file_as_string("res://assets/local_asset_manifest.json")
 	)
@@ -82,12 +86,11 @@ func build() -> Node3D:
 	materials.cream = material("#e7d4aa")
 	materials.grass = meadow(false)
 	materials.island = meadow(true)
-	apply_ground_texture(materials.path, "tile.png", 0.14, Color("#82786c"))
 	shore = smooth_loop(PackedVector2Array(SHORE), 5)
 	for i in shore.size():
 		var angle := TAU * float(i) / shore.size()
 		var radius := 1.0 + 0.05 * sin(angle * 3.0 + 0.7)
-		island.append(Vector2(cos(angle) * 3.5 * radius, -1.0 + sin(angle) * 3.25 * radius))
+		island.append(Vector2(cos(angle) * 4.5 * radius, -1.0 + sin(angle) * 3.25 * radius))
 	terrain_and_water()
 	bridges()
 	paths()
@@ -97,6 +100,7 @@ func build() -> Node3D:
 	lighting()
 	preload("res://scripts/rooms/garden_sunset.gd").new().build(self)
 	cameras()
+	preload("res://scripts/world/sky_clouds.gd").build(room, 7, Vector3(70.0, 24.0, 60.0), 0.6, Color(0.35, 0.42, 0.60, 1.0))
 	var spawn := Marker3D.new()
 	spawn.name = "PlayerSpawn"
 	spawn.position = Vector3(0, 0.65, 15.6)
@@ -111,20 +115,6 @@ func material(hex: String) -> StandardMaterial3D:
 	mat.albedo_color = Color(hex)
 	mat.roughness = 0.88
 	return mat
-
-
-func apply_ground_texture(
-	mat: StandardMaterial3D, file: String, scale_value: float, tint: Color
-) -> void:
-	var path := "res://assets/dev_local/environment/" + file
-	if not use_local_assets or not ResourceLoader.exists(path):
-		return
-	mat.albedo_texture = load(path)
-	mat.albedo_color = tint
-	mat.uv1_triplanar = true
-	mat.uv1_world_triplanar = true
-	mat.uv1_scale = Vector3.ONE * scale_value
-	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 
 
 func meadow(lighter: bool) -> ShaderMaterial:
@@ -370,8 +360,8 @@ func destinations() -> void:
 		"Island", "garden_big_tree", Vector3(0, 0.11, -3.0), 0.0, Vector3(0.70, 0.83, 0.48)
 	)
 	mesh_collision(island_tree, "Trunk")
-	seat("island", Vector3(-1.65, 0.12, 0.48), PI, "garden_forest_bench", 0.0)
-	seat("island", Vector3(1.65, 0.12, 0.48), PI, "garden_forest_bench", 0.0)
+	seat("island", Vector3(-2.15, 0.12, 0.48), PI, "garden_forest_bench", 0.0)
+	seat("island", Vector3(2.15, 0.12, 0.48), PI, "garden_forest_bench", 0.0)
 	var gazebo := prop(
 		"Gazebo", "garden_pond_gazebo", Vector3(0, 0.035, -14.7), PI / 8, Vector3(1.9, 1.5, 1.9)
 	)
@@ -394,13 +384,13 @@ func destinations() -> void:
 		[Vector3(-19.8, 0.04, 2.9), 0.25]
 	]:
 		table("Cafe", d[0], d[1], true)
-	# Two paired study tables, with a third parasol table for the café story.
+	# Every chair, including the third parasol table, is usable.
 	for d in [[Vector3(-18.5, 0.04, -7), 0.15], [Vector3(-18.1, 0.04, -2.2), -0.23]]:
 		var side := Basis(Vector3.UP, d[1]) * Vector3.RIGHT * 1.9
 		seat("cafe", d[0] - side, -PI / 2 + d[1])
 		seat("cafe", d[0] + side, PI / 2 + d[1])
 	for z in [1.2, 4.6]:
-		prop("Cafe", "cafe_chair", Vector3(-19.8, 0.04, z), 0 if z < 3 else PI)
+		seat("cafe", Vector3(-19.8, 0.04, z), PI if z < 3 else 0)
 	for d in [
 		["garden_cafe_coffee_mill", Vector3(-22, 0.78, -5.5)],
 		["garden_cafe_siphon", Vector3(-22, 0.78, -3.8)],
@@ -411,7 +401,7 @@ func destinations() -> void:
 	block(zones.Campfire, "Firepit", Vector3(1.8, 0.8, 1.8), Vector3(17, 0.4, -7))
 	seat("campfire", Vector3(14.6, 0.04, -7.3), -PI / 2, "garden_log_seat", -0.14)
 	seat("campfire", Vector3(19.3, 0.04, -7.5), PI / 2, "garden_log_seat", -0.14)
-	prop("Campfire", "garden_log_seat", Vector3(17, 0.04, -9.2))
+	seat("campfire", Vector3(17, 0.04, -9.2), PI, "garden_log_seat", -0.08)
 	for d in [[Vector3(15, 0.04, 8.2), 0.18], [Vector3(19, 0.04, 10.6), -0.25]]:
 		table("StudyLawn", d[0], d[1], false)
 		var side := Basis(Vector3.UP, d[1]) * Vector3.RIGHT * 1.7
@@ -419,8 +409,8 @@ func destinations() -> void:
 		seat("lawn", d[0] + side, PI / 2 + d[1])
 	seat("grove", Vector3(-17.4, 0.04, 8.2), PI, "garden_forest_bench", 0.0)
 	seat("grove", Vector3(-19.1, 0.04, 11.3), -PI / 2, "garden_forest_bench", 0.0)
-	prop("Planting", "garden_forest_bench", Vector3(-7.8, 0.035, -9.8), -0.4)
-	prop("Planting", "garden_forest_bench", Vector3(8.2, 0.035, -9.3), 0.4)
+	seat("shore", Vector3(-7.8, 0.035, -11.0), PI - 0.4, "garden_forest_bench")
+	seat("shore", Vector3(8.2, 0.035, -10.5), PI + 0.4, "garden_forest_bench")
 	prop("Planting", "garden_party_light_arch", Vector3(0, 0.025, 13.5), 0, Vector3.ONE * 1.22)
 	for x in [-2.15, 2.15]:
 		block(zones.Planting, "ArchPost", Vector3(0.26, 3.5, 0.26), Vector3(x, 1.7, 13.5))
@@ -445,38 +435,66 @@ func seat(
 		"cafe": "Cafe",
 		"campfire": "Campfire",
 		"lawn": "StudyLawn",
-		"grove": "QuietGrove"
+		"grove": "QuietGrove",
+		"shore": "Planting"
 	}[category]
-	prop(zone, model, pos, facing + PI)
+	var bench := "bench" in model
+	var log_seat := "log" in model
+	var count := 2 if bench or log_seat else 1
+	# Two full-size character silhouettes need a 1.56m slot pitch. Retain
+	# height/depth/style, widening only the supplied narrow bench/log mesh.
+	var furniture := prop(zone, model, pos, facing + PI, Vector3(1.65 if bench else (1.20 if log_seat else 1.0), 1, 1))
+	var object_id := "garden_%s_%02d" % [category, spots.size()]
+	furniture.set_meta("physical_seat_id", object_id)
+	furniture.set_meta("seat_capacity", count)
+	for slot in count:
+		seat_slot(category, zone, pos, facing, model, vertical_offset, object_id, slot, count)
+	var forward := Basis(Vector3.UP, facing) * Vector3.FORWARD
+	block(zones[zone], "SeatBack", Vector3(2.8 if count == 2 else 0.85, 1.0, 0.18), pos - forward * 0.3).rotation.y = facing
+
+
+func seat_slot(category: String, zone: String, pos: Vector3, facing: float, model: String, vertical_offset: float, object_id: String, slot: int, count: int) -> void:
 	var forward := Basis(Vector3.UP, facing) * Vector3.FORWARD
 	var right := Basis(Vector3.UP, facing) * Vector3.RIGHT
+	var bench := "bench" in model
+	var log_seat := "log" in model
 	var spot := Spot.new()
 	spot.name = "Seat_%s_%02d" % [category, spots.size()]
-	spot.seat_id = "garden_%s_%02d" % [category, spots.size()]
-	spot.position = pos + forward * 0.22
+	spot.seat_id = object_id + ("_A" if slot == 0 else "_B")
+	spot.physical_seat_id = object_id
+	spot.slot_index = slot
+	spot.seat_label = "%s / %s / %s" % [category.capitalize(), object_id, "A" if slot == 0 else "B"]
+	spot.apply_camera_data(camera_overrides.get(spot.seat_id, {}))
+	spot.position = pos + forward * 0.12 + right * ((slot - 0.5) * 1.56 if count == 2 else 0.0)
 	spot.local_facing_yaw = facing
 	# Side approach avoids walking through the table in front or chair back.
 	spot.standing_offset = right * 1.23 - forward * 0.2
+	if count == 2:
+		spot.standing_offset = forward * 1.15
+	if log_seat:
+		spot.standing_offset = forward * 0.50
 	if category == "island":
-		spot.standing_offset = right * (0.9 if pos.x > 0 else -0.9) + forward * 0.6
+		spot.standing_offset = Vector3(-spot.position.x * 0.45, 0, 0.52)
 	if category == "gazebo" and pos.z > -13:
 		spot.standing_offset = -right * 1.05 - forward * 0.1
 	spot.sitting_offset = Vector3.UP * 0.05
-	spot.seat_type = "cafe_chair"
+	spot.seat_type = "garden_bench" if bench else ("garden_log" if log_seat else "cafe_chair")
 	spot.study_type = "Book"
-	spot.seated_visual_offset = Vector3(0, 0.20 + vertical_offset, 0.12)
+	# Actual mesh contact heights (not total furniture bounding-box height):
+	# bench ~0.44m, cafe cushion ~0.60m, curved log crown ~0.71m.
+	# Offsets include the rig's seated thigh thickness; hips stay above wood.
+	spot.seated_visual_offset = Vector3(0, 0.06 if bench else (0.32 if log_seat else 0.20 + vertical_offset), 0.12)
 	spot.interaction_radius = 1.65
-	spot.seat_height = 0.72 + vertical_offset
+	spot.seat_height = 0.41 if bench else (0.68 if log_seat else 0.57)
 	spot.camera_position_offset = forward * 3.7 + right * 2.0 + Vector3.UP * 2.7
 	spot.camera_target_offset = Vector3.UP * 1.62
 	spot.set_meta("garden_category", category)
 	spot.set_meta(
-		"garden_cushion_height", 0.47 if "bench" in model else (0.65 if "log" in model else 0.73)
+		"garden_cushion_height", spot.seat_height
 	)
 	spot.add_to_group("editable_study_spot", true)
 	zones.StudySpots.add_child(spot)
 	spots.append(spot)
-	block(zones[zone], "SeatBack", Vector3(1.0, 1.1, 0.2), pos - forward * 0.3).rotation.y = facing
 
 
 func planting() -> void:
@@ -600,11 +618,11 @@ func bed(pos: Vector3, variant: int) -> void:
 func students() -> void:
 	for data in [
 		[0, "Lumi", "rosie"],
-		[3, "Ben", "raymond"],
-		[7, "Poppy", "bob"],
-		[10, "Sora", "rosie"],
-		[13, "Mina", "raymond"],
-		[16, "Pip", "bob"]
+		[5, "Ben", "raymond"],
+		[8, "Poppy", "bob"],
+		[16, "Sora", "rosie"],
+		[21, "Mina", "raymond"],
+		[26, "Pip", "bob"]
 	]:
 		var spot := spots[int(data[0])]
 		var npc := Student.new()
@@ -628,10 +646,13 @@ func lighting() -> void:
 	env.environment.background_mode = Environment.BG_SKY
 	var sky_material := ShaderMaterial.new()
 	sky_material.shader = load("res://shaders/garden_sunset_sky.gdshader")
+	sky_material.set_shader_parameter("zenith", Color(0.03, 0.05, 0.12, 1.0))
+	sky_material.set_shader_parameter("middle", Color(0.10, 0.13, 0.26, 1.0))
+	sky_material.set_shader_parameter("horizon", Color(0.30, 0.20, 0.28, 1.0))
 	env.environment.sky = Sky.new()
 	env.environment.sky.sky_material = sky_material
 	env.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.environment.ambient_light_color = Color("#9298bd")
+	env.environment.ambient_light_color = Color(0.20, 0.24, 0.38, 1.0)
 	env.environment.ambient_light_energy = 0.55
 	env.environment.ambient_light_sky_contribution = 0.15
 	env.environment.fog_enabled = true
@@ -640,7 +661,7 @@ func lighting() -> void:
 	env.environment.fog_depth_end = 210.0
 	env.environment.fog_depth_curve = 1.6
 	env.environment.fog_density = 1.0
-	env.environment.fog_light_color = Color("#79768c")
+	env.environment.fog_light_color = Color(0.10, 0.12, 0.20, 1.0)
 	env.environment.fog_sky_affect = 0.0
 	env.environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	zones.Lighting.add_child(env)
@@ -659,9 +680,9 @@ func lighting() -> void:
 	var sun := DirectionalLight3D.new()
 	sun.name = "GardenWarmSun"
 	sun.rotation_degrees = Vector3(-29, -48, 0)
-	sun.light_color = Color("#ffd0a0")
-	sun.light_energy = 0.95
-	sun.shadow_opacity = 0.72
+	sun.light_color = Color(0.62, 0.74, 1.0, 1.0)
+	sun.light_energy = 0.4
+	sun.shadow_opacity = 0.45
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 75
 	zones.Lighting.add_child(sun)
@@ -773,12 +794,14 @@ func fallback(id: String) -> Node3D:
 				box(node, "Post", Vector3(0.18, 3.0, 0.18), Vector3(x, 1.5, z), materials.wood)
 		box(node, "Roof", Vector3(4.5, 0.3, 4.5), Vector3(0, 3.2, 0), materials.leaf)
 	elif "chair" in id or "bench" in id or "seat" in id:
-		var width := 1.8 if "bench" in id else 0.9
-		box(node, "Seat", Vector3(width, 0.14, 0.9), Vector3(0, 0.72, 0), materials.wood)
-		box(node, "Back", Vector3(width, 0.55, 0.12), Vector3(0, 1.05, -0.35), materials.wood)
+		var width := 1.83 if "bench" in id else (2.45 if "log" in id else 0.9)
+		var seat_y := 0.44 if "bench" in id else (0.71 if "log" in id else 0.60)
+		box(node, "Seat", Vector3(width, 0.14, 0.9), Vector3(0, seat_y - 0.07, 0), materials.wood)
+		if "log" not in id:
+			box(node, "Back", Vector3(width, 0.55, 0.12), Vector3(0, seat_y + 0.28, -0.35), materials.wood)
 		for x in [-width * 0.4, width * 0.4]:
 			for z in [-0.3, 0.3]:
-				box(node, "Leg", Vector3(0.1, 0.7, 0.1), Vector3(x, 0.35, z), materials.wood)
+				box(node, "Leg", Vector3(0.1, seat_y - 0.14, 0.1), Vector3(x, (seat_y - 0.14) * 0.5, z), materials.wood)
 	elif "table" in id or "parasol" in id or "counter" in id:
 		box(node, "Tabletop", Vector3(1.7, 0.15, 1.7), Vector3(0, 0.88, 0), materials.wood)
 		box(node, "Base", Vector3(0.4, 0.8, 0.4), Vector3(0, 0.4, 0), materials.wood)

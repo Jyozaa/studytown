@@ -107,3 +107,62 @@ Quick visual entries also include `--review=ui_home`, `ui_onboarding`,
 Settings → Replay onboarding resets only the onboarding flag, not earned progress.
 No editable room scene, furniture transform, StudySpot anchor, character profile,
 local asset, train scenery or Garden effect is rewritten by this implementation.
+
+## UI overhaul: warm paper system, Map, transitions, auth
+
+The gameplay UI now uses one warm-paper design system instead of the dark
+dashboard panels.
+
+- `scripts/ui/study_theme.gd` is the single source of truth for colour tokens,
+  radii, motion durations and shared primitives (`button`, `icon_button`,
+  `chip`, `toggle`, `slider`, `text_field`, `drawer`, `modal`, `keycap`,
+  `toast`, `hud_pill`, `wrap`).
+- `scripts/ui/warm_ui.gd` exposes the historical `dark_ui` static API while
+  delegating every token to `StudyTownTheme`, so older panels (social drawers,
+  nameplates, music) became warm without a rewrite.
+- HUD: room identity top-left, compact global pill top-right (currency, music,
+  members, menu), music bottom-left, contextual `[E] Take seat` bottom-right.
+- The old dashboard room picker is no longer part of navigation; `State.HOME`
+  and `State.MAP` both build the Map.
+
+### Map and travel
+
+`scripts/ui/destination_registry.gd` holds destination data (id, room index,
+name, description, population, accent, map slot). `scripts/ui/map_screen.gd`
+renders destinations from that registry over the live world. The Map opens from
+the menu launcher (`open_map`) or automatically after walking into a room exit
+(`request_exit_to_map`).
+
+Each room has one thin `RoomExitTrigger` box placed just inside its real door
+threshold (`main._install_exit_trigger`), clear of the spawn point. `transition_in_progress`
+swallowing is handled by a single persistent veil on its own CanvasLayer:
+a ~140 ms warm dip in, the room swap behind an opaque veil, then a ~180 ms dip
+out — matching the fast cut-with-dip rhythm measured in the reference video
+rather than a slow fade. Music is never restarted; `GameState` session, reward,
+settings and profile state are preserved across travel.
+
+### Auth, onboarding and seat availability
+
+- First launch: splash → Welcome → email+password Create account / Log in →
+  short four-step onboarding (welcome, buddy, choose somewhere, take a seat) →
+  Map. Signup collects email and password only, with no social login.
+- `scripts/services/auth_service.gd` is a clean `create_account`/`sign_in`/
+  `sign_out` abstraction. There is **no production backend**; the bundled
+  adapter is an explicitly labelled LOCAL DEV store that keeps a salted SHA-256
+  hash in `user://studytown_auth_dev.json` and never stores, logs or prints a
+  password.
+- Seat Availability View lives in Settings (default ON, persisted in
+  `GameState.preferences`) and is enforced by one authoritative predicate,
+  `main.seat_highlights_allowed()`: setting ON + not suspended + nobody seated.
+  It gates visuals only — `StudySpot` reservation and E-take-seat never depend
+  on it.
+
+Run the overhaul QA tour (screenshots stay in the gitignored dev folder):
+
+```sh
+/Applications/Godot.app/Contents/MacOS/Godot --path . --script tests/capture_ui_overhaul.gd
+```
+
+It writes the required `ui_*.png` states plus transition frame sequences to
+`assets/dev_local/ui_qa/` and prints a structural layout audit (off-canvas
+controls, overlapping sibling panels, clipped labels) for every state.

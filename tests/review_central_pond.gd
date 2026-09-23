@@ -10,7 +10,9 @@ func _initialize() -> void:
 
 func capture(label: String) -> void:
 	await create_timer(0.35).timeout
-	await RenderingServer.frame_post_draw
+	# macOS can suppress normal redraw callbacks for an occluded review window.
+	# Explicitly render this test frame instead of waiting indefinitely on one.
+	RenderingServer.force_draw(false)
 	root.get_texture().get_image().save_png(capture_dir.path_join(label + ".png"))
 	print("GARDEN_CAPTURE ", label)
 

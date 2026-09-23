@@ -14,7 +14,7 @@ var speed := 0.42
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	set_process(true)
+	set_process(hovered or selected)
 
 
 func set_hovered(value: bool) -> void:
@@ -22,6 +22,7 @@ func set_hovered(value: bool) -> void:
 		return
 
 	hovered = value
+	set_process(hovered or selected)
 	queue_redraw()
 
 
@@ -30,6 +31,7 @@ func set_selected(value: bool) -> void:
 		return
 
 	selected = value
+	set_process(hovered or selected)
 	queue_redraw()
 
 

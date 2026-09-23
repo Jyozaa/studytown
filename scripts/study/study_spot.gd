@@ -13,9 +13,34 @@ enum OccupantType {
 @export var seat_id := ""
 @export var study_type := "Laptop"
 @export var seat_type := "desk_chair"
-@export var interaction_radius := 2.05
+@export var interaction_radius := 0.75
 @export var seated_visual_offset := Vector3.ZERO
 @export var seat_height := 0.0
+@export var seat_label := ""
+@export var physical_seat_id := ""
+@export var slot_index := 0
+
+# Tight per-family interaction radii (world units around the standing
+# anchor). Legacy seats baked with the old 2.05 default are migrated on
+# load; intentionally authored values are preserved.
+const LEGACY_RADIUS := 2.05
+
+
+static func default_interaction_radius(type: String, authored_seat_height: float) -> float:
+	match type:
+		"train_booth":
+			return 0.65
+		"armchair":
+			return 0.80
+		_:
+			if authored_seat_height >= 0.33:
+				return 0.70
+			return 0.75
+
+@export_category("Authored Session Cameras")
+# Local-space position/target and FOV. Empty values use the room's solver.
+@export var setup_camera_override: Dictionary = {}
+@export var focus_camera_overrides: Array[Dictionary] = []
 
 @export_category("Editable Anchors")
 @export var standing_offset := Vector3.ZERO
@@ -25,13 +50,33 @@ enum OccupantType {
 @export var camera_target_offset := Vector3.ZERO
 
 var occupant_id := ""
-var occupant_type := OccupantType.NONE
+signal occupancy_changed
+var occupant_type := OccupantType.NONE:
+	set(value):
+		if occupant_type == value: return
+		occupant_type = value
+		occupancy_changed.emit()
 
 var debug_visual: Node3D
 var debug_stand_marker: MeshInstance3D
 var debug_sit_marker: MeshInstance3D
 var debug_radius_marker: MeshInstance3D
 var debug_label: Label3D
+
+
+func apply_camera_data(data: Dictionary) -> void:
+	if not data.has("setup") or data.get("focus", []).size() < 2:
+		return
+	setup_camera_override = decode_camera(data.setup)
+	focus_camera_overrides.clear()
+	for shot in data.focus:
+		focus_camera_overrides.append(decode_camera(shot))
+
+
+static func decode_camera(shot: Dictionary) -> Dictionary:
+	var p: Array = shot.position
+	var t: Array = shot.target
+	return {"position": Vector3(p[0], p[1], p[2]), "target": Vector3(t[0], t[1], t[2]), "fov": float(shot.fov)}
 
 
 # Existing gameplay code reads these names directly. They are computed from
@@ -114,6 +159,7 @@ func configure(
 	seat_type = type
 	seated_visual_offset = visual_offset
 	seat_height = authored_seat_height
+	interaction_radius = default_interaction_radius(type, authored_seat_height)
 
 	# Procedural rooms create StudySpot at the world origin, so these setters
 	# preserve the old absolute behaviour. Baked scenes later call
@@ -150,6 +196,11 @@ func convert_to_editor_anchor() -> void:
 
 func sync_runtime_from_editor() -> void:
 	reset_occupancy()
+	# Baked scenes omit interaction_radius when it equalled the default at
+	# bake time, so legacy seats load with the current default (0.75).
+	# Resolve those to the per-family value; preserve authored overrides.
+	if absf(interaction_radius - 0.75) < 0.001 or interaction_radius >= LEGACY_RADIUS - 0.1:
+		interaction_radius = default_interaction_radius(seat_type, seat_height)
 	_ensure_debug_visual(false)
 	if is_instance_valid(debug_visual):
 		debug_visual.visible = false

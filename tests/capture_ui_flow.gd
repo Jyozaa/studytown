@@ -1,92 +1,121 @@
 extends SceneTree
 
-# Visual regression tour. Screenshots go ONLY to the supplied absolute temp
-# directory because local character/room screenshots must never be committed.
+# UI flow captures: auth -> onboarding -> map -> rooms -> launcher/settings ->
+# music -> seat prompt -> session setup -> active session -> transitions.
+# Writes art_reviews/ui/*.png + /tmp/uiflow_prog.log markers.
+
 var app
 var flow
-var output := ""
+var frame := 0
+var running := false
 
+func _flog(s: String) -> void:
+	var f := FileAccess.open("/tmp/uiflow_prog.log", FileAccess.READ_WRITE)
+	if f == null:
+		f = FileAccess.open("/tmp/uiflow_prog.log", FileAccess.WRITE)
+	f.seek_end()
+	f.store_string(s + "\n")
+	f.close()
 
 func _initialize() -> void:
-	for argument in OS.get_cmdline_user_args():
-		if argument.begins_with("--capture-dir="):
-			output = argument.trim_prefix("--capture-dir=")
-	if not output.begins_with("/tmp/"):
-		printerr("Pass --capture-dir=/tmp/<existing-directory>")
-		quit(1)
-		return
-	call_deferred("_run")
-
-
-func shot(id: String) -> void:
-	await create_timer(0.35).timeout
-	await RenderingServer.frame_post_draw
-	var result := root.get_texture().get_image().save_png(output.path_join(id + ".png"))
-	print("UI_CAPTURE ", id, " result=", result)
-
-
-func _run() -> void:
-	var data = root.get_node("GameState")
-	data.persistence_enabled = false
-	data.onboarding_complete = false
+	root.size = Vector2i(1280, 720)
 	app = load("res://scenes/main/main.tscn").instantiate()
 	root.add_child(app)
+
+func _shot(name: String) -> void:
 	await process_frame
-	flow = app.application_flow
-	if flow == null:
-		quit(1)
-		return
-	app.show_main_menu()
-	await shot("01-onboarding")
-	flow.onboarding_step = 2
+	RenderingServer.force_draw(false)
+	var img: Image = root.get_texture().get_image()
+	var img2: Image = root.get_texture().get_image()
+	DirAccess.make_dir_recursive_absolute("/Users/joe/Desktop/studytown/art_reviews/ui")
+	print("SHOT ", name, " err=", img2.save_png("/Users/joe/Desktop/studytown/art_reviews/ui/" + name + ".png"))
+	_flog("shot " + name)
+
+func _auth_shot(mode: String, name: String) -> void:
+	flow.auth_mode = mode
+	flow.auth_error = ""
+	if mode == "login":
+		flow.auth_error = ""
 	flow.draw()
-	await shot("02-character")
-	data.onboarding_complete = true
-	flow.home()
-	await shot("03-home")
-	for room in 3:
-		app.current_room_name = data.ROOMS[room]
-		app.build_room(room)
-		await physics_frame
-		await shot("04-exploring-%d" % room)
-		for i in app.study_spots.size():
-			if app.study_spots[i].is_available():
-				await flow.take_seat(i, true)
-				break
-		await shot("05-setup-%d" % room)
-		if room < 2:
-			await flow.leave_seat()
-	flow.open_overlay(flow.State.CURRENT_FOCUS_EDITOR)
-	await shot("06-focus-editor")
-	flow.close_overlay()
-	flow.open_overlay(flow.State.SESSION_SETTINGS)
-	await shot("07-session-settings")
-	flow.close_overlay()
+	await _shot(name)
+
+func _process(_delta: float) -> bool:
+	frame += 1
+	if frame == 5:
+		var save_data = root.get_node("GameState")
+		save_data.persistence_enabled = false
+		save_data.auth_email = ""
+		save_data.onboarding_complete = false
+		flow = app.application_flow
+		app.show_main_menu()
+		flow.boot()
+	if frame == 60 and not running:
+		running = true
+		_run_auth.call_deferred()
+	return false
+
+func _run_auth() -> void:
+	await create_timer(0.5).timeout
+	var save_data = root.get_node("GameState")
+	_flog('state=' + str(flow.state) + ' mode=' + flow.auth_mode)
+	await _auth_shot("welcome", "ui_welcome")
+	await _auth_shot("signup", "ui_signup")
+	await _auth_shot("login", "ui_login")
+	_flog("auth done")
+	# Full journey: sign up -> onboarding -> map -> library.
+	flow.submit_auth("signup", "qa@example.com", "password123")
+	await create_timer(0.6).timeout
+	_flog("authed state=" + str(flow.state))
+	for step in 4:
+		flow.onboarding_step = step
+		flow.draw()
+		if step == 0 or step == 3:
+			await _shot("ui_onboarding_%d" % (step + 1))
+	_flog("onboarding done")
+	save_data.onboarding_complete = true
+	flow.navigate(flow.State.MAP)
+	await create_timer(0.4).timeout
+	_flog("post-onboarding state=" + str(flow.state))
+	await _shot("ui_map")
+	flow.map_travel("library")
+	await create_timer(2.5).timeout
+	_flog("in-room state=" + str(flow.state))
+	await _shot("ui_room_library")
+	flow.open_launcher()
+	await create_timer(0.5).timeout
+	await _shot("ui_launcher")
+	flow.launcher_page = "settings"
+	flow.draw()
+	await create_timer(0.5).timeout
+	await _shot("ui_settings")
+	flow.close_launcher()
+	flow.radio_expanded = true
+	flow.draw()
+	await create_timer(0.4).timeout
+	await _shot("ui_music_expanded")
+	flow.radio_expanded = false
+	flow.draw()
+	await create_timer(0.4).timeout
+	await _shot("ui_music_collapsed")
+	_flog("rooms-a done")
+	# Seat prompt + session setup + active session in the library.
+	var seat_idx := -1
+	for i in app.study_spots.size():
+		if app.study_spots[i].is_available():
+			seat_idx = i
+			break
+	var seat = app.study_spots[seat_idx]
+	app.player.global_position = seat.standing_position
+	app.player.velocity = Vector3.ZERO
+	await create_timer(0.6).timeout
+	await _shot("ui_seat_prompt")
+	await flow.take_seat(seat_idx, true)
+	await create_timer(1.6).timeout
+	await _shot("ui_session_setup")
+	flow.debug_short = true
 	flow.start_session()
-	await shot("08-active-session")
-	for mode in [
-		flow.State.ROOM_MEMBERS,
-		flow.State.PLAYER_PROFILE_OVERLAY,
-		flow.State.ROOM_CHAT,
-		flow.State.MUSIC_RADIO
-	]:
-		flow.open_overlay(mode)
-		await shot("09-overlay-%d" % mode)
-		flow.close_overlay()
-	flow.radio_tab = "SOUNDSCAPE"
-	flow.open_overlay(flow.State.MUSIC_RADIO)
-	await shot("10-soundscape")
-	flow.close_overlay()
-	flow.request_end()
-	await shot("11-ending")
-	flow.continue_session()
-	var timer = root.get_node("FocusManager")
-	timer.end_timestamp = Time.get_unix_time_from_system() - 1
-	await process_frame
-	await shot("12-complete")
-	flow.navigate(flow.State.BREAK_SETUP)
-	await shot("13-break-setup")
-	flow.start_break()
-	await shot("14-active-break")
-	timer.cancel_session()
+	await create_timer(1.0).timeout
+	await _shot("ui_focus_active")
+	_flog("session done")
+	print("UIFLOW AUTH DONE")
 	quit()

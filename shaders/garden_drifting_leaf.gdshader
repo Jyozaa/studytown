@@ -1,5 +1,6 @@
 shader_type spatial;
 render_mode cull_disabled;
+uniform sampler2D leaf_tex : source_color, hint_default_white, filter_linear_mipmap, repeat_disable;
 varying float ground_height;
 void vertex() {
 	float phase = TIME * 1.2 + INSTANCE_CUSTOM.x;
@@ -14,7 +15,13 @@ void vertex() {
 }
 void fragment() {
 	vec2 p = (UV - 0.5) * 2.0;
-	if (dot(p,p) > 1.0 || ground_height < 0.18) { discard; }
-	ALBEDO = COLOR.rgb;
+	// Pointed-oval leaf silhouette with a subtle center vein. Combined with
+	// the texture alpha so both plain quads and the authored leaf mesh shade
+	// as leaves.
+	float silhouette = (1.0 - abs(p.y)) * 0.62 + 0.06 - abs(p.x);
+	vec4 texel = texture(leaf_tex, UV);
+	float alpha = texel.a * smoothstep(-0.05, 0.05, silhouette);
+	if (alpha < 0.03 || ground_height < 0.18) { discard; }
+	ALBEDO = texel.rgb * COLOR.rgb * (0.82 + 0.18 * smoothstep(0.12, 0.0, abs(p.x)));
 	ROUGHNESS = 0.9;
 }

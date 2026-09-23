@@ -321,6 +321,12 @@ func play_animation(
 	)
 
 	if is_instance_valid(controller):
+		if state == "Stand":
+			var sit_clip := StringName(str(controller.animation_map.get("Sit", "Sit")))
+			if controller.animation_player.has_animation(sit_clip):
+				controller.current_state = &"Stand"
+				controller.animation_player.play_backwards(sit_clip, blend)
+			return
 		if state in [
 			"Sit",
 			"Wave",
