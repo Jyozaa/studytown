@@ -46,7 +46,7 @@ func setup(main_node) -> void:
 	bright_mat.albedo_color = Color(1, 1, 1, 0.32)
 	for spot in main_ref.study_spots:
 		var sid := str(spot.seat_id)
-		if sid.begins_with("cafe-") or sid.begins_with("library-") or sid.begins_with("train-"):
+		if sid.begins_with("cafe-") or sid.begins_with("library-") or sid.begins_with("train-") or sid.begins_with("japanese-"):
 			cafe_spots.append(spot)
 	for spot in cafe_spots:
 		var meshes := _resolve_seat_meshes(spot)

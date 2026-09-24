@@ -2,10 +2,9 @@ extends Node3D
 
 # Availability indicator anchor, child of its StudySpot ("AvailabilityGlow").
 #
-# Café seats (seat_id "cafe-*") carry NO geometry here: the
-# SeatHighlightDriver brightens the actual chair/stool/couch mesh with a
-# shared translucent overlay instead. Legacy rooms keep the original disc
-# cushion behavior below, untouched.
+# Seats handled by SeatHighlightDriver (furniture overlay, no geometry here):
+# cafe-*, library-*, train-*, japanese-*. All other rooms keep the original
+# disc cushion behavior below, untouched.
 var phase := 0.0
 var enabled := true
 var cushion: MeshInstance3D
@@ -19,7 +18,7 @@ func _is_cafe() -> bool:
 	if not is_instance_valid(spot):
 		return false
 	var sid := str(spot.seat_id)
-	return sid.begins_with("cafe-") or sid.begins_with("library-") or sid.begins_with("train-")
+	return sid.begins_with("cafe-") or sid.begins_with("library-") or sid.begins_with("train-") or sid.begins_with("japanese-")
 
 
 func configure(index: int) -> void:
@@ -30,6 +29,12 @@ func configure(index: int) -> void:
 func _ready() -> void:
 	spot = get_parent()
 	if _is_cafe():
+		# Remove stale baked disc meshes: driver-covered seats glow on the
+		# furniture itself, never via floor discs.
+		for child in get_children():
+			if str(child.name) == "AvailableSeatCushion":
+				remove_child(child)
+				child.free()
 		spot.occupancy_changed.connect(_update_visibility)
 		_update_visibility()
 		return

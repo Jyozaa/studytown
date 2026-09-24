@@ -11,6 +11,11 @@ var query_countdown := 0.0
 
 
 func _ready() -> void:
+	# Baked rooms may instantiate this node before any flow reference exists.
+	# Without a valid flow there is no pill behavior; skip quietly instead of
+	# crashing. The live flow creates its own instance via social_panels.
+	if flow == null or flow.get("main") == null or not is_instance_valid(flow.main):
+		return
 	layer = CanvasLayer.new()
 	layer.layer = -1
 	add_child(layer)

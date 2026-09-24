@@ -1,5 +1,7 @@
 # MISSING_UI_ASSETS.md — StudyTown UI illustration wishlist
 
+> Production UI status: the current production UI (`scripts/ui/production/`) needs zero external art — map vignettes are project renders in `assets/ui/map/`, everything else is theme-drawn. See `docs/ui/ADDITIONAL_UI_ASSETS.md`. The wishlist below remains as optional future illustration upgrades.
+
 All current UI is drawn with Godot theme primitives (`study_theme.gd`) and
 existing in-game assets, so the app is fully runnable with zero missing art.
 The items below are OPTIONAL illustration upgrades a designer could supply

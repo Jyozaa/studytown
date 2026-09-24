@@ -117,6 +117,7 @@ var current_room_config: Dictionary = {}
 var dev_mode := false
 var dev_panel = null
 var dev_music = null
+var prod_ui = null
 var collision_debug_visible := false
 var train_scenery_nodes: Array[Node3D] = []
 var garden_water_jet_nodes: Array[Node3D] = []
@@ -253,7 +254,20 @@ func _ready() -> void:
 		"cat_wave": _build_character_review(0.0, false, "Wave")
 		"cat_stretch": _build_character_review(0.0, false, "Stretch")
 		"cat_cheer": _build_character_review(0.0, false, "Cheer")
-		_: _boot_dev()
+		_: _boot_default()
+
+
+func _boot_default() -> void:
+	# Production is the default. --dev-strip keeps the stripped panel boot.
+	if "--dev-strip" in OS.get_cmdline_user_args():
+		_boot_dev()
+		return
+	_clear_scene()
+	_build_menu_world()
+	prod_ui = preload("res://scripts/ui/production/production_ui.gd").new()
+	add_child(prod_ui)
+	prod_ui.configure(self)
+	prod_ui.boot()
 	if performance_review:
 		performance_started_at = Time.get_ticks_msec()
 
@@ -686,11 +700,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			FocusManager.cancel_session()
 		show_main_menu()
 	elif event.is_action_pressed("interact") and screen == Screen.ROOM and nearest_spot >= 0:
-		var nearest = study_spots[nearest_spot]
-		if str(nearest.seat_type) == "tanning_bed":
-			_open_resting_setup(nearest_spot)
+		if application_flow != null:
+			var nearest = study_spots[nearest_spot]
+			if str(nearest.seat_type) == "tanning_bed":
+				_open_resting_setup(nearest_spot)
+			else:
+				_open_focus_setup(nearest_spot)
 		else:
-			_open_focus_setup(nearest_spot)
+			gameplay.try_interact()
 	elif event.is_action_pressed("wave") and screen == Screen.ROOM:
 		wave_time = 1.45
 		if bool(player_visual.get_meta("is_imported_character", false)):
@@ -3107,7 +3124,7 @@ func _ft_install_seat_glows() -> void:
 	var has_cafe := false
 	for spot in study_spots:
 		var sid := str(spot.seat_id)
-		if sid.begins_with("cafe-") or sid.begins_with("library-") or sid.begins_with("train-"):
+		if sid.begins_with("cafe-") or sid.begins_with("library-") or sid.begins_with("train-") or sid.begins_with("japanese-"):
 			has_cafe = true
 			break
 	if has_cafe and world_root.get_node_or_null("SeatHighlightDriver") == null:
@@ -3153,7 +3170,11 @@ func _install_exit_trigger(index: int) -> void:
 	area.add_child(shape)
 	area.body_entered.connect(
 		func(body: Node3D):
-			if body == player and is_instance_valid(application_flow):
+			if body != player:
+				return
+			if prod_ui != null and is_instance_valid(prod_ui):
+				prod_ui.request_exit()
+			elif is_instance_valid(application_flow):
 				application_flow.request_exit_to_map()
 	)
 

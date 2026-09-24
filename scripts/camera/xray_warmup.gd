@@ -15,10 +15,11 @@ static func run(manager: Node) -> void:
 	manager.add_child(cover)
 	var panel := ColorRect.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	panel.color = Color("#171c25")
+	panel.color = Color.BLACK
 	cover.add_child(panel)
 	var label := Label.new()
-	label.text = "Preparing your quiet corner…"
+	label.text = ""
+	label.visible = false
 	label.position = Vector2(40, 40)
 	panel.add_child(label)
 	await manager.get_tree().process_frame

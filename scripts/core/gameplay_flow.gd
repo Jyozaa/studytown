@@ -13,6 +13,14 @@ var focus_duration := 25 * 60
 var owns_session := false
 var elapsed_minutes := 0
 var reward := 0
+var on_break := false
+
+signal seat_taken(seat_id: String)
+signal stood_up
+signal focus_started(minutes: int)
+signal focus_completed(minutes: int, reward: int)
+signal focus_cancelled
+signal room_changed(room_index: int)
 
 
 func configure(owner_node: Node) -> void:
@@ -86,6 +94,7 @@ func take_seat(index: int, review := false) -> String:
 		return "bad_transition"
 	await main.get_tree().create_timer(0.80).timeout
 	busy = false
+	seat_taken.emit(str(main.active_study_spot.seat_id) if is_instance_valid(main.active_study_spot) else "")
 	return "ok"
 
 
@@ -114,6 +123,7 @@ func stand_up() -> void:
 	main.seat_highlights_suspended = false
 	main._ft_set_seat_glows_enabled(true)
 	main._set_movement_enabled(true)
+	stood_up.emit()
 
 
 func start_focus(duration_seconds: int) -> String:
@@ -121,6 +131,9 @@ func start_focus(duration_seconds: int) -> String:
 	# No UI-state requirement: seated is the only precondition.
 	if not seated():
 		return "not_seated"
+	if FocusManager.active:
+		return "busy"
+	on_break = false
 	focus_duration = maxi(1, duration_seconds)
 	main.session_setup_open = false
 	main.pending_study_spot = null
@@ -136,10 +149,26 @@ func start_focus(duration_seconds: int) -> String:
 		main.focus_camera_director.transition(main.get_viewport().get_camera_3d(), main.focus_cameras[0], 0.78)
 	main.next_shot_at = Time.get_unix_time_from_system() + 25.0
 	owns_session = true
+	focus_started.emit(int(focus_duration / 60))
 	FocusManager.start_session(
 		GameState.current_focus if not str(GameState.current_focus).is_empty() else "Quiet focus",
 		focus_duration
 	)
+	return "ok"
+
+
+func start_break(duration_seconds: int = 300) -> String:
+	# Short restorative break: retains the seat, earns no rewards, stays seated.
+	if not seated():
+		return "not_seated"
+	if FocusManager.active:
+		return "busy"
+	on_break = true
+	owns_session = true
+	main.active_session_mode = "break"
+	main.screen = main.Screen.FOCUS
+	focus_started.emit(maxi(1, int(duration_seconds / 60)))
+	FocusManager.start_session("Break", maxi(1, duration_seconds))
 	return "ok"
 
 
@@ -150,10 +179,15 @@ func cancel_focus() -> String:
 	elapsed_minutes = maxi(
 		0, (FocusManager.duration_seconds - FocusManager.get_remaining_seconds()) / 60
 	)
-	GameState.award_session(FocusManager.task, elapsed_minutes, main.current_room_name, false)
+	if on_break:
+		elapsed_minutes = 0
+	else:
+		GameState.award_session(FocusManager.task, elapsed_minutes, main.current_room_name, false)
+	on_break = false
 	owns_session = false
 	FocusManager.cancel_session()
 	await stand_up()
+	focus_cancelled.emit()
 	return "ok"
 
 
@@ -162,15 +196,21 @@ func consume_completion() -> bool:
 	# owns the running session: full reward, frame the seat, stay seated.
 	if not owns_session:
 		return false
+	var was_break: bool = on_break
 	owns_session = false
+	on_break = false
 	main.next_shot_at = INF
 	if is_instance_valid(main.session_setup_camera):
 		main.focus_camera_director.transition(
 			main.get_viewport().get_camera_3d(), main.session_setup_camera, 0.78
 		)
+	if was_break:
+		note("Break over")
+		return true
 	elapsed_minutes = maxi(0, FocusManager.duration_seconds / 60)
 	reward = GameState.award_session(FocusManager.task, elapsed_minutes, main.current_room_name)
 	note("Focus complete: +%d points" % reward)
+	focus_completed.emit(elapsed_minutes, reward)
 	if main.application_flow != null:
 		main.application_flow.elapsed_minutes = elapsed_minutes
 		main.application_flow.reward = reward

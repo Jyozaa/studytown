@@ -22,7 +22,28 @@ Legacy production path (explicit UI review modes and legacy tests only):
 
 `Menu → Room → Focus Setup → Focus → Completion → Room/Menu`
 
-### Development runtime (normal `Godot --path .` startup)
+### Production runtime (normal `Godot --path .` startup)
+
+`SPLASH → WELCOME → ONBOARDING → MAP → ROOM ⇄ MAP`, with seating and focus
+available inside any room:
+
+`ROOM → SEATED → FOCUS → SEATED/ROOM`
+
+- `scripts/ui/production/production_ui.gd` (`ProductionUI`, child of main)
+  owns presentation only: splash/welcome/auth, onboarding, world map,
+  room HUD, drawers (people/chat/settings/music/minimap), focus panels,
+  toasts, transitions. It calls `GameplayFlow`/`FocusManager`/`GameState`
+  and reacts to gameplay signals; it never owns seating, occupancy,
+  timing, rewards, cameras, or room construction. See
+  `docs/ui/PRODUCTION_UI.md`.
+- `scripts/core/gameplay_flow.gd` (child of main, always present) owns
+  seating mechanics (`take_seat`/`stand_up`, result-coded, no UI) and focus
+  mechanics (`start_focus`/`start_break`/`cancel_focus`/natural completion
+  with rewards). Seated is `active_study_spot != null`.
+- `scripts/ui/application_flow.gd` remains for explicit legacy UI review
+  modes and consumes the gameplay API for its take/leave/start paths.
+
+### Development runtime (`Godot --path . -- --dev-strip`)
 
 No UI controller is instantiated. Gameplay stands alone:
 

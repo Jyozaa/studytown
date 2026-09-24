@@ -15,7 +15,7 @@ var auth_email := ""
 var profile: Dictionary = {
 	"name": "You", "username": "study_buddy", "subject": "Independent study", "country": "GB"
 }
-var preferences: Dictionary = {"vibe": "Lo-fi", "notifications": false, "deep_focus": false}
+var preferences: Dictionary = {"vibe": "Lo-fi", "notifications": false, "deep_focus": false, "show_names": true, "reduced_motion": false, "music_volume": 0.7, "music_muted": false}
 var tags: Array = ["Study", "Reading", "Work", "Creative"]
 var current_focus := ""
 var current_tag := "Study"
